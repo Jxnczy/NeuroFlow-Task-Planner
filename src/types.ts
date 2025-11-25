@@ -18,7 +18,14 @@ export interface Task {
 export interface Habit {
   id: string;
   name: string;
+  goal: number; // Days per week (1-7)
   checks: boolean[]; // Index 0 = Mon, 6 = Sun
+}
+
+export interface BrainDumpList {
+  id: string;
+  title: string;
+  content: string;
 }
 
 export interface Note {
@@ -29,5 +36,7 @@ export interface Note {
 export interface AppData {
   tasks: Task[];
   habits: Habit[];
-  notes: Note[];
+  brainDumpLists?: BrainDumpList[];
+  brainDumpContent?: string; // Deprecated, kept for migration
+  notes?: Note[]; // Deprecated, kept for migration
 }

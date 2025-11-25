@@ -2,7 +2,7 @@ import React from 'react';
 import { Plus } from 'lucide-react';
 import { Task, GridRow } from '../../../types';
 import { formatDate, ROW_CONFIG } from '../../../constants';
-import { TaskCard } from '../../TaskCard';
+import { TaskCard } from '@/components/TaskCard';
 
 interface GridCellProps {
     day: Date;
@@ -12,10 +12,13 @@ interface GridCellProps {
     onDrop: (e: React.DragEvent, day: Date, row: GridRow) => void;
     onDragStart: (e: React.DragEvent, taskId: string) => void;
     onToggleComplete: (taskId: string) => void;
+    onUpdateTask?: (taskId: string, updates: Partial<Task>) => void;
+    onDeleteTask?: (taskId: string) => void;
     isDayEmpty: boolean;
+    onTaskDrop?: (sourceId: string, targetId: string) => void;
 }
 
-export const GridCell: React.FC<GridCellProps> = ({ day, row, isToday, tasks, onDrop, onDragStart, onToggleComplete, isDayEmpty }) => {
+export const GridCell: React.FC<GridCellProps> = ({ day, row, isToday, tasks, onDrop, onDragStart, onToggleComplete, onUpdateTask, onDeleteTask, isDayEmpty, onTaskDrop }) => {
     const dayStr = formatDate(day);
     const cellTasks = tasks.filter(t => t.status !== 'unscheduled' && t.dueDate === dayStr && t.assignedRow === row);
 
@@ -49,7 +52,10 @@ export const GridCell: React.FC<GridCellProps> = ({ day, row, isToday, tasks, on
                     task={task}
                     variant="board" // Always board variant for grid
                     onDragStart={onDragStart}
+                    onUpdateTask={onUpdateTask}
+                    onDeleteTask={onDeleteTask}
                     onToggleComplete={onToggleComplete}
+                    onTaskDrop={onTaskDrop}
                 />
             ))}
 
@@ -63,13 +69,11 @@ export const GridCell: React.FC<GridCellProps> = ({ day, row, isToday, tasks, on
           `}>
                     <div className={`
                   absolute inset-0 rounded-lg border-2 border-dashed
-                  bg-transparent flex items-center justify-center transition-all duration-300
-                  ${isDayEmpty
-                            ? 'border-slate-700/5' // Extra faded for empty days
-                            : 'border-slate-700/10 group-hover/slot:border-slate-600/50 group-hover/slot:bg-slate-800/50' // Normal idle/hover
-                        }
+                  border-slate-700/10 bg-transparent
+                  group-hover/slot:border-slate-600/50 group-hover/slot:bg-slate-800/50
+                  flex items-center justify-center transition-all duration-300
               `}>
-                        <Plus size={16} className={`text-slate-600/30 transition-opacity ${isDayEmpty ? 'opacity-0' : 'opacity-0 group-hover/slot:opacity-100'}`} />
+                        <Plus size={16} className="text-slate-500/50 opacity-0 group-hover/slot:opacity-100 transition-opacity duration-300" />
                     </div>
                 </div>
             ))}

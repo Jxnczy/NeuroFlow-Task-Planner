@@ -1,99 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>NeuroFlow OS</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;500;600&family=Manrope:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <script>
-      tailwind.config = {
-        darkMode: 'class',
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ['Inter', 'sans-serif'],
-              display: ['Manrope', 'sans-serif'],
-              mono: ['JetBrains Mono', 'monospace'],
-            },
-            lineHeight: {
-                tight: '1', // User request: leading-tight = line-height: 1
-            },
-            fontSize: {
-              xs: ['0.7rem', { lineHeight: '0.9rem' }],      // 11px
-              sm: ['0.8rem', { lineHeight: '1rem' }],         // 12.8px (User request)
-              base: ['0.9rem', { lineHeight: '1.25rem' }],   // 14.4px
-              lg: ['1.125rem', { lineHeight: '1.5rem' }],     // 18px
-              xl: ['1.25rem', { lineHeight: '1.75rem' }],     // 20px
-              '2xl': ['1.5rem', { lineHeight: '2rem' }],      // 24px
-              '3xl': ['1.875rem', { lineHeight: '2.25rem' }], // 30px
-              '4xl': ['2.25rem', { lineHeight: '2.5rem' }],   // 36px
-              '5xl': ['3rem', { lineHeight: '1' }],           // 48px
-            },
-            colors: {
-              base: '#161b2e', // Updated Base
-              surface: '#1e2338', // Updated Surface
-              primary: '#e4e4e7', // Zinc 200
-              secondary: '#94a3b8', // Slate 400
-              neon: {
-                pink: '#f472b6',
-                cyan: '#22d3ee',
-              }
-            },
-          }
-        }
-      }
-    </script>
-    <style>
-      body {
-        /* Updated Deep Navy/Slate Theme per screenshots */
-        background-color: #161b2e;
-        background-image: 
-          radial-gradient(circle at 50% -10%, rgba(56, 189, 248, 0.15) 0%, transparent 70%),
-          linear-gradient(180deg, #161b2e 0%, #10121b 100%);
-        color: #e2e8f0;
-        font-family: 'Inter', sans-serif;
-      }
-      
-      /* Elegant Scrollbar */
-      ::-webkit-scrollbar {
-        width: 6px;
-        height: 6px;
-      }
-      ::-webkit-scrollbar-track {
-        background: transparent;
-      }
-      ::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.05);
-      }
-      ::-webkit-scrollbar-thumb:hover {
-        background: rgba(255, 255, 255, 0.2);
-      }
 
-      .no-scrollbar::-webkit-scrollbar {
-        display: none;
-      }
-      .no-scrollbar {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-      }
-    </style>
-    <script type="importmap">
-{
-  "imports": {
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "react": "https://aistudiocdn.com/react@^19.2.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "recharts": "https://aistudiocdn.com/recharts@^3.4.1",
-    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0"
-  }
-}
-</script>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NeuroFlow OS</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;500;600&family=Manrope:wght@300;400;600;800&display=swap"
+    rel="stylesheet">
 </head>
-  <body class="h-screen w-screen overflow-hidden antialiased selection:bg-cyan-500/30 selection:text-cyan-100">
-    <div id="root"></div>
-    <script type="module" src="/src/index.tsx"></script>
-  </body>
+
+<body class="h-screen w-screen overflow-hidden antialiased selection:bg-cyan-500/30 selection:text-cyan-100">
+  <div id="root"></div>
+  <script type="module" src="/src/index.tsx"></script>
+</body>
+
 </html>

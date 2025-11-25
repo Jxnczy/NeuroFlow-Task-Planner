@@ -4,12 +4,12 @@ import { Target, Flame, Briefcase, Gamepad2, Brush } from 'lucide-react';
 
 // Updated to match specific request: Red, Orange, Yellow, Cyan, Grey, White
 export const TYPE_COLORS: Record<TaskType, string> = {
-  backlog: 'text-zinc-400 border-white/20', // Grey/Transparent
-  high: 'text-red-200 border-white/20', // ASAP (Red)
-  medium: 'text-orange-200 border-white/20', // SOON (Orange)
-  low: 'text-yellow-200 border-white/20', // LATER (Yellow)
-  leisure: 'text-cyan-200 border-white/20', // LEISURE (Cyan)
-  chores: 'text-zinc-100 border-white/20', // BASICS (White)
+  backlog: 'text-zinc-400 border-white/20', // Grey
+  high: 'text-rose-500 border-white/20', // ASAP (Red)
+  medium: 'text-orange-500 border-white/20', // SOON (Orange)
+  low: 'text-yellow-400 border-white/20', // LATER (Yellow)
+  leisure: 'text-cyan-400 border-white/20', // LEISURE (Cyan)
+  chores: 'text-zinc-200 border-white/20', // BASICS (White/Zinc)
 };
 
 // Solid colors for the vertical indicators

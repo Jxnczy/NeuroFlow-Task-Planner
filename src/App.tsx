@@ -1,17 +1,43 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Task, TaskType, Habit, Note, GridRow, TaskStatus, AppData } from './types';
+import { Task, TaskType, Habit, GridRow, TaskStatus, AppData, BrainDumpList } from './types';
 import { getWeekDays, formatDate, playSuccessSound, DAYS } from './constants';
 import { MainLayout } from './components/layout/MainLayout';
 import { Sidebar } from './components/layout/Sidebar';
 import { Header } from './components/layout/Header';
 import { SettingsModal } from './components/layout/SettingsModal';
 import { WeekView } from './components/features/board/WeekView';
-import { EisenhowerMatrix } from './components/features/dashboard/EisenhowerMatrix';
 import { FocusMode } from './components/features/dashboard/FocusMode';
 import { AnalyticsDashboard } from './components/features/dashboard/AnalyticsDashboard';
-import { PomodoroTimer } from './components/features/tools/PomodoroTimer';
 import { HabitTracker } from './components/features/tools/HabitTracker';
-import { Notepad } from './components/features/tools/Notepad';
+import { BrainDump } from './components/features/tools/BrainDump';
+
+// --- Local Storage ---
+const STORAGE_KEY = 'neuroflow-app-data';
+
+const saveToLocalStorage = (data: AppData) => {
+    try {
+        const json = JSON.stringify(data);
+        localStorage.setItem(STORAGE_KEY, json);
+    } catch (error) {
+        console.error('Failed to save to localStorage:', error);
+    }
+};
+
+const loadFromLocalStorage = (): AppData | null => {
+    try {
+        const json = localStorage.getItem(STORAGE_KEY);
+        if (json) {
+            const data = JSON.parse(json);
+            // Validate that it has the expected structure
+            if (data && Array.isArray(data.tasks) && Array.isArray(data.habits)) {
+                return data as AppData;
+            }
+        }
+    } catch (error) {
+        console.error('Failed to load from localStorage:', error);
+    }
+    return null;
+};
 
 // --- Initial Data ---
 const INITIAL_TASKS: Task[] = [
@@ -35,38 +61,66 @@ const INITIAL_TASKS: Task[] = [
 ];
 
 const INITIAL_HABITS: Habit[] = [
-    { id: 'h1', name: 'Meditation', checks: [false, false, true, false, false, false, false] },
-    { id: 'h2', name: 'Reading', checks: [true, false, true, true, false, false, false] },
-    { id: 'h3', name: 'Hydration', checks: [false, false, false, false, false, false, false] },
+    { id: 'h1', name: 'Meditation', goal: 7, checks: [false, false, true, false, false, false, false] },
+    { id: 'h2', name: 'Reading', goal: 5, checks: [true, false, true, true, false, false, false] },
+    { id: 'h3', name: 'Hydration', goal: 7, checks: [false, false, false, false, false, false, false] },
 ];
 
 const App = () => {
     // --- State ---
-    const [tasks, setTasks] = useState<Task[]>(INITIAL_TASKS);
-    const [habits, setHabits] = useState<Habit[]>(INITIAL_HABITS);
-    const [notes, setNotes] = useState<Note[]>([]);
+    // Initialize from localStorage or use defaults
+    const [tasks, setTasks] = useState<Task[]>(() => {
+        const savedData = loadFromLocalStorage();
+        return savedData ? savedData.tasks : INITIAL_TASKS;
+    });
+
+    const [habits, setHabits] = useState<Habit[]>(() => {
+        const savedData = loadFromLocalStorage();
+        return savedData ? savedData.habits.map(h => ({ ...h, goal: h.goal || 7 })) : INITIAL_HABITS;
+    });
+
+    const [brainDumpLists, setBrainDumpLists] = useState<BrainDumpList[]>(() => {
+        const savedData = loadFromLocalStorage();
+        if (savedData && savedData.brainDumpLists && savedData.brainDumpLists.length > 0) {
+            return savedData.brainDumpLists;
+        }
+        // Migration: If legacy content exists, create a default list
+        const legacyContent = savedData?.brainDumpContent || '';
+        if (savedData && savedData.notes && savedData.notes.length > 0) {
+            return [{ id: '1', title: 'Main List', content: savedData.notes.map(n => n.content).join('\n\n') }];
+        }
+        return [{ id: '1', title: 'Main List', content: legacyContent }];
+    });
+
     const [activeTab, setActiveTab] = useState<string>('planner');
     const [currentDate, setCurrentDate] = useState(new Date());
     const [isStacked, setIsStacked] = useState(false);
 
-    // Pomodoro
-    const [pomodoroTime, setPomodoroTime] = useState(25 * 60);
-    const [isTimerRunning, setIsTimerRunning] = useState(false);
+    // Deep Work State
     const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
 
     // Settings
     const [showSettings, setShowSettings] = useState(false);
 
     // --- Effects ---
+    // Auto-save to localStorage whenever tasks, habits, or brainDumpLists change
     useEffect(() => {
-        let interval: number;
-        if (isTimerRunning && pomodoroTime > 0) {
-            interval = window.setInterval(() => setPomodoroTime(p => p - 1), 1000);
-        } else if (pomodoroTime === 0) {
-            setIsTimerRunning(false);
-        }
-        return () => clearInterval(interval);
-    }, [isTimerRunning, pomodoroTime]);
+        const appData: AppData = { tasks, habits, brainDumpLists };
+        saveToLocalStorage(appData);
+    }, [tasks, habits, brainDumpLists]);
+
+    // Global Hotkeys
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                exportData();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [tasks, habits, brainDumpLists]);
 
     // --- Handlers ---
     const addTask = (title: string, duration: number, type: TaskType) => {
@@ -82,6 +136,43 @@ const App = () => {
             createdAt: Date.now(),
         };
         setTasks([...tasks, newTask]);
+    };
+
+    const updateTask = (taskId: string, updates: Partial<Task>) => {
+        setTasks(prev => prev.map(t =>
+            t.id === taskId ? { ...t, ...updates } : t
+        ));
+    };
+
+    const deleteTask = (taskId: string) => {
+        setTasks(prev => prev.filter(t => t.id !== taskId));
+    };
+
+    const addHabit = (name: string, goal: number) => {
+        const newHabit: Habit = {
+            id: Math.random().toString(36).substr(2, 9),
+            name,
+            goal,
+            checks: Array(7).fill(false)
+        };
+        setHabits(prev => [...prev, newHabit]);
+    };
+
+    const deleteHabit = (habitId: string) => {
+        setHabits(prev => prev.filter(h => h.id !== habitId));
+    };
+
+    const handleReorderTasks = (sourceTaskId: string, targetTaskId: string) => {
+        setTasks(prev => {
+            const sourceIndex = prev.findIndex(t => t.id === sourceTaskId);
+            const targetIndex = prev.findIndex(t => t.id === targetTaskId);
+            if (sourceIndex === -1 || targetIndex === -1) return prev;
+
+            const newTasks = [...prev];
+            const [removed] = newTasks.splice(sourceIndex, 1);
+            newTasks.splice(targetIndex, 0, removed);
+            return newTasks;
+        });
     };
 
     const handleDragStart = (e: React.DragEvent, taskId: string) => {
@@ -197,7 +288,7 @@ const App = () => {
     };
 
     const exportData = () => {
-        const data: AppData = { tasks, habits, notes };
+        const data: AppData = { tasks, habits, brainDumpLists };
         const json = JSON.stringify(data, null, 2);
         const blob = new Blob([json], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
@@ -217,10 +308,14 @@ const App = () => {
             reader.onload = (e) => {
                 try {
                     const importedData: AppData = JSON.parse(e.target?.result as string);
-                    if (importedData.tasks && importedData.habits && importedData.notes) {
+                    if (importedData.tasks && importedData.habits) {
                         setTasks(importedData.tasks);
                         setHabits(importedData.habits);
-                        setNotes(importedData.notes);
+                        if (importedData.brainDumpLists) {
+                            setBrainDumpLists(importedData.brainDumpLists);
+                        } else if (importedData.brainDumpContent) {
+                            setBrainDumpLists([{ id: '1', title: 'Main List', content: importedData.brainDumpContent }]);
+                        }
                         alert('Data imported successfully!');
                     } else {
                         throw new Error('Invalid data format.');
@@ -249,32 +344,34 @@ const App = () => {
                         onDragStart={handleDragStart}
                         onDrop={handleDropOnSidebar}
                         onAddTask={addTask}
+                        onUpdateTask={updateTask}
+                        onDeleteTask={deleteTask}
                         onToggleTaskComplete={toggleTaskComplete}
                         onOpenSettings={() => setShowSettings(true)}
                     />
                 }
                 header={
-                    <Header activeTab={activeTab} setActiveTab={setActiveTab} />
+                    <Header
+                        activeTab={activeTab}
+                        setActiveTab={setActiveTab}
+                        currentDate={currentDate}
+                        onWeekChange={handleWeekChange}
+                        isStacked={isStacked}
+                        setIsStacked={setIsStacked}
+                    />
                 }
             >
                 {activeTab === 'planner' && (
                     <WeekView
                         tasks={tasks}
                         currentDate={currentDate}
-                        onWeekChange={handleWeekChange}
                         isStacked={isStacked}
-                        setIsStacked={setIsStacked}
                         onDropOnGrid={handleDropOnGrid}
                         onDragStart={handleDragStart}
+                        onUpdateTask={updateTask}
+                        onDeleteTask={deleteTask}
                         onToggleTaskComplete={toggleTaskComplete}
-                    />
-                )}
-                {activeTab === 'eisenhower' && (
-                    <EisenhowerMatrix
-                        tasks={tasks}
-                        onDragStart={handleDragStart}
-                        onDrop={handleDropOnEisenhower}
-                        onToggleTaskComplete={toggleTaskComplete}
+                        onTaskDrop={handleReorderTasks}
                     />
                 )}
                 {activeTab === 'focus' && (
@@ -284,29 +381,39 @@ const App = () => {
                         onToggleTaskComplete={toggleTaskComplete}
                         onStartFocus={(id) => {
                             setActiveTaskId(id);
-                            setIsTimerRunning(true);
-                            setActiveTab('pomodoro');
                         }}
-                    />
-                )}
-                {activeTab === 'pomodoro' && (
-                    <PomodoroTimer
-                        pomodoroTime={pomodoroTime}
-                        setPomodoroTime={setPomodoroTime}
-                        isTimerRunning={isTimerRunning}
-                        setIsTimerRunning={setIsTimerRunning}
-                        activeTaskId={activeTaskId}
-                        tasks={tasks}
+                        onUpdateTask={updateTask}
                     />
                 )}
                 {activeTab === 'habits' && (
                     <HabitTracker
                         habits={habits}
                         toggleHabit={toggleHabit}
+                        onDeleteHabit={deleteHabit}
+                        onAddHabit={addHabit}
                     />
                 )}
-                {activeTab === 'notes' && (
-                    <Notepad notes={notes} />
+                {activeTab === 'braindump' && (
+                    <BrainDump
+                        lists={brainDumpLists}
+                        onUpdateList={(id, content) => {
+                            setBrainDumpLists(prev => prev.map(l => l.id === id ? { ...l, content } : l));
+                        }}
+                        onAddList={() => {
+                            const newList: BrainDumpList = {
+                                id: Math.random().toString(36).substr(2, 9),
+                                title: `List ${brainDumpLists.length + 1}`,
+                                content: ''
+                            };
+                            setBrainDumpLists(prev => [...prev, newList]);
+                        }}
+                        onDeleteList={(id) => {
+                            setBrainDumpLists(prev => prev.filter(l => l.id !== id));
+                        }}
+                        onUpdateTitle={(id, title) => {
+                            setBrainDumpLists(prev => prev.map(l => l.id === id ? { ...l, title } : l));
+                        }}
+                    />
                 )}
                 {activeTab === 'analytics' && (
                     <AnalyticsDashboard tasks={tasks} />

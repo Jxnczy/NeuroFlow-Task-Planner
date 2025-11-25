@@ -1,37 +1,38 @@
 import React from 'react';
-import { ChevronLeft, ChevronRight, Layers } from 'lucide-react';
 import { Task, GridRow } from '../../../types';
 import { getWeekDays, formatDate, TARGET_HOURS_PER_DAY, ROW_CONFIG, DAYS } from '../../../constants';
-import { TaskCard } from '../../TaskCard';
+import { TaskCard } from '@/components/TaskCard';
 import { GridCell } from './GridCell';
 
 interface WeekViewProps {
     tasks: Task[];
     currentDate: Date;
-    onWeekChange: (direction: 'prev' | 'next') => void;
     isStacked: boolean;
-    setIsStacked: (stacked: boolean) => void;
     onDropOnGrid: (e: React.DragEvent, day: Date, row: GridRow | null) => void;
     onDragStart: (e: React.DragEvent, taskId: string) => void;
     onToggleTaskComplete: (taskId: string) => void;
+    onUpdateTask?: (taskId: string, updates: Partial<Task>) => void;
+    onDeleteTask?: (taskId: string) => void;
+    onTaskDrop?: (sourceId: string, targetId: string) => void;
 }
 
 export const WeekView: React.FC<WeekViewProps> = ({
     tasks,
     currentDate,
-    onWeekChange,
     isStacked,
-    setIsStacked,
     onDropOnGrid,
     onDragStart,
-    onToggleTaskComplete
+    onToggleTaskComplete,
+    onUpdateTask,
+    onDeleteTask,
+    onTaskDrop
 }) => {
     const currentWeekDays = getWeekDays(currentDate);
     const todayStr = formatDate(new Date());
     const ROW_LABELS: GridRow[] = ['GOAL', 'FOCUS', 'WORK', 'LEISURE', 'CHORES'];
 
     const renderWeekStacked = () => (
-        <div className="flex-grow flex relative mt-4 overflow-y-auto no-scrollbar gap-2">
+        <div className="flex-grow flex relative mt-0 overflow-y-auto no-scrollbar gap-2">
             {currentWeekDays.map((day, i) => {
                 const dayTasks = tasks.filter(t => t.status !== 'unscheduled' && t.dueDate === formatDate(day));
                 const isToday = formatDate(day) === todayStr;
@@ -44,8 +45,8 @@ export const WeekView: React.FC<WeekViewProps> = ({
                         className={`
                             flex-1 w-0 flex flex-col p-1.5 border-r last:border-none rounded-xl gap-2
                             ${isToday
-                                ? 'bg-cyan-500/[0.02] border border-cyan-500/20'
-                                : 'border-white/[0.05]'
+                                ? 'bg-cyan-500/[0.04] border border-cyan-500/30 shadow-[0_0_30px_rgba(6,182,212,0.05)]'
+                                : 'border-white/[0.08]'
                             }
                         `}
                     >
@@ -54,7 +55,9 @@ export const WeekView: React.FC<WeekViewProps> = ({
                                 const rowOrder: Record<string, number> = { 'GOAL': 0, 'FOCUS': 1, 'WORK': 2, 'LEISURE': 3, 'CHORES': 4 };
                                 const aVal = rowOrder[a.assignedRow || ''] ?? 99;
                                 const bVal = rowOrder[b.assignedRow || ''] ?? 99;
-                                return aVal - bVal;
+                                const indexA = tasks.findIndex(t => t.id === a.id);
+                                const indexB = tasks.findIndex(t => t.id === b.id);
+                                return (aVal - bVal) || (indexA - indexB);
                             })
                             .map(task => (
                                 <TaskCard
@@ -62,7 +65,10 @@ export const WeekView: React.FC<WeekViewProps> = ({
                                     task={task}
                                     variant="board" // Always board variant for grid
                                     onDragStart={onDragStart}
+                                    onUpdateTask={onUpdateTask}
+                                    onDeleteTask={onDeleteTask}
                                     onToggleComplete={onToggleTaskComplete}
+                                    onTaskDrop={onTaskDrop}
                                 />
                             ))}
                     </div>
@@ -72,15 +78,15 @@ export const WeekView: React.FC<WeekViewProps> = ({
     );
 
     const renderWeekMatrix = () => (
-        <div className="flex-grow flex flex-col relative mt-2 overflow-y-auto no-scrollbar pr-1">
+        <div className="flex-grow flex flex-col relative mt-0 overflow-y-auto no-scrollbar pr-1">
             <div className="absolute top-0 left-2 text-[8px] font-bold text-slate-600 tracking-widest uppercase transform -translate-y-full mb-1">Mode</div>
             {ROW_LABELS.map(row => {
                 const rowConfig = ROW_CONFIG[row];
                 const style = rowConfig;
                 return (
-                    <div key={row} className={`${style.flexClass} shrink-0 flex border-b border-white/[0.05] last:border-b-0 group/row hover:bg-white/[0.01] transition-colors`}>
+                    <div key={row} className={`${style.flexClass} shrink-0 flex border-b border-white/[0.08] last:border-b-0 group/row hover:bg-white/[0.02] transition-colors`}>
                         {/* Enhanced Label Column - Reduced width */}
-                        <div className="w-16 shrink-0 flex flex-col items-center justify-center relative py-2 border-r border-white/[0.05]">
+                        <div className="w-16 shrink-0 flex flex-col items-center justify-center relative py-2 border-r border-white/[0.08]">
                             <div className={`absolute left-0 top-2 bottom-2 w-0.5 rounded-r-full ${style.barColor} opacity-60 group-hover/row:opacity-100 transition-opacity`}></div>
                             <rowConfig.icon size={14} className={`mb-1 ${style.color}`} />
                             <div className={`text-[8px] font-bold tracking-widest uppercase ${style.color} mb-0.5 scale-90`}>{rowConfig.label}</div>
@@ -99,8 +105,11 @@ export const WeekView: React.FC<WeekViewProps> = ({
                                     tasks={tasks}
                                     onDrop={onDropOnGrid}
                                     onDragStart={onDragStart}
+                                    onUpdateTask={onUpdateTask}
+                                    onDeleteTask={onDeleteTask}
                                     onToggleComplete={onToggleTaskComplete}
                                     isDayEmpty={isDayEmpty}
+                                    onTaskDrop={onTaskDrop}
                                 />
                             );
                         })}
@@ -112,50 +121,10 @@ export const WeekView: React.FC<WeekViewProps> = ({
 
     return (
         <div className="flex flex-col h-full font-sans text-slate-300 overflow-hidden">
-            {/* Header - Compact & Moved Up - pt-1 removed */}
-            <div className="flex items-center justify-between px-6 pb-2 shrink-0 relative z-20">
-                <div className="flex flex-col justify-center">
-                    <h1 className="text-xl font-display font-extrabold tracking-tight text-white drop-shadow-[0_2px_10px_rgba(255,255,255,0.1)]">
-                        Overview
-                    </h1>
-                    <p className="text-[10px] text-slate-400 font-medium ml-0.5">
-                        {currentWeekDays[0].toLocaleDateString('en-US', { month: 'short' })} {currentWeekDays[0].getDate()} — {currentWeekDays[6].getDate()}, {currentWeekDays[0].getFullYear()}
-                    </p>
-                </div>
-
-                {/* Centered Stack Button */}
-                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-                    <button
-                        onClick={() => setIsStacked(!isStacked)}
-                        className={`
-                    flex items-center gap-1.5 px-3 py-1.5 rounded-full border transition-all duration-300 shadow-lg backdrop-blur-md
-                    ${isStacked
-                                ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-300'
-                                : 'bg-white/[0.05] border-white/[0.1] text-slate-400 hover:text-white hover:bg-white/[0.1]'
-                            }
-                `}
-                    >
-                        <Layers size={12} />
-                        <span className="text-[10px] font-bold tracking-widest uppercase">{isStacked ? 'Unstack' : 'Stack'}</span>
-                    </button>
-                </div>
-
-                {/* Date Navigation - Moved up */}
-                <div className="flex items-center gap-1 bg-white/[0.02] rounded-xl p-1 border border-white/[0.05] shadow-inner backdrop-blur-md">
-                    <button onClick={() => onWeekChange('prev')} className="px-3 py-1.5 hover:bg-white/[0.05] rounded-lg text-slate-400 hover:text-white transition-colors flex items-center justify-center">
-                        <ChevronLeft size={14} />
-                    </button>
-                    <div className="px-2 py-1 text-[10px] font-bold text-slate-300 uppercase tracking-wider">Week</div>
-                    <button onClick={() => onWeekChange('next')} className="px-3 py-1.5 hover:bg-white/[0.05] rounded-lg text-slate-400 hover:text-white transition-colors flex items-center justify-center">
-                        <ChevronRight size={14} />
-                    </button>
-                </div>
-            </div>
-
             {/* Grid Body */}
             <div className="flex-grow flex flex-col px-4 pb-4 overflow-hidden relative">
                 {/* Days Header - Significantly Scaled Up */}
-                <div className={`flex ${isStacked ? 'pl-0' : 'pl-16'} pb-2 shrink-0 transition-all duration-300 pt-1 gap-0`}>
+                <div className={`flex ${isStacked ? 'pl-0' : 'pl-16'} pb-0 shrink-0 transition-all duration-300 pt-1 gap-0`}>
                     {currentWeekDays.map((day, i) => {
                         const isToday = formatDate(day) === todayStr;
                         const dayTasks = tasks.filter(t => t.dueDate === formatDate(day) && t.status !== 'unscheduled');
@@ -213,7 +182,7 @@ export const WeekView: React.FC<WeekViewProps> = ({
                                         </div>
 
                                         {/* Text Overlay - Small, muted capacity text */}
-                                        <div className={`text-[10px] mt-1 font-medium ${statTextColor} transition-colors`}>
+                                        <div className={`mt-1 font-medium ${statTextColor} transition-colors ${dayTasks.length > 0 ? 'text-xs' : 'text-[10px]'}`}>
                                             {dayTasks.length} tasks · {plannedDurationText}
                                         </div>
                                     </div>

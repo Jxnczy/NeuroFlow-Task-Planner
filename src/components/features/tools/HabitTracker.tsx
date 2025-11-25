@@ -1,14 +1,27 @@
-import React from 'react';
-import { CheckCircle2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { CheckCircle2, X, Plus } from 'lucide-react';
 import { Habit } from '../../../types';
 import { DAYS } from '../../../constants';
 
 interface HabitTrackerProps {
     habits: Habit[];
     toggleHabit: (habitId: string, dayIndex: number) => void;
+    onDeleteHabit?: (habitId: string) => void;
+    onAddHabit?: (name: string, goal: number) => void;
 }
 
-export const HabitTracker: React.FC<HabitTrackerProps> = ({ habits, toggleHabit }) => {
+export const HabitTracker: React.FC<HabitTrackerProps> = ({ habits, toggleHabit, onDeleteHabit, onAddHabit }) => {
+    const [newHabitName, setNewHabitName] = useState('');
+    const [newHabitGoal, setNewHabitGoal] = useState(7);
+
+    const handleAddHabit = () => {
+        if (newHabitName.trim() && onAddHabit) {
+            onAddHabit(newHabitName, newHabitGoal);
+            setNewHabitName('');
+            setNewHabitGoal(7);
+        }
+    };
+
     return (
         <div className="h-full p-8 overflow-y-auto">
             <h2 className="text-3xl font-display font-bold text-white mb-8">Habit Tracker</h2>
@@ -20,15 +33,31 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({ habits, toggleHabit 
                             {DAYS.map(d => (
                                 <th key={d} className="text-center py-4 px-2 text-slate-500 uppercase text-xs tracking-wider">{d}</th>
                             ))}
-                            <th className="text-center py-4 px-4 text-slate-500 uppercase text-xs tracking-wider">Streak</th>
+                            <th className="text-center py-4 px-4 text-slate-500 uppercase text-xs tracking-wider">Progress</th>
                         </tr>
                     </thead>
                     <tbody>
                         {habits.map(habit => {
                             const streak = habit.checks.filter(Boolean).length;
+                            const goal = habit.goal || 7;
+                            const progress = Math.round((streak / goal) * 100);
+                            const isGoalMet = streak >= goal;
+
                             return (
-                                <tr key={habit.id} className="border-t border-white/[0.04] hover:bg-white/[0.02] transition-colors">
-                                    <td className="py-4 px-4 font-bold text-slate-200">{habit.name}</td>
+                                <tr key={habit.id} className="border-t border-white/[0.04] hover:bg-white/[0.02] transition-colors group">
+                                    <td className="py-4 px-4 font-bold text-slate-200 flex items-center gap-2">
+                                        {habit.name}
+                                        {onDeleteHabit && (
+                                            <button
+                                                onClick={() => onDeleteHabit(habit.id)}
+                                                className="opacity-0 group-hover:opacity-100 p-1 text-rose-400 hover:bg-rose-500/10 rounded transition-all"
+                                                title="Delete Habit"
+                                            >
+                                                <X size={12} />
+                                            </button>
+                                        )}
+                                        <span className="text-[10px] text-slate-500 font-normal ml-2">Goal: {goal}/wk</span>
+                                    </td>
                                     {habit.checks.map((checked, i) => (
                                         <td key={i} className="py-4 px-2 text-center">
                                             <button
@@ -46,7 +75,17 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({ habits, toggleHabit 
                                         </td>
                                     ))}
                                     <td className="py-4 px-4 text-center">
-                                        <span className="px-3 py-1 rounded-full bg-white/[0.05] text-xs font-bold text-slate-300">{streak} / 7</span>
+                                        <div className="flex flex-col items-center gap-1">
+                                            <span className={`px-3 py-1 rounded-full text-xs font-bold ${isGoalMet ? 'bg-emerald-500/20 text-emerald-400' : 'bg-white/[0.05] text-slate-300'}`}>
+                                                {progress}%
+                                            </span>
+                                            <div className="w-16 h-1 bg-white/[0.1] rounded-full overflow-hidden">
+                                                <div
+                                                    className={`h-full rounded-full ${isGoalMet ? 'bg-emerald-500' : 'bg-cyan-500'}`}
+                                                    style={{ width: `${Math.min(100, progress)}%` }}
+                                                />
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
                             )
@@ -54,9 +93,44 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({ habits, toggleHabit 
                     </tbody>
                 </table>
 
-                <div className="mt-8 flex gap-3">
-                    <input type="text" placeholder="New Habit..." className="bg-white/[0.03] border border-white/[0.1] rounded-xl px-4 py-2 text-sm text-white outline-none focus:border-cyan-500" />
-                    <button className="px-4 py-2 rounded-xl bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 font-bold text-sm uppercase hover:bg-cyan-500/30 transition-all">Add</button>
+                <div className="mt-8 flex items-end gap-4 bg-white/[0.02] p-4 rounded-2xl border border-white/[0.05]">
+                    <div className="flex-1 space-y-2">
+                        <label className="text-xs text-slate-500 font-bold uppercase tracking-wider">New Habit Name</label>
+                        <input
+                            type="text"
+                            value={newHabitName}
+                            onChange={(e) => setNewHabitName(e.target.value)}
+                            placeholder="e.g. Gym, Reading..."
+                            className="w-full bg-white/[0.03] border border-white/[0.1] rounded-xl px-4 py-2 text-sm text-white outline-none focus:border-cyan-500 transition-colors"
+                            onKeyDown={(e) => e.key === 'Enter' && handleAddHabit()}
+                        />
+                    </div>
+                    <div className="w-48 space-y-2">
+                        <div className="flex justify-between">
+                            <label className="text-xs text-slate-500 font-bold uppercase tracking-wider">Weekly Goal</label>
+                            <span className="text-xs text-cyan-400 font-bold">{newHabitGoal} days</span>
+                        </div>
+                        <input
+                            type="range"
+                            min="1"
+                            max="7"
+                            value={newHabitGoal}
+                            onChange={(e) => setNewHabitGoal(parseInt(e.target.value))}
+                            className="w-full accent-cyan-500 h-2 bg-white/[0.1] rounded-lg appearance-none cursor-pointer"
+                        />
+                        <div className="flex justify-between text-[10px] text-slate-600 px-1">
+                            <span>1</span>
+                            <span>7</span>
+                        </div>
+                    </div>
+                    <button
+                        onClick={handleAddHabit}
+                        disabled={!newHabitName.trim()}
+                        className="px-6 py-2.5 rounded-xl bg-cyan-500 text-white font-bold text-sm uppercase hover:bg-cyan-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-lg shadow-cyan-500/20"
+                    >
+                        <Plus size={16} />
+                        Add
+                    </button>
                 </div>
             </div>
         </div>

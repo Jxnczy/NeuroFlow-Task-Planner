@@ -1,21 +1,23 @@
 import React, { useState } from 'react';
 import { LayoutGrid, Plus, ChevronRight, Settings, LogOut } from 'lucide-react';
 import { Task, TaskType } from '../../types';
-import { TaskCard } from '../TaskCard';
+import { TaskCard } from '@/components/TaskCard';
 
 interface SidebarProps {
     tasks: Task[];
     onDragStart: (e: React.DragEvent, taskId: string) => void;
     onDrop: (e: React.DragEvent) => void;
     onAddTask: (title: string, duration: number, type: TaskType) => void;
+    onUpdateTask: (taskId: string, updates: Partial<Task>) => void;
+    onDeleteTask: (taskId: string) => void;
     onToggleTaskComplete: (taskId: string) => void;
     onOpenSettings: () => void;
 }
 
 const SIDEBAR_CATEGORIES = [
-    { id: 'high', label: 'ASAP · High Prio', color: 'bg-rose-500 text-white shadow-[0_0_15px_rgba(244,63,94,0.4)]' },
-    { id: 'medium', label: 'Soon · Medium Prio', color: 'bg-orange-500 text-white' },
-    { id: 'low', label: 'Later · Low Prio', color: 'bg-amber-400 text-black' },
+    { id: 'high', label: 'High Prio', color: 'bg-rose-500 text-white shadow-[0_0_15px_rgba(244,63,94,0.4)]' },
+    { id: 'medium', label: 'Medium Prio', color: 'bg-orange-500 text-white' },
+    { id: 'low', label: 'Low Prio', color: 'bg-amber-400 text-black' },
     { id: 'leisure', label: 'Leisure', color: 'bg-cyan-400 text-black shadow-[0_0_15px_rgba(34,211,238,0.4)]' },
     { id: 'backlog', label: 'BACKLOG', color: 'bg-slate-600 text-slate-200' },
     { id: 'chores', label: 'Chores', color: 'bg-zinc-500 text-white' },
@@ -26,6 +28,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
     onDragStart,
     onDrop,
     onAddTask,
+    onUpdateTask,
+    onDeleteTask,
     onToggleTaskComplete,
     onOpenSettings
 }) => {
@@ -52,7 +56,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
     return (
         <div
-            className="w-64 h-full flex flex-col border-r border-white/[0.05] bg-[#1a1f35]/90 backdrop-blur-2xl relative z-20 shadow-2xl"
+            className="w-[325px] h-full flex flex-col border-r border-white/[0.08] bg-[#1a1f35]/80 backdrop-blur-xl relative z-20 shadow-[5px_0_30px_rgba(0,0,0,0.3)]"
             onDragOver={(e) => e.preventDefault()}
             onDrop={onDrop}
         >
@@ -94,13 +98,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
                 {/* Row 2 & 3: Type Grid */}
                 <div className="grid grid-cols-3 gap-1.5 mb-2">
-                    {['high', 'medium', 'low', 'leisure', 'backlog', 'chores'].map((type) => (
+                    {[
+                        { id: 'high', label: 'HIGH', activeColor: 'text-rose-500 border-rose-500/30 bg-rose-500/10' },
+                        { id: 'medium', label: 'MEDIUM', activeColor: 'text-orange-500 border-orange-500/30 bg-orange-500/10' },
+                        { id: 'low', label: 'LOW', activeColor: 'text-yellow-400 border-yellow-400/30 bg-yellow-400/10' },
+                        { id: 'leisure', label: 'LEISURE', activeColor: 'text-cyan-400 border-cyan-400/30 bg-cyan-400/10' },
+                        { id: 'backlog', label: 'BACKLOG', activeColor: 'text-slate-400 border-slate-400/30 bg-slate-400/10' },
+                        { id: 'chores', label: 'CHORES', activeColor: 'text-zinc-200 border-zinc-200/30 bg-zinc-200/10' }
+                    ].map((type) => (
                         <button
-                            key={type}
-                            onClick={() => setNewTaskType(type as TaskType)}
-                            className={`py-2 rounded-lg text-[9px] font-bold tracking-wider uppercase transition-all ${newTaskType === type ? 'bg-white/[0.1] text-cyan-400 border border-white/[0.1]' : 'bg-white/[0.02] text-slate-300 hover:text-white'}`}
+                            key={type.id}
+                            onClick={() => setNewTaskType(type.id as TaskType)}
+                            className={`
+                                py-2 rounded-lg text-[9px] font-bold tracking-wider uppercase transition-all border
+                                ${newTaskType === type.id
+                                    ? `${type.activeColor}`
+                                    : 'bg-white/[0.02] border-transparent text-slate-500 hover:text-slate-300 hover:bg-white/[0.05]'
+                                }
+                            `}
                         >
-                            {type === 'high' ? 'ASAP' : type === 'medium' ? 'SOON' : type === 'low' ? 'LATER' : type.toUpperCase()}
+                            {type.label}
                         </button>
                     ))}
                 </div>
@@ -145,6 +162,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                                         task={task}
                                         variant="sidebar"
                                         onDragStart={onDragStart}
+                                        onUpdateTask={onUpdateTask}
+                                        onDeleteTask={onDeleteTask}
                                         onToggleComplete={onToggleTaskComplete}
                                     />
                                 ))}

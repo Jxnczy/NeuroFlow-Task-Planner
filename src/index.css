@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', sans-serif;
+  --font-display: 'Outfit', sans-serif;
+  --font-mono: 'Manrope', monospace;
+
+  --color-neon-pink: #f472b6;
+  --color-neon-cyan: #22d3ee;
+}
+
+@layer base {
+  body {
+    /* Updated Deep Navy/Slate Theme */
+    background-color: #161b2e;
+    background-image:
+      radial-gradient(circle at 50% -10%, rgba(56, 189, 248, 0.15) 0%, transparent 70%),
+      linear-gradient(180deg, #161b2e 0%, #10121b 100%);
+    color: #e2e8f0;
+    font-family: var(--font-sans);
+  }
+}
+
+/* Elegant Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
