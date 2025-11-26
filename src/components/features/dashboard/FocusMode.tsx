@@ -106,7 +106,14 @@ export const FocusMode: React.FC<FocusModeProps> = ({ tasks, onDragStart, onTogg
 
                 <div className="max-w-4xl w-full text-center space-y-8">
                     <div className="space-y-2">
-                        <span className="inline-block px-4 py-1.5 rounded-full bg-cyan-500/10 text-cyan-400 text-sm font-bold uppercase tracking-widest border border-cyan-500/20">
+                        <span 
+                            className="inline-block px-4 py-1.5 rounded-full text-sm font-bold uppercase tracking-widest border"
+                            style={{
+                                backgroundColor: 'var(--accent-muted)',
+                                color: 'var(--accent)',
+                                borderColor: 'color-mix(in srgb, var(--accent) 20%, transparent)'
+                            }}
+                        >
                             Current Focus
                         </span>
                         <h1 className="text-5xl md:text-7xl font-display font-bold text-white leading-tight">

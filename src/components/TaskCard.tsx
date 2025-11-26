@@ -34,7 +34,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
 
     const handleDoubleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
-        if (variant === 'deepwork') return; // Disable editing in deepwork mode
+        if (variant === 'deepwork') return;
         setIsEditing(true);
         setEditedTitle(task.title);
         setEditedDuration(task.duration.toString());
@@ -75,50 +75,19 @@ export const TaskCard: React.FC<TaskCardProps> = ({
         }
     };
 
-    // Base styles
-    const baseStyles = "relative group flex flex-col gap-0.5 p-2 rounded-lg border backdrop-blur-md transition-all duration-300";
-
-    // Dragging styles - disable when editing
-    const dragStyles = isEditing ? "cursor-default" : "cursor-grab active:cursor-grabbing hover:scale-[1.02] hover:shadow-lg hover:z-10";
-
-    // Variant styles
-    let variantStyles = "";
-    if (variant === 'board') {
-        // If completed, we override the background/border in completionStyles
-        variantStyles = isCompleted
-            ? `hover:scale-[1.02] hover:shadow-lg hover:z-10`
-            : `bg-white/[0.06] border-white/5 hover:bg-white/[0.08] hover:scale-[1.02] hover:shadow-lg hover:z-10`;
-    } else if (variant === 'sidebar') {
-        variantStyles = isCompleted
-            ? `mb-2 gap-1.5 p-2.5`
-            : `bg-white/[0.06] border-white/5 hover:bg-white/[0.08] mb-2 gap-1.5 p-2.5`;
-    } else if (variant === 'deepwork') {
-        // Matching planner mode background as requested, but with emerald tint for completed
-        const baseBg = isCompleted
-            ? 'bg-emerald-500/10 border-emerald-500/20'
-            : 'bg-white/[0.06] border-white/5';
-
-        variantStyles = `${baseBg} rounded-2xl px-5 py-3 flex-row items-center justify-between hover:border-emerald-400/40 hover:bg-emerald-500/20 transition-colors gap-4`;
-    }
-
-    // Completion styles - The "Satisfyingly Done" State
-    const completionStyles = isCompleted
-        ? 'bg-emerald-500/10 border-emerald-500/30 transition-all duration-300 ease-in-out'
-        : '';
-
     // Edit mode rendering
     if (isEditing) {
         return (
-            <div className={`${baseStyles} ${variantStyles} cursor-default`}>
+            <div className="relative group flex flex-col gap-1.5 p-3 rounded-lg border backdrop-blur-md bg-white/[0.06] border-white/10">
                 <div className="flex items-start justify-between gap-2">
-                    {/* Edit Form Left */}
-                    <div className="flex flex-col min-w-0 flex-1 gap-1">
+                    <div className="flex flex-col min-w-0 flex-1 gap-1.5">
                         <input
                             type="text"
                             value={editedTitle}
                             onChange={(e) => setEditedTitle(e.target.value)}
                             onKeyDown={handleKeyDown}
-                            className="bg-black/20 text-white text-xs font-medium rounded px-1.5 py-0.5 w-full focus:outline-none focus:ring-1 focus:ring-cyan-500/50"
+                            className="bg-black/20 text-sm font-medium rounded px-2 py-1 w-full focus:outline-none focus:ring-1"
+                            style={{ color: 'var(--text-primary)', '--tw-ring-color': 'var(--accent)' } as React.CSSProperties}
                             autoFocus
                         />
                         <div className="flex items-center gap-2">
@@ -127,25 +96,24 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                                 value={editedDuration}
                                 onChange={(e) => setEditedDuration(e.target.value)}
                                 onKeyDown={handleKeyDown}
-                                className="bg-black/20 text-slate-400 text-[10px] rounded px-1.5 py-0.5 w-12 focus:outline-none focus:ring-1 focus:ring-cyan-500/50"
+                                className="bg-black/20 text-xs rounded px-2 py-1 w-14 focus:outline-none focus:ring-1"
+                                style={{ color: 'var(--text-muted)', '--tw-ring-color': 'var(--accent)' } as React.CSSProperties}
                             />
-                            <span className="text-[10px] text-slate-500">min</span>
+                            <span className="text-xs" style={{ color: 'var(--text-muted)' }}>min</span>
                         </div>
                     </div>
-
-                    {/* Edit Actions Right */}
                     <div className="flex flex-col gap-1">
                         <button
                             onClick={handleAcceptChanges}
-                            className="p-1 rounded bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 transition-colors"
+                            className="p-1.5 rounded bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 transition-colors"
                         >
-                            <Check size={12} />
+                            <Check size={14} />
                         </button>
                         <button
                             onClick={handleDeleteTask}
-                            className="p-1 rounded bg-rose-500/20 text-rose-400 hover:bg-rose-500/30 transition-colors"
+                            className="p-1.5 rounded bg-rose-500/20 text-rose-400 hover:bg-rose-500/30 transition-colors"
                         >
-                            <X size={12} />
+                            <X size={14} />
                         </button>
                     </div>
                 </div>
@@ -153,25 +121,26 @@ export const TaskCard: React.FC<TaskCardProps> = ({
         );
     }
 
+    // Deep work variant
     if (variant === 'deepwork') {
+        const baseBg = isCompleted
+            ? 'bg-emerald-500/10 border-emerald-500/20'
+            : 'bg-white/[0.06] border-white/5';
+
         return (
             <div
-                className={`${variantStyles} ${completionStyles}`}
+                className={`${baseBg} rounded-2xl px-5 py-4 flex items-center justify-between hover:border-emerald-400/40 hover:bg-emerald-500/20 transition-colors gap-4 border`}
                 onDoubleClick={handleDoubleClick}
             >
                 <div className="flex items-center gap-4 flex-1 min-w-0">
-                    {/* Index Pill */}
                     {typeof index === 'number' && (
-                        <div className="w-6 h-6 rounded-full bg-slate-800/80 text-slate-300 text-[11px] flex items-center justify-center flex-shrink-0">
+                        <div className="w-7 h-7 rounded-full bg-slate-800/80 text-slate-300 text-xs flex items-center justify-center flex-shrink-0 font-bold">
                             {index + 1}
                         </div>
                     )}
-
-                    {/* Left Color Stripe */}
-                    <div className={`w-1 h-8 rounded-full ${TYPE_INDICATOR_COLORS[task.type]} flex-shrink-0`} />
-
-                    <div className="flex flex-col min-w-0">
-                        <h3 className={`font-medium text-sm truncate transition-colors ${isCompleted ? 'text-emerald-400 line-through decoration-emerald-500/50' : 'text-slate-200'}`}>
+                    <div className={`w-1 h-10 rounded-full ${TYPE_INDICATOR_COLORS[task.type]} flex-shrink-0`} />
+                    <div className="flex flex-col min-w-0 gap-0.5">
+                        <h3 className={`font-semibold text-sm truncate transition-colors ${isCompleted ? 'text-emerald-400 line-through decoration-emerald-500/50' : 'text-slate-200'}`}>
                             {task.title}
                         </h3>
                         <div className="flex items-center gap-2 text-xs text-slate-500">
@@ -186,8 +155,6 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                         </div>
                     </div>
                 </div>
-
-                {/* Completed Checkmark (Optional, for visual feedback) */}
                 {isCompleted && (
                     <div className="text-emerald-300">
                         <Check size={20} />
@@ -197,6 +164,80 @@ export const TaskCard: React.FC<TaskCardProps> = ({
         );
     }
 
+    // Board variant - Checkmark on LEFT
+    if (variant === 'board') {
+        return (
+            <div
+                draggable={!isEditing}
+                onDragStart={(e) => {
+                    e.dataTransfer.setData('taskId', task.id);
+                    onDragStart(e, task.id);
+                }}
+                onDrop={handleDrop}
+                onDragOver={(e) => e.preventDefault()}
+                onDoubleClick={handleDoubleClick}
+                className={`
+                    relative group flex items-start gap-2 p-2.5 rounded-lg border backdrop-blur-md transition-all duration-200
+                    cursor-grab active:cursor-grabbing hover:scale-[1.02] hover:shadow-lg hover:z-10
+                    ${isCompleted 
+                        ? 'bg-emerald-500/10 border-emerald-500/30' 
+                        : `bg-white/[0.05] border-white/[0.08] hover:bg-white/[0.08] ${TASK_CARD_BORDER_COLORS[task.type]} border-l-2`
+                    }
+                `}
+            >
+                {/* Checkmark on LEFT */}
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onToggleComplete(task.id);
+                    }}
+                    className={`
+                        flex-shrink-0 w-5 h-5 rounded flex items-center justify-center transition-all duration-200 mt-0.5
+                        ${isCompleted
+                            ? 'bg-emerald-500/30 text-emerald-300'
+                            : 'bg-white/[0.08] text-slate-500 hover:bg-emerald-500/20 hover:text-emerald-400'}
+                    `}
+                >
+                    <Check size={12} strokeWidth={3} />
+                </button>
+
+                {/* Content */}
+                <div className="flex-1 min-w-0 flex flex-col gap-1">
+                    {/* Priority tag */}
+                    <div className="flex items-center gap-1.5">
+                        {isCompleted ? (
+                            <span className="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[8px] font-bold uppercase tracking-wider">
+                                {task.type}
+                            </span>
+                        ) : (
+                            <>
+                                <div className={`w-1.5 h-1.5 rounded-full ${TYPE_INDICATOR_COLORS[task.type]}`} />
+                                <span className={`text-[8px] font-bold uppercase tracking-wider ${TYPE_COLORS[task.type]}`}>
+                                    {task.type}
+                                </span>
+                            </>
+                        )}
+                    </div>
+                    
+                    {/* Title - Better line height */}
+                    <h3 
+                        className={`font-medium text-[11px] leading-relaxed transition-colors ${isCompleted ? 'text-emerald-400 line-through decoration-emerald-500/50' : ''}`}
+                        style={{ color: isCompleted ? undefined : 'var(--text-primary)' }}
+                    >
+                        {task.title}
+                    </h3>
+                    
+                    {/* Duration */}
+                    <div className={`flex items-center gap-1 text-[9px] font-medium ${isCompleted ? 'text-emerald-500/60' : ''}`} style={{ color: isCompleted ? undefined : 'var(--text-muted)' }}>
+                        <Clock size={9} />
+                        <span>{task.duration}m</span>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Sidebar variant
     return (
         <div
             draggable={!isEditing}
@@ -207,15 +248,26 @@ export const TaskCard: React.FC<TaskCardProps> = ({
             onDrop={handleDrop}
             onDragOver={(e) => e.preventDefault()}
             onDoubleClick={handleDoubleClick}
-            // If completed, we override the border color entirely
-            className={`${baseStyles} ${dragStyles} ${variantStyles} ${completionStyles} ${!isCompleted ? TASK_CARD_BORDER_COLORS[task.type] : ''}`}
+            className={`
+                relative group flex flex-col gap-1.5 p-3 rounded-lg border backdrop-blur-md transition-all duration-200 mb-2
+                cursor-grab active:cursor-grabbing hover:scale-[1.01] hover:shadow-md
+                ${isCompleted 
+                    ? 'bg-emerald-500/10 border-emerald-500/30' 
+                    : 'bg-white/[0.05] border-white/[0.08] hover:bg-white/[0.08]'
+                }
+            `}
         >
+            {/* Left color bar */}
+            {!isCompleted && (
+                <div className={`absolute left-0 top-3 bottom-3 w-0.5 rounded-r-full ${TYPE_INDICATOR_COLORS[task.type]}`}></div>
+            )}
+            
             <div className="flex items-start justify-between gap-2">
-                <div className="flex flex-col gap-0.5 min-w-0">
+                <div className="flex flex-col gap-1 min-w-0 flex-1">
+                    {/* Priority tag */}
                     <div className="flex items-center gap-1.5">
-                        {/* Priority Tag / Indicator */}
                         {isCompleted ? (
-                            <span className="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[9px] font-medium uppercase tracking-wider">
+                            <span className="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[8px] font-bold uppercase tracking-wider">
                                 {task.type}
                             </span>
                         ) : (
@@ -227,41 +279,22 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                             </>
                         )}
                     </div>
-                    <h3 className={`font-medium text-xs leading-snug line-clamp-2 transition-colors ${isCompleted ? 'text-emerald-400 line-through decoration-emerald-500/50' : 'text-slate-200'}`}>
+                    
+                    {/* Title */}
+                    <h3 
+                        className={`font-medium text-xs leading-relaxed transition-colors ${isCompleted ? 'text-emerald-400 line-through decoration-emerald-500/50' : ''}`}
+                        style={{ color: isCompleted ? undefined : 'var(--text-primary)' }}
+                    >
                         {task.title}
                     </h3>
                 </div>
-
-                {variant === 'board' && (
-                    <button
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            onToggleComplete(task.id);
-                        }}
-                        className={`
-                            flex-shrink-0 p-1 rounded-md transition-all duration-200 border
-                            ${isCompleted
-                                ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20'
-                                : 'bg-white/5 text-slate-400 border-transparent hover:bg-emerald-500/10 hover:text-emerald-400'}
-                        `}
-                    >
-                        {/* Replaced CheckCircle2 with Check for "no round circle" */}
-                        <Check size={14} />
-                    </button>
-                )}
             </div>
 
-            <div className="flex items-center justify-between mt-0.5">
-                <div className={`flex items-center gap-1 text-[10px] font-medium ${isCompleted ? 'text-emerald-500/70' : 'text-slate-500'}`}>
-                    <Clock size={10} />
-                    <span>{task.duration}m</span>
-                </div>
+            {/* Duration */}
+            <div className={`flex items-center gap-1 text-[10px] font-medium ${isCompleted ? 'text-emerald-500/60' : ''}`} style={{ color: isCompleted ? undefined : 'var(--text-muted)' }}>
+                <Clock size={10} />
+                <span>{task.duration}m</span>
             </div>
-
-            {/* Progress/Indicator Bar for Sidebar variant */}
-            {variant === 'sidebar' && !isCompleted && (
-                <div className={`absolute left-0 top-3 bottom-3 w-0.5 rounded-r-full ${TYPE_INDICATOR_COLORS[task.type]}`}></div>
-            )}
         </div>
     );
 };

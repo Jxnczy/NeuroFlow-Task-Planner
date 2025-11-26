@@ -34,23 +34,20 @@ export const GridCell: React.FC<GridCellProps> = ({ day, row, isToday, tasks, on
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => onDrop(e, day, row)}
             title={`${ROW_CONFIG[row].label}: ${ROW_CONFIG[row].description}`}
-            className={`
-        relative flex-1 w-0 transition-all duration-300 group/cell
-        /* Active Day Column Effect */
-        ${isToday
-                    ? 'border-l border-r border-cyan-500/20 bg-cyan-500/[0.02]'
-                    : 'border-r border-white/[0.05] last:border-r-0 bg-transparent'
-                }
-        hover:bg-white/[0.02]
-        flex flex-col p-1 gap-1
-      `}
+            className="relative flex-1 w-0 transition-all duration-300 group/cell hover:bg-white/[0.015] flex flex-col p-1.5 gap-1.5"
+            style={{
+                borderLeft: isToday ? '1px solid' : 'none',
+                borderRight: '1px solid',
+                borderColor: isToday ? 'color-mix(in srgb, var(--accent) 20%, transparent)' : 'var(--border-light)',
+                backgroundColor: isToday ? 'var(--accent-muted)' : 'transparent'
+            }}
         >
             {/* Render actual tasks */}
             {visibleTasks.map(task => (
                 <TaskCard
                     key={task.id}
                     task={task}
-                    variant="board" // Always board variant for grid
+                    variant="board"
                     onDragStart={onDragStart}
                     onUpdateTask={onUpdateTask}
                     onDeleteTask={onDeleteTask}
@@ -59,21 +56,28 @@ export const GridCell: React.FC<GridCellProps> = ({ day, row, isToday, tasks, on
                 />
             ))}
 
-            {/* Render ghost slots if needed */}
+            {/* Render ghost slots - nearly invisible until cell hover */}
             {emptySlotsToRender > 0 && Array.from({ length: emptySlotsToRender }).map((_, index) => (
                 <div
                     key={`ghost-${index}`}
                     className={`
-              flex-1 relative w-full group/slot min-h-0
-              ${row === 'GOAL' ? 'min-h-[4rem]' : 'min-h-[3rem]'}
-          `}>
-                    <div className={`
-                  absolute inset-0 rounded-lg border-2 border-dashed
-                  border-slate-700/10 bg-transparent
-                  group-hover/slot:border-slate-600/50 group-hover/slot:bg-slate-800/50
-                  flex items-center justify-center transition-all duration-300
-              `}>
-                        <Plus size={16} className="text-slate-500/50 opacity-0 group-hover/slot:opacity-100 transition-opacity duration-300" />
+                        flex-1 relative w-full group/slot min-h-0
+                        ${row === 'GOAL' ? 'min-h-[4rem]' : 'min-h-[2.5rem]'}
+                    `}
+                >
+                    {/* Ghost slot - only visible on cell hover */}
+                    <div 
+                        className="absolute inset-0 rounded-lg border border-dashed opacity-0 group-hover/cell:opacity-100 flex items-center justify-center transition-all duration-300"
+                        style={{
+                            borderColor: 'color-mix(in srgb, var(--text-muted) 15%, transparent)',
+                            backgroundColor: 'transparent'
+                        }}
+                    >
+                        <Plus 
+                            size={14} 
+                            className="opacity-0 group-hover/slot:opacity-60 transition-opacity duration-200" 
+                            style={{ color: 'var(--text-muted)' }} 
+                        />
                     </div>
                 </div>
             ))}

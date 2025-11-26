@@ -29,8 +29,8 @@ export const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
                 <svg className="absolute inset-0 w-full h-full -rotate-90">
                     <circle cx="50%" cy="50%" r="45%" stroke="currentColor" strokeWidth="8" className="text-slate-700/30" fill="transparent" />
                     <circle
-                        cx="50%" cy="50%" r="45%" stroke="currentColor" strokeWidth="8"
-                        className="text-cyan-400 transition-all duration-1000"
+                        cx="50%" cy="50%" r="45%" stroke="var(--accent)" strokeWidth="8"
+                        className="transition-all duration-1000"
                         fill="transparent"
                         strokeDasharray="283%"
                         strokeDashoffset={`${283 * (1 - progress)}%`}
@@ -44,10 +44,10 @@ export const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
                     </div>
                     {activeTask ? (
                         <div className="text-slate-400 text-lg max-w-[200px] mx-auto truncate animate-pulse">
-                            Focusing on: <br /> <span className="text-cyan-300 font-bold">{activeTask.title}</span>
+                            Focusing on: <br /> <span className="font-bold" style={{ color: 'var(--accent)' }}>{activeTask.title}</span>
                         </div>
                     ) : (
-                        <div className="text-slate-500">Select a task to focus</div>
+                        <div style={{ color: 'var(--text-muted)' }}>Select a task to focus</div>
                     )}
                 </div>
             </div>
@@ -55,7 +55,18 @@ export const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
             <div className="flex gap-6 mt-12">
                 <button
                     onClick={() => setIsTimerRunning(!isTimerRunning)}
-                    className="p-6 rounded-full bg-white/[0.05] border border-white/[0.1] hover:bg-cyan-500/20 hover:border-cyan-400 hover:text-cyan-300 transition-all scale-100 hover:scale-110 active:scale-95"
+                    className="p-6 rounded-full bg-white/[0.05] border transition-all scale-100 hover:scale-110 active:scale-95"
+                    style={{ borderColor: 'var(--border-medium)' }}
+                    onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = 'var(--accent-muted)';
+                        e.currentTarget.style.borderColor = 'var(--accent)';
+                        e.currentTarget.style.color = 'var(--accent)';
+                    }}
+                    onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)';
+                        e.currentTarget.style.borderColor = 'var(--border-medium)';
+                        e.currentTarget.style.color = 'inherit';
+                    }}
                 >
                     {isTimerRunning ? <Pause size={32} fill="currentColor" /> : <Play size={32} fill="currentColor" className="ml-1" />}
                 </button>

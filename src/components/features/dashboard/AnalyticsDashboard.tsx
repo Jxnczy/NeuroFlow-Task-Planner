@@ -110,11 +110,17 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tasks })
 
                 {/* 4. Completion Rate */}
                 <div className="bg-white/[0.02] border border-white/[0.05] rounded-3xl p-6 flex flex-col items-center justify-center text-center group hover:bg-white/[0.04] transition-colors">
-                    <div className="w-16 h-16 rounded-full border-4 border-cyan-500/20 border-t-cyan-400 flex items-center justify-center mb-4 relative">
-                        <Zap size={24} className="text-cyan-400" fill="currentColor" />
+                    <div 
+                        className="w-16 h-16 rounded-full border-4 flex items-center justify-center mb-4 relative"
+                        style={{
+                            borderColor: 'color-mix(in srgb, var(--accent) 20%, transparent)',
+                            borderTopColor: 'var(--accent)'
+                        }}
+                    >
+                        <Zap size={24} style={{ color: 'var(--accent)' }} fill="currentColor" />
                     </div>
                     <div className="text-4xl font-bold text-white mb-1">{completionRate}%</div>
-                    <div className="text-xs font-bold uppercase tracking-widest text-cyan-400">Completion</div>
+                    <div className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--accent)' }}>Completion</div>
                     <p className="text-[10px] text-slate-500 mt-2">Today's Tasks Done</p>
                 </div>
             </div>

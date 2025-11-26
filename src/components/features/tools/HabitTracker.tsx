@@ -81,8 +81,11 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({ habits, toggleHabit,
                                             </span>
                                             <div className="w-16 h-1 bg-white/[0.1] rounded-full overflow-hidden">
                                                 <div
-                                                    className={`h-full rounded-full ${isGoalMet ? 'bg-emerald-500' : 'bg-cyan-500'}`}
-                                                    style={{ width: `${Math.min(100, progress)}%` }}
+                                                    className="h-full rounded-full"
+                                                    style={{ 
+                                                        width: `${Math.min(100, progress)}%`,
+                                                        backgroundColor: isGoalMet ? 'var(--success)' : 'var(--accent)'
+                                                    }}
                                                 />
                                             </div>
                                         </div>
@@ -101,14 +104,17 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({ habits, toggleHabit,
                             value={newHabitName}
                             onChange={(e) => setNewHabitName(e.target.value)}
                             placeholder="e.g. Gym, Reading..."
-                            className="w-full bg-white/[0.03] border border-white/[0.1] rounded-xl px-4 py-2 text-sm text-white outline-none focus:border-cyan-500 transition-colors"
+                            className="w-full bg-white/[0.03] border rounded-xl px-4 py-2 text-sm outline-none transition-colors"
+                            style={{ borderColor: 'var(--border-medium)', color: 'var(--text-primary)' }}
+                            onFocus={(e) => e.currentTarget.style.borderColor = 'var(--accent)'}
+                            onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border-medium)'}
                             onKeyDown={(e) => e.key === 'Enter' && handleAddHabit()}
                         />
                     </div>
                     <div className="w-48 space-y-2">
                         <div className="flex justify-between">
                             <label className="text-xs text-slate-500 font-bold uppercase tracking-wider">Weekly Goal</label>
-                            <span className="text-xs text-cyan-400 font-bold">{newHabitGoal} days</span>
+                            <span className="text-xs font-bold" style={{ color: 'var(--accent)' }}>{newHabitGoal} days</span>
                         </div>
                         <input
                             type="range"
@@ -116,7 +122,8 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({ habits, toggleHabit,
                             max="7"
                             value={newHabitGoal}
                             onChange={(e) => setNewHabitGoal(parseInt(e.target.value))}
-                            className="w-full accent-cyan-500 h-2 bg-white/[0.1] rounded-lg appearance-none cursor-pointer"
+                            className="w-full h-2 bg-white/[0.1] rounded-lg appearance-none cursor-pointer"
+                            style={{ accentColor: 'var(--accent)' }}
                         />
                         <div className="flex justify-between text-[10px] text-slate-600 px-1">
                             <span>1</span>
@@ -126,7 +133,19 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({ habits, toggleHabit,
                     <button
                         onClick={handleAddHabit}
                         disabled={!newHabitName.trim()}
-                        className="px-6 py-2.5 rounded-xl bg-cyan-500 text-white font-bold text-sm uppercase hover:bg-cyan-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-lg shadow-cyan-500/20"
+                        className="px-6 py-2.5 rounded-xl text-white font-bold text-sm uppercase transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-lg"
+                        style={{ 
+                            backgroundColor: 'var(--accent)',
+                            boxShadow: '0 10px 15px -3px var(--accent-muted)'
+                        }}
+                        onMouseEnter={(e) => {
+                            if (!e.currentTarget.disabled) {
+                                e.currentTarget.style.filter = 'brightness(1.1)';
+                            }
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.filter = 'brightness(1)';
+                        }}
                     >
                         <Plus size={16} />
                         Add

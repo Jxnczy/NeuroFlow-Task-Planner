@@ -10,9 +10,11 @@ import { FocusMode } from './components/features/dashboard/FocusMode';
 import { AnalyticsDashboard } from './components/features/dashboard/AnalyticsDashboard';
 import { HabitTracker } from './components/features/tools/HabitTracker';
 import { BrainDump } from './components/features/tools/BrainDump';
+import { themes, getThemeById, applyTheme } from './themes';
 
 // --- Local Storage ---
 const STORAGE_KEY = 'neuroflow-app-data';
+const THEME_STORAGE_KEY = 'neuroflow-theme';
 
 const saveToLocalStorage = (data: AppData) => {
     try {
@@ -104,12 +106,33 @@ const App = () => {
 
     const [showCompleted, setShowCompleted] = useState(true);
 
+    // Theme State
+    const [currentThemeId, setCurrentThemeId] = useState<string>(() => {
+        try {
+            const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+            return savedTheme || 'neuroflow';
+        } catch {
+            return 'neuroflow';
+        }
+    });
+
     // --- Effects ---
     // Auto-save to localStorage whenever tasks, habits, or brainDumpLists change
     useEffect(() => {
         const appData: AppData = { tasks, habits, brainDumpLists };
         saveToLocalStorage(appData);
     }, [tasks, habits, brainDumpLists]);
+
+    // Apply theme on mount and when it changes
+    useEffect(() => {
+        const theme = getThemeById(currentThemeId);
+        applyTheme(theme);
+        try {
+            localStorage.setItem(THEME_STORAGE_KEY, currentThemeId);
+        } catch (error) {
+            console.error('Failed to save theme to localStorage:', error);
+        }
+    }, [currentThemeId]);
 
     // Global Hotkeys
     useEffect(() => {
@@ -538,6 +561,8 @@ const App = () => {
                     onClose={() => setShowSettings(false)}
                     onExport={exportData}
                     onImport={importData}
+                    currentThemeId={currentThemeId}
+                    onThemeChange={setCurrentThemeId}
                 />
             )}
         </>

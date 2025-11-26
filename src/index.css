@@ -1,24 +1,62 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: 'Inter', sans-serif;
-  --font-display: 'Outfit', sans-serif;
-  --font-mono: 'Manrope', monospace;
+  --font-sans: var(--font-sans, 'Inter', sans-serif);
+  --font-display: var(--font-display, 'Outfit', sans-serif);
+  --font-mono: var(--font-mono, 'Manrope', monospace);
 
   --color-neon-pink: #f472b6;
   --color-neon-cyan: #22d3ee;
+  
+  /* Theme-aware colors */
+  --color-theme-bg: var(--bg-primary, #161b2e);
+  --color-theme-bg-secondary: var(--bg-secondary, #1a1f35);
+  --color-theme-bg-tertiary: var(--bg-tertiary, #1e2338);
+  --color-theme-text: var(--text-primary, #e2e8f0);
+  --color-theme-text-secondary: var(--text-secondary, #94a3b8);
+  --color-theme-text-muted: var(--text-muted, #64748b);
+  --color-theme-accent: var(--accent, #22d3ee);
+  --color-theme-border: var(--border-medium, rgba(255, 255, 255, 0.1));
+}
+
+:root {
+  /* Default theme values (NeuroFlow) */
+  --bg-primary: #161b2e;
+  --bg-secondary: #1a1f35;
+  --bg-tertiary: #1e2338;
+  --bg-glow: rgba(56, 189, 248, 0.15);
+  
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  
+  --accent: #22d3ee;
+  --accent-glow: rgba(6, 182, 212, 0.5);
+  --accent-muted: rgba(6, 182, 212, 0.1);
+  
+  --border-light: rgba(255, 255, 255, 0.05);
+  --border-medium: rgba(255, 255, 255, 0.1);
+  
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
 }
 
 @layer base {
   body {
-    /* Updated Deep Navy/Slate Theme */
-    background-color: #161b2e;
+    background-color: var(--bg-primary);
     background-image:
-      radial-gradient(circle at 50% -10%, rgba(56, 189, 248, 0.15) 0%, transparent 70%),
-      linear-gradient(180deg, #161b2e 0%, #10121b 100%);
-    color: #e2e8f0;
+      radial-gradient(circle at 50% -10%, var(--bg-glow) 0%, transparent 70%),
+      linear-gradient(180deg, var(--bg-primary) 0%, color-mix(in srgb, var(--bg-primary), black 20%) 100%);
+    color: var(--text-primary);
     font-family: var(--font-sans);
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
+}
+
+/* Theme transition helper */
+*, *::before, *::after {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.15s ease;
 }
 
 /* Elegant Scrollbar */
@@ -32,13 +70,13 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--border-medium);
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-light);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--text-muted);
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -48,4 +86,83 @@
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Theme-specific utility classes */
+.bg-theme-primary {
+  background-color: var(--bg-primary);
+}
+
+.bg-theme-secondary {
+  background-color: var(--bg-secondary);
+}
+
+.bg-theme-tertiary {
+  background-color: var(--bg-tertiary);
+}
+
+.text-theme-primary {
+  color: var(--text-primary);
+}
+
+.text-theme-secondary {
+  color: var(--text-secondary);
+}
+
+.text-theme-muted {
+  color: var(--text-muted);
+}
+
+.text-theme-accent {
+  color: var(--accent);
+}
+
+.border-theme {
+  border-color: var(--border-medium);
+}
+
+.border-theme-light {
+  border-color: var(--border-light);
+}
+
+/* Accent glow effect */
+.glow-accent {
+  box-shadow: 0 0 20px var(--accent-glow);
+}
+
+/* Light theme adjustments */
+[data-theme="light"] {
+  color-scheme: light;
+}
+
+[data-theme="light"] .text-white {
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .text-slate-200,
+[data-theme="light"] .text-slate-300 {
+  color: var(--text-secondary);
+}
+
+[data-theme="light"] .text-slate-400,
+[data-theme="light"] .text-slate-500 {
+  color: var(--text-muted);
+}
+
+[data-theme="light"] .bg-white\/\[0\.03\],
+[data-theme="light"] .bg-white\/\[0\.05\],
+[data-theme="light"] .bg-white\/\[0\.06\],
+[data-theme="light"] .bg-white\/\[0\.08\] {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="light"] .border-white\/\[0\.05\],
+[data-theme="light"] .border-white\/\[0\.08\],
+[data-theme="light"] .border-white\/\[0\.1\] {
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .hover\:bg-white\/\[0\.05\]:hover,
+[data-theme="light"] .hover\:bg-white\/\[0\.1\]:hover {
+  background-color: rgba(0, 0, 0, 0.05);
 }

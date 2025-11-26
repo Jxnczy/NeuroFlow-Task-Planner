@@ -27,7 +27,18 @@ export const BrainDump: React.FC<BrainDumpProps> = ({ lists, onUpdateList, onAdd
                     </div>
                     <button
                         onClick={onAddList}
-                        className="flex items-center gap-2 px-4 py-2 bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 rounded-xl hover:bg-cyan-500/30 transition-all font-bold text-sm"
+                        className="flex items-center gap-2 px-4 py-2 border rounded-xl transition-all font-bold text-sm"
+                        style={{
+                            backgroundColor: 'var(--accent-muted)',
+                            color: 'var(--accent)',
+                            borderColor: 'color-mix(in srgb, var(--accent) 30%, transparent)'
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = 'color-mix(in srgb, var(--accent) 30%, transparent)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = 'var(--accent-muted)';
+                        }}
                     >
                         <Plus size={16} />
                         Add List
@@ -51,7 +62,8 @@ export const BrainDump: React.FC<BrainDumpProps> = ({ lists, onUpdateList, onAdd
                                         onChange={(e) => onUpdateTitle(list.id, e.target.value)}
                                         onBlur={() => setEditingTitleId(null)}
                                         onKeyDown={(e) => e.key === 'Enter' && setEditingTitleId(null)}
-                                        className="bg-transparent text-white font-bold outline-none border-b border-cyan-500 w-full"
+                                        className="bg-transparent font-bold outline-none border-b w-full"
+                                        style={{ color: 'var(--text-primary)', borderColor: 'var(--accent)' }}
                                     />
                                 ) : (
                                     <h3

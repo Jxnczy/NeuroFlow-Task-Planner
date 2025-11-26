@@ -8,7 +8,18 @@ interface MainLayoutProps {
 
 export const MainLayout: React.FC<MainLayoutProps> = ({ sidebar, header, children }) => {
     return (
-        <div className="flex h-screen w-full bg-transparent text-slate-200 selection:bg-cyan-500/30 font-sans overflow-hidden">
+        <div 
+            className="flex h-screen w-full bg-transparent font-sans overflow-hidden"
+            style={{ 
+                color: 'var(--text-secondary)',
+                // Selection color uses accent
+            }}
+        >
+            <style>{`
+                ::selection {
+                    background-color: color-mix(in srgb, var(--accent) 30%, transparent);
+                }
+            `}</style>
             {sidebar}
             <div className="flex-1 flex flex-col relative min-w-0 z-10">
                 {header}

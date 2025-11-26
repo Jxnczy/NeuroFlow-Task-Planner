@@ -14,13 +14,14 @@ interface SidebarProps {
     onOpenSettings: () => void;
 }
 
+// Category config with accent colors for headers
 const SIDEBAR_CATEGORIES = [
-    { id: 'high', label: 'High Prio', color: 'bg-rose-500 text-white shadow-[0_0_15px_rgba(244,63,94,0.4)]' },
-    { id: 'medium', label: 'Medium Prio', color: 'bg-orange-500 text-white' },
-    { id: 'low', label: 'Low Prio', color: 'bg-amber-400 text-black' },
-    { id: 'leisure', label: 'Leisure', color: 'bg-cyan-400 text-black shadow-[0_0_15px_rgba(34,211,238,0.4)]' },
-    { id: 'backlog', label: 'BACKLOG', color: 'bg-slate-600 text-slate-200' },
-    { id: 'chores', label: 'Chores', color: 'bg-zinc-500 text-white' },
+    { id: 'high', label: 'High Priority', accentColor: '#f43f5e' },      // rose-500
+    { id: 'medium', label: 'Medium Priority', accentColor: '#f97316' },  // orange-500
+    { id: 'low', label: 'Low Priority', accentColor: '#facc15' },        // yellow-400
+    { id: 'leisure', label: 'Leisure', accentColor: '#22d3ee' },         // cyan-400
+    { id: 'backlog', label: 'Backlog', accentColor: '#94a3b8' },         // slate-400
+    { id: 'chores', label: 'Chores', accentColor: '#a1a1aa' },           // zinc-400
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -33,7 +34,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
     onToggleTaskComplete,
     onOpenSettings
 }) => {
-    // Local State
     const [newTaskTitle, setNewTaskTitle] = useState('');
     const [newTaskDuration, setNewTaskDuration] = useState(30);
     const [newTaskType, setNewTaskType] = useState<TaskType>('backlog');
@@ -46,7 +46,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
         if (!newTaskTitle.trim()) return;
         onAddTask(newTaskTitle, newTaskDuration, newTaskType);
         setNewTaskTitle('');
-        // Auto-expand the category
         setExpandedCategories(prev => ({ ...prev, [newTaskType]: true }));
     };
 
@@ -56,26 +55,35 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
     return (
         <div
-            className="w-[325px] h-full flex flex-col border-r border-white/[0.08] bg-[#1a1f35]/80 backdrop-blur-xl relative z-20 shadow-[5px_0_30px_rgba(0,0,0,0.3)]"
+            className="w-[325px] h-full flex flex-col border-r backdrop-blur-xl relative z-20 shadow-[5px_0_30px_rgba(0,0,0,0.3)]"
+            style={{
+                backgroundColor: 'color-mix(in srgb, var(--bg-secondary) 85%, transparent)',
+                borderColor: 'var(--border-medium)'
+            }}
             onDragOver={(e) => e.preventDefault()}
             onDrop={onDrop}
         >
             {/* Logo Area */}
             <div className="p-4 pb-0">
                 <div className="flex items-center gap-2 mb-1">
-                    <div className="w-7 h-7 rounded-xl bg-cyan-500 flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.5)]">
+                    <div 
+                        className="w-7 h-7 rounded-xl flex items-center justify-center"
+                        style={{
+                            backgroundColor: 'var(--accent)',
+                            boxShadow: '0 0 15px var(--accent-glow)'
+                        }}
+                    >
                         <LayoutGrid size={16} className="text-white" />
                     </div>
-                    <h1 className="text-xl font-display font-bold tracking-tight text-white">
-                        Neuro<span className="text-cyan-400">Flow</span>
+                    <h1 className="text-xl font-display font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>
+                        Neuro<span style={{ color: 'var(--accent)' }}>Flow</span>
                     </h1>
                 </div>
-                <p className="text-[10px] text-slate-400 font-medium ml-9">ADHD Productivity OS</p>
+                <p className="text-[10px] font-medium ml-9" style={{ color: 'var(--text-muted)' }}>ADHD Productivity OS</p>
             </div>
 
             {/* Quick Add Task */}
-            <div className="p-4 border-b border-white/[0.05]">
-                {/* Row 1: Inputs */}
+            <div className="p-4 border-b" style={{ borderColor: 'var(--border-light)' }}>
                 <div className="flex gap-2 mb-2">
                     <input
                         type="text"
@@ -83,21 +91,33 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         onChange={(e) => setNewTaskTitle(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && handleAddTask()}
                         placeholder="New Task..."
-                        className="flex-1 bg-white/[0.03] border border-white/[0.1] rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 transition-all"
+                        className="flex-1 bg-white/[0.03] border rounded-lg px-3 py-2.5 text-sm placeholder-slate-500 focus:outline-none transition-all"
+                        style={{ 
+                            borderColor: 'var(--border-medium)',
+                            color: 'var(--text-primary)'
+                        }}
+                        onFocus={(e) => e.currentTarget.style.borderColor = 'var(--accent)'}
+                        onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border-medium)'}
                     />
                     <div className="relative w-20">
                         <input
                             type="number"
                             value={newTaskDuration}
                             onChange={(e) => setNewTaskDuration(Number(e.target.value))}
-                            className="w-full bg-white/[0.03] border border-white/[0.1] rounded-lg pl-3 pr-6 py-2 text-xs text-white font-mono focus:outline-none focus:border-cyan-500/50 transition-all text-right"
+                            className="w-full bg-white/[0.03] border rounded-lg pl-3 pr-6 py-2.5 text-sm font-mono focus:outline-none transition-all text-right"
+                            style={{ 
+                                borderColor: 'var(--border-medium)',
+                                color: 'var(--text-primary)'
+                            }}
+                            onFocus={(e) => e.currentTarget.style.borderColor = 'var(--accent)'}
+                            onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border-medium)'}
                         />
-                        <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] text-slate-500">min</span>
+                        <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px]" style={{ color: 'var(--text-muted)' }}>min</span>
                     </div>
                 </div>
 
-                {/* Row 2 & 3: Type Grid */}
-                <div className="grid grid-cols-3 gap-1.5 mb-2">
+                {/* Type Grid */}
+                <div className="grid grid-cols-3 gap-1.5 mb-3">
                     {[
                         { id: 'high', label: 'HIGH', activeColor: 'text-rose-500 border-rose-500/30 bg-rose-500/10' },
                         { id: 'medium', label: 'MEDIUM', activeColor: 'text-orange-500 border-orange-500/30 bg-orange-500/10' },
@@ -122,10 +142,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     ))}
                 </div>
 
-                {/* Row 4: Big Add Button */}
+                {/* Add Button */}
                 <button
                     onClick={handleAddTask}
-                    className="w-full py-3 rounded-lg bg-white/[0.05] border border-white/[0.1] text-xs font-bold text-slate-300 uppercase tracking-widest hover:bg-cyan-500/20 hover:text-cyan-300 hover:border-cyan-500/30 transition-all flex items-center justify-center gap-2 group shadow-lg"
+                    className="w-full py-3 rounded-lg bg-white/[0.05] border text-xs font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-2 group shadow-lg"
+                    style={{ 
+                        borderColor: 'var(--border-medium)',
+                        color: 'var(--text-secondary)'
+                    }}
+                    onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = 'var(--accent-muted)';
+                        e.currentTarget.style.color = 'var(--accent)';
+                        e.currentTarget.style.borderColor = 'var(--accent)';
+                    }}
+                    onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)';
+                        e.currentTarget.style.color = 'var(--text-secondary)';
+                        e.currentTarget.style.borderColor = 'var(--border-medium)';
+                    }}
                 >
                     <Plus size={14} className="group-hover:scale-125 transition-transform duration-300" />
                     Add Task
@@ -133,7 +167,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
 
             {/* Categories / Backlog List */}
-            <div className="flex-1 overflow-y-auto px-3 py-2 space-y-3 scrollbar-hide mask-image-b">
+            <div className="flex-1 overflow-y-auto px-3 py-3 space-y-4 scrollbar-hide">
                 {SIDEBAR_CATEGORIES.filter(c => c.id !== 'chores').map(cat => {
                     const catTasks = tasks.filter(t => t.type === cat.id && t.status === 'unscheduled');
                     const isExpanded = expandedCategories[cat.id];
@@ -142,20 +176,44 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
                     return (
                         <div key={cat.id} className="group">
+                            {/* Category Header - Brighter & More Visible */}
                             <button
                                 onClick={() => toggleCategory(cat.id)}
-                                className="w-full flex items-center justify-between py-1.5 px-2 text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:text-white transition-colors mb-1"
+                                className="w-full flex items-center justify-between py-2 px-2 rounded-lg transition-all mb-2 hover:bg-white/[0.03]"
                             >
-                                <div className="flex items-center gap-1.5">
-                                    <ChevronRight size={10} className={`transition-transform duration-300 ${isExpanded ? 'rotate-90' : ''}`} />
-                                    <span>{cat.label}</span>
+                                <div className="flex items-center gap-2">
+                                    {/* Colored dot indicator */}
+                                    <div 
+                                        className="w-2 h-2 rounded-full"
+                                        style={{ backgroundColor: cat.accentColor }}
+                                    />
+                                    <ChevronRight 
+                                        size={12} 
+                                        className={`transition-transform duration-300 ${isExpanded ? 'rotate-90' : ''}`}
+                                        style={{ color: 'var(--text-secondary)' }}
+                                    />
+                                    {/* Label - Brighter */}
+                                    <span 
+                                        className="text-[11px] font-bold uppercase tracking-widest"
+                                        style={{ color: cat.accentColor }}
+                                    >
+                                        {cat.label}
+                                    </span>
                                 </div>
-                                <span className="bg-white/[0.05] text-slate-400 px-1.5 py-0.5 rounded text-[9px] min-w-[18px] text-center">
+                                {/* Count badge */}
+                                <span 
+                                    className="px-2 py-0.5 rounded-full text-[10px] font-bold min-w-[20px] text-center"
+                                    style={{ 
+                                        backgroundColor: `${cat.accentColor}20`,
+                                        color: cat.accentColor
+                                    }}
+                                >
                                     {catTasks.length}
                                 </span>
                             </button>
 
-                            <div className={`space-y-1.5 transition-all duration-500 ease-in-out overflow-hidden ${isExpanded ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                            {/* Tasks with better separation */}
+                            <div className={`space-y-2 pl-1 transition-all duration-300 ease-in-out overflow-hidden ${isExpanded ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'}`}>
                                 {catTasks.map(task => (
                                     <TaskCard
                                         key={task.id}
@@ -168,7 +226,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                                     />
                                 ))}
                                 {catTasks.length === 0 && (
-                                    <div className="text-[9px] text-slate-600 italic pl-5 py-1">No tasks</div>
+                                    <div className="text-[10px] italic pl-6 py-2" style={{ color: 'var(--text-muted)' }}>
+                                        No tasks yet
+                                    </div>
                                 )}
                             </div>
                         </div>
@@ -183,38 +243,63 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 const isExpanded = expandedCategories['chores'];
 
                 return (
-                    <div className="px-3 py-2 border-t border-white/[0.05] bg-[#1a1f35]/50 backdrop-blur-md">
-                        <div className="group">
-                            <button
-                                onClick={() => toggleCategory('chores')}
-                                className="w-full flex items-center justify-between py-1.5 px-2 text-[10px] font-bold uppercase tracking-widest text-zinc-400 hover:text-white transition-colors mb-1"
-                            >
-                                <div className="flex items-center gap-1.5">
-                                    <ChevronRight size={10} className={`transition-transform duration-300 ${isExpanded ? 'rotate-90' : ''}`} />
-                                    <span>{choresCat.label}</span>
-                                </div>
-                                <span className="bg-white/[0.05] text-slate-400 px-1.5 py-0.5 rounded text-[9px] min-w-[18px] text-center">
-                                    {choresTasks.length}
+                    <div 
+                        className="px-3 py-3 border-t backdrop-blur-md"
+                        style={{
+                            borderColor: 'var(--border-light)',
+                            backgroundColor: 'color-mix(in srgb, var(--bg-secondary) 60%, transparent)'
+                        }}
+                    >
+                        <button
+                            onClick={() => toggleCategory('chores')}
+                            className="w-full flex items-center justify-between py-2 px-2 rounded-lg transition-all mb-2 hover:bg-white/[0.03]"
+                        >
+                            <div className="flex items-center gap-2">
+                                <div 
+                                    className="w-2 h-2 rounded-full"
+                                    style={{ backgroundColor: choresCat.accentColor }}
+                                />
+                                <ChevronRight 
+                                    size={12} 
+                                    className={`transition-transform duration-300 ${isExpanded ? 'rotate-90' : ''}`}
+                                    style={{ color: 'var(--text-secondary)' }}
+                                />
+                                <span 
+                                    className="text-[11px] font-bold uppercase tracking-widest"
+                                    style={{ color: choresCat.accentColor }}
+                                >
+                                    {choresCat.label}
                                 </span>
-                            </button>
+                            </div>
+                            <span 
+                                className="px-2 py-0.5 rounded-full text-[10px] font-bold min-w-[20px] text-center"
+                                style={{ 
+                                    backgroundColor: `${choresCat.accentColor}20`,
+                                    color: choresCat.accentColor
+                                }}
+                            >
+                                {choresTasks.length}
+                            </span>
+                        </button>
 
-                            <div className={`space-y-1.5 transition-all duration-500 ease-in-out overflow-hidden ${isExpanded ? 'max-h-[300px] opacity-100' : 'max-h-0 opacity-0'}`}>
-                                <div className="max-h-[200px] overflow-y-auto pr-1 scrollbar-hide">
-                                    {choresTasks.map(task => (
-                                        <TaskCard
-                                            key={task.id}
-                                            task={task}
-                                            variant="sidebar"
-                                            onDragStart={onDragStart}
-                                            onUpdateTask={onUpdateTask}
-                                            onDeleteTask={onDeleteTask}
-                                            onToggleComplete={onToggleTaskComplete}
-                                        />
-                                    ))}
-                                    {choresTasks.length === 0 && (
-                                        <div className="text-[9px] text-slate-600 italic pl-5 py-1">No chores</div>
-                                    )}
-                                </div>
+                        <div className={`space-y-2 pl-1 transition-all duration-300 ease-in-out overflow-hidden ${isExpanded ? 'max-h-[300px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                            <div className="max-h-[200px] overflow-y-auto pr-1 scrollbar-hide space-y-2">
+                                {choresTasks.map(task => (
+                                    <TaskCard
+                                        key={task.id}
+                                        task={task}
+                                        variant="sidebar"
+                                        onDragStart={onDragStart}
+                                        onUpdateTask={onUpdateTask}
+                                        onDeleteTask={onDeleteTask}
+                                        onToggleComplete={onToggleTaskComplete}
+                                    />
+                                ))}
+                                {choresTasks.length === 0 && (
+                                    <div className="text-[10px] italic pl-6 py-2" style={{ color: 'var(--text-muted)' }}>
+                                        No chores yet
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -222,20 +307,43 @@ export const Sidebar: React.FC<SidebarProps> = ({
             })()}
 
             {/* User / Settings Footer */}
-            <div className="p-3 border-t border-white/[0.05] flex items-center justify-between bg-[#15192b]/50">
+            <div 
+                className="p-3 border-t flex items-center justify-between"
+                style={{
+                    borderColor: 'var(--border-light)',
+                    backgroundColor: 'color-mix(in srgb, var(--bg-primary) 50%, transparent)'
+                }}
+            >
                 <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-rose-400 to-orange-400 border-2 border-white/10 shadow-lg"></div>
+                    <div 
+                        className="w-7 h-7 rounded-full border-2 shadow-lg"
+                        style={{
+                            background: 'linear-gradient(to top right, var(--accent), var(--warning))',
+                            borderColor: 'var(--border-medium)'
+                        }}
+                    ></div>
                     <div className="flex flex-col">
-                        <span className="text-[10px] font-bold text-slate-200">User</span>
-                        <span className="text-[9px] text-slate-500">Pro Plan</span>
+                        <span className="text-[11px] font-bold" style={{ color: 'var(--text-primary)' }}>User</span>
+                        <span className="text-[9px]" style={{ color: 'var(--text-muted)' }}>Pro Plan</span>
                     </div>
                 </div>
                 <div className="flex gap-1">
-                    <button onClick={onOpenSettings} className="p-1.5 rounded-lg hover:bg-white/[0.05] text-slate-400 hover:text-white transition-colors">
-                        <Settings size={14} />
+                    <button 
+                        onClick={onOpenSettings} 
+                        className="p-2 rounded-lg hover:bg-white/[0.05] transition-colors"
+                        style={{ color: 'var(--text-muted)' }}
+                        onMouseEnter={(e) => e.currentTarget.style.color = 'var(--text-primary)'}
+                        onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
+                    >
+                        <Settings size={16} />
                     </button>
-                    <button className="p-1.5 rounded-lg hover:bg-white/[0.05] text-slate-400 hover:text-rose-400 transition-colors">
-                        <LogOut size={14} />
+                    <button 
+                        className="p-2 rounded-lg hover:bg-white/[0.05] transition-colors"
+                        style={{ color: 'var(--text-muted)' }}
+                        onMouseEnter={(e) => e.currentTarget.style.color = 'var(--error)'}
+                        onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
+                    >
+                        <LogOut size={16} />
                     </button>
                 </div>
             </div>
