@@ -27,7 +27,7 @@ export interface BrainDumpList {
 export type TaskType = 'backlog' | 'high' | 'medium' | 'low' | 'leisure' | 'chores';
 export type GridRow = 'GOAL' | 'FOCUS' | 'WORK' | 'LEISURE' | 'CHORES';
 
-export type TaskStatus = 'unscheduled' | 'scheduled' | 'completed';
+export type TaskStatus = 'unscheduled' | 'scheduled' | 'completed' | 'rescheduled';
 
 export interface Task {
   id: string;
@@ -55,24 +55,6 @@ export interface BrainDumpList {
   content: string;
   lastEdited?: number; // Timestamp of last edit
 }
+notes ?: Note[]; // Deprecated, kept for migration
 
-export interface Note {
-  date: string; // YYYY-MM-DD
-  content: string;
-}
-
-export interface DayStats {
-  date: string; // YYYY-MM-DD
-  totalMinutes: number;
-  completedMinutes: number;
-  percentage: number; // 0-100
-}
-
-export interface AppData {
-  tasks: Task[];
-  habits: Habit[];
-  brainDumpLists?: BrainDumpList[];
-  brainDumpContent?: string; // Deprecated, kept for migration
-  notes?: Note[]; // Deprecated, kept for migration
-  dayHistory?: Record<string, DayStats>; // Key is YYYY-MM-DD
 }

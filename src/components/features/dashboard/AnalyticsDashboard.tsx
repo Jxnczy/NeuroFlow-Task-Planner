@@ -22,6 +22,10 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tasks })
     const todayStr = formatDate(new Date());
     const todayTasks = tasks.filter(t => t.dueDate === todayStr && t.status !== 'unscheduled');
     const completedToday = todayTasks.filter(t => t.status === 'completed');
+    const rescheduledToday = todayTasks.filter(t => t.status === 'rescheduled');
+
+    // Completion Rate: Completed / (Completed + Remaining + Rescheduled)
+    // Note: todayTasks already includes completed, remaining, and rescheduled
     const completionRate = todayTasks.length > 0 ? Math.round((completedToday.length / todayTasks.length) * 100) : 0;
 
     // Total completed tasks and time
@@ -39,6 +43,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tasks })
     ];
 
     // Capacity Thermometer
+    // Include rescheduled tasks in the capacity calculation to show "what was planned"
     const totalPlannedMinutes = todayTasks.reduce((acc, t) => acc + t.duration, 0);
     const capacityLimit = TARGET_HOURS_PER_DAY * 60;
     const capacityPercent = Math.min(100, (totalPlannedMinutes / capacityLimit) * 100);

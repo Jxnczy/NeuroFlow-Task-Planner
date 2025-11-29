@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Clock, Check, X } from 'lucide-react';
+import { Clock, Check, X, AlertCircle, ArrowRight } from 'lucide-react';
 import { Task } from '../types';
 import { TYPE_COLORS, TASK_CARD_BORDER_COLORS, TYPE_INDICATOR_COLORS } from '../constants';
 
@@ -13,7 +13,9 @@ interface TaskCardProps {
     onStartFocus?: (taskId: string) => void;
     onUpdateTask?: (taskId: string, updates: Partial<Task>) => void;
     onDeleteTask?: (taskId: string) => void;
+    onDeleteTask?: (taskId: string) => void;
     onTaskDrop?: (sourceId: string, targetId: string) => void;
+    isOverdue?: boolean;
 }
 
 export const TaskCard: React.FC<TaskCardProps> = ({
@@ -25,7 +27,9 @@ export const TaskCard: React.FC<TaskCardProps> = ({
     onStartFocus,
     onUpdateTask,
     onDeleteTask,
-    onTaskDrop
+
+    onTaskDrop,
+    isOverdue
 }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [editedTitle, setEditedTitle] = useState(task.title);
@@ -91,6 +95,21 @@ export const TaskCard: React.FC<TaskCardProps> = ({
         if (remaining === 0) return `${hours}h`;
         return `${hours}h ${remaining}m`;
     };
+
+    // Rescheduled "Ghost Trail" variant
+    if (task.status === 'rescheduled') {
+        return (
+            <div className="flex items-center gap-2 px-2 py-1 rounded border border-dashed border-slate-700/50 bg-slate-800/20 opacity-40 select-none">
+                <ArrowRight size={12} className="text-slate-500" />
+                <span className="text-[11px] text-slate-500 line-through truncate flex-1 font-medium">
+                    {task.title}
+                </span>
+                <span className="text-[10px] text-slate-600">
+                    Rescheduled
+                </span>
+            </div>
+        );
+    }
 
     // Edit mode rendering
     if (isEditing) {
@@ -265,6 +284,13 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                         {formatDuration(task.duration)}
                     </span>
                 </div>
+
+                {/* Overdue Warning */}
+                {isOverdue && !isCompleted && (
+                    <div className="absolute -right-1 -top-1 bg-rose-500 text-white rounded-full p-0.5 shadow-lg animate-pulse">
+                        <AlertCircle size={12} strokeWidth={3} />
+                    </div>
+                )}
             </motion.div>
         );
     }

@@ -16,7 +16,9 @@ interface GridCellProps {
     onDeleteTask?: (taskId: string) => void;
     isDayEmpty: boolean;
     onTaskDrop?: (sourceId: string, targetId: string) => void;
+    onTaskDrop?: (sourceId: string, targetId: string) => void;
     showCompleted: boolean;
+    isPastDay?: boolean;
 }
 
 export const GridCell: React.FC<GridCellProps> = ({
@@ -31,14 +33,20 @@ export const GridCell: React.FC<GridCellProps> = ({
     onDeleteTask,
     isDayEmpty,
     onTaskDrop,
-    showCompleted
+
+    showCompleted,
+    isPastDay
 }) => {
     const [isDragOver, setIsDragOver] = useState(false);
     const dayStr = formatDate(day);
-    const cellTasks = tasks.filter(t => t.status !== 'unscheduled' && t.dueDate === dayStr && t.assignedRow === row);
+    const allCellTasks = tasks.filter(t => t.dueDate === dayStr && t.assignedRow === row);
+
+    // Separate active tasks from rescheduled ones
+    const activeTasks = allCellTasks.filter(t => t.status !== 'unscheduled' && t.status !== 'rescheduled');
+    const rescheduledTasks = allCellTasks.filter(t => t.status === 'rescheduled');
 
     const slotCount = row === 'GOAL' ? 1 : 3;
-    const visibleTasks = cellTasks.slice(0, slotCount);
+    const visibleTasks = activeTasks.slice(0, slotCount);
     const emptySlotsToRender = slotCount - visibleTasks.length;
 
     // Only set drag over on the actual cell element, not children
@@ -82,7 +90,7 @@ export const GridCell: React.FC<GridCellProps> = ({
             onDrop={handleDrop}
             className="relative flex-1 w-0 flex flex-col p-1.5 gap-1 transition-colors duration-150"
             style={{
-                borderRight: '1px solid var(--border-light)',
+                borderRight: isPastDay ? '1px solid color-mix(in srgb, var(--border-light), transparent 35%)' : '1px solid var(--border-light)',
                 backgroundColor: isDragOver
                     ? 'var(--accent-muted)'
                     : isToday
@@ -96,7 +104,11 @@ export const GridCell: React.FC<GridCellProps> = ({
                     key={task.id}
                     className="flex-1 min-h-0"
                     style={{
-                        opacity: !showCompleted && task.status === 'completed' ? 0.15 : 1,
+                        opacity: (!showCompleted && task.status === 'completed')
+                            ? 0.15
+                            : (isPastDay && task.status === 'completed')
+                                ? 0.65
+                                : 1,
                         transition: 'opacity 0.3s ease'
                     }}
                 >
@@ -108,9 +120,12 @@ export const GridCell: React.FC<GridCellProps> = ({
                         onDeleteTask={onDeleteTask}
                         onToggleComplete={onToggleComplete}
                         onTaskDrop={onTaskDrop}
+                        isOverdue={isPastDay}
                     />
                 </div>
             ))}
+
+
 
             {/* Drop Indicator - Fills remaining space */}
             {isDragOver && emptySlotsToRender > 0 && (
@@ -129,18 +144,21 @@ export const GridCell: React.FC<GridCellProps> = ({
                 </div>
             )}
 
-            {/* Empty slots - only show if NOT dragging over (or if we want them to show underneath? No, usually hide them or replace them) */}
-            {/* Logic: If dragging over, we show the big drop zone instead of individual ghost slots. */}
+            {/* Empty slots */}
             {emptySlotsToRender > 0 && !isDragOver && Array.from({ length: emptySlotsToRender }).map((_, index) => (
                 <div key={`ghost-${index}`} className="flex-1 relative w-full min-h-0 pointer-events-none">
                     <div
-                        className="absolute inset-0 rounded-lg border border-dashed opacity-10 flex items-center justify-center"
-                        style={{ borderColor: 'var(--text-muted)' }}
+                        className="absolute inset-0 rounded-lg border border-dashed flex items-center justify-center"
+                        style={{
+                            borderColor: 'var(--text-muted)',
+                            opacity: isPastDay ? 0.065 : 0.1
+                        }}
                     >
                         <Plus size={14} className="opacity-30" style={{ color: 'var(--text-muted)' }} />
                     </div>
                 </div>
             ))}
+
         </div>
     );
 };

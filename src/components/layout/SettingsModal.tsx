@@ -9,22 +9,24 @@ interface SettingsModalProps {
     onDeleteAllTasks?: () => void;
     currentThemeId: string;
     onThemeChange: (themeId: string) => void;
+    onResetProgress?: () => void;
 }
 
-export const SettingsModal: React.FC<SettingsModalProps> = ({ 
-    onClose, 
-    onExport, 
+export const SettingsModal: React.FC<SettingsModalProps> = ({
+    onClose,
+    onExport,
     onImport,
     onDeleteAllTasks,
     currentThemeId,
-    onThemeChange
+    onThemeChange,
+    onResetProgress
 }) => {
     return (
-        <div 
+        <div
             className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 animate-in fade-in duration-200 p-4"
             onClick={onClose}
         >
-            <div 
+            <div
                 className="relative w-full max-w-md rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 slide-in-from-bottom-4 duration-300"
                 style={{
                     backgroundColor: 'var(--bg-secondary)',
@@ -35,7 +37,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 {/* Header */}
                 <div className="p-6 pb-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div 
+                        <div
                             className="w-10 h-10 rounded-xl flex items-center justify-center"
                             style={{ backgroundColor: 'var(--accent-muted)' }}
                         >
@@ -45,12 +47,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                             System Settings
                         </h2>
                     </div>
-                    
+
                     {/* Close Button - Large clickable area */}
-                    <button 
-                        onClick={onClose} 
+                    <button
+                        onClick={onClose}
                         className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95"
-                        style={{ 
+                        style={{
                             color: 'var(--text-muted)',
                             backgroundColor: 'transparent'
                         }}
@@ -70,7 +72,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <div className="px-6 pb-6 space-y-6">
                     {/* Theme Selection */}
                     <div>
-                        <h3 
+                        <h3
                             className="text-[10px] font-bold uppercase tracking-[0.2em] mb-3 flex items-center gap-2"
                             style={{ color: 'var(--text-muted)' }}
                         >
@@ -86,32 +88,32 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                         onClick={() => onThemeChange(theme.id)}
                                         className="relative text-left p-3 rounded-xl border transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                                         style={{
-                                            backgroundColor: isSelected 
-                                                ? 'var(--accent-muted)' 
+                                            backgroundColor: isSelected
+                                                ? 'var(--accent-muted)'
                                                 : 'rgba(255,255,255,0.02)',
-                                            borderColor: isSelected 
-                                                ? 'var(--accent)' 
+                                            borderColor: isSelected
+                                                ? 'var(--accent)'
                                                 : 'var(--border-light)'
                                         }}
                                     >
                                         {/* Color Preview */}
                                         <div className="flex gap-1 mb-2">
-                                            <div 
+                                            <div
                                                 className="w-4 h-4 rounded-md"
                                                 style={{ backgroundColor: theme.colors.bgPrimary, border: '1px solid rgba(255,255,255,0.1)' }}
                                             />
-                                            <div 
+                                            <div
                                                 className="w-4 h-4 rounded-md"
                                                 style={{ backgroundColor: theme.colors.accent }}
                                             />
-                                            <div 
+                                            <div
                                                 className="w-4 h-4 rounded-md"
                                                 style={{ backgroundColor: theme.colors.textPrimary }}
                                             />
                                         </div>
-                                        
+
                                         <div className="flex items-center justify-between">
-                                            <span 
+                                            <span
                                                 className="text-xs font-semibold"
                                                 style={{ color: isSelected ? 'var(--accent)' : 'var(--text-primary)' }}
                                             >
@@ -129,7 +131,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
                     {/* Data Management */}
                     <div>
-                        <h3 
+                        <h3
                             className="text-[10px] font-bold uppercase tracking-[0.2em] mb-3"
                             style={{ color: 'var(--text-muted)' }}
                         >
@@ -152,7 +154,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                     e.currentTarget.style.borderColor = 'var(--border-light)';
                                 }}
                             >
-                                <div 
+                                <div
                                     className="w-12 h-12 rounded-xl flex items-center justify-center transition-colors"
                                     style={{ backgroundColor: 'var(--bg-tertiary)' }}
                                 >
@@ -162,8 +164,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                     Export Backup
                                 </span>
                             </button>
-                            
-                            <label 
+
+                            <label
                                 className="flex flex-col items-center gap-3 p-4 rounded-2xl border transition-all duration-200 cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
                                 style={{
                                     backgroundColor: 'rgba(255,255,255,0.02)',
@@ -178,7 +180,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                     e.currentTarget.style.borderColor = 'var(--border-light)';
                                 }}
                             >
-                                <div 
+                                <div
                                     className="w-12 h-12 rounded-xl flex items-center justify-center"
                                     style={{ backgroundColor: 'var(--bg-tertiary)' }}
                                 >
@@ -189,13 +191,37 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                 </span>
                                 <input type="file" accept=".json" onChange={onImport} className="hidden" />
                             </label>
+
+
+                            {onResetProgress && (
+                                <button
+                                    onClick={onResetProgress}
+                                    className="col-span-2 flex items-center justify-center gap-3 p-3 rounded-xl border transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] group"
+                                    style={{
+                                        backgroundColor: 'rgba(255,255,255,0.02)',
+                                        borderColor: 'var(--border-light)'
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)';
+                                        e.currentTarget.style.borderColor = 'var(--text-muted)';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.02)';
+                                        e.currentTarget.style.borderColor = 'var(--border-light)';
+                                    }}
+                                >
+                                    <div className="text-sm font-semibold" style={{ color: 'var(--text-muted)' }}>
+                                        Reset Progress Bars (Debug)
+                                    </div>
+                                </button>
+                            )}
                         </div>
                     </div>
 
                     {/* Danger Zone */}
                     {onDeleteAllTasks && (
                         <div>
-                            <h3 
+                            <h3
                                 className="text-[10px] font-bold uppercase tracking-[0.2em] mb-3 flex items-center gap-2"
                                 style={{ color: 'var(--error)' }}
                             >
@@ -238,7 +264,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 </div>
 
                 {/* Footer */}
-                <div 
+                <div
                     className="px-6 py-4 text-center border-t"
                     style={{ borderColor: 'var(--border-light)' }}
                 >
@@ -247,6 +273,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     </span>
                 </div>
             </div>
-        </div>
+        </div >
     );
 };

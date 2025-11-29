@@ -90,12 +90,50 @@ export class TaskManager {
     }
 
     scheduleTask(taskId: string, date: Date, row: GridRow | null, type?: TaskType) {
+        const targetDateStr = formatDate(date);
+        const todayStr = formatDate(new Date());
+
+        // Find the task first to check if we need to fork
+        const taskToSchedule = this.tasks.find(t => t.id === taskId);
+
+        if (taskToSchedule && taskToSchedule.dueDate && taskToSchedule.status !== 'unscheduled') {
+            const currentDueDate = taskToSchedule.dueDate;
+
+            // Check if moving from Past -> Future/Today
+            // Simple string comparison works for ISO dates (YYYY-MM-DD)
+            if (currentDueDate < todayStr && targetDateStr >= todayStr) {
+                // FORK LOGIC
+
+                // 1. Mark original as rescheduled
+                this.tasks = this.tasks.map(t =>
+                    t.id === taskId ? { ...t, status: 'rescheduled' } : t
+                );
+
+                // 2. Create new clone for the target date
+                const newTask: Task = {
+                    ...taskToSchedule,
+                    id: Math.random().toString(36).substr(2, 9),
+                    status: 'scheduled',
+                    dueDate: targetDateStr,
+                    assignedRow: row,
+                    eisenhowerQuad: null,
+                    type: type || taskToSchedule.type,
+                    createdAt: Date.now()
+                };
+
+                this.tasks = [...this.tasks, newTask];
+                this.notify();
+                return;
+            }
+        }
+
+        // Normal scheduling logic (no fork)
         this.tasks = this.tasks.map(t => {
             if (t.id === taskId) {
                 return {
                     ...t,
                     status: 'scheduled',
-                    dueDate: formatDate(date),
+                    dueDate: targetDateStr,
                     assignedRow: row,
                     eisenhowerQuad: null,
                     type: type || t.type

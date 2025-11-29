@@ -1,5 +1,5 @@
 import React, { useState, useEffect, Suspense } from 'react';
-import { AppData, Task, Habit, BrainDumpList, DayStats } from './types';
+import { AppData, Task, Habit, BrainDumpList } from './types';
 import { getAdjustedDate, getWeekDays, formatDate, INITIAL_TASKS, INITIAL_HABITS } from './constants';
 import { MainLayout } from './components/layout/MainLayout';
 import { Sidebar } from './components/layout/Sidebar';
@@ -56,7 +56,6 @@ const App = () => {
     const [showSettings, setShowSettings] = useState(false);
     const [showCompleted, setShowCompleted] = useState(true);
     const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
-    const [dayHistory, setDayHistory] = useState<Record<string, DayStats>>({});
 
     // --- Theme ---
     const [currentThemeId, setCurrentThemeId] = useState<string>(persistence.loadTheme());
@@ -68,6 +67,7 @@ const App = () => {
     }, [currentThemeId]);
 
     // --- Global Hotkeys ---
+    // --- Global Hotkeys ---
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.ctrlKey && e.key === 's') {
@@ -78,62 +78,6 @@ const App = () => {
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [persistence]);
-
-    // Load dayHistory
-    useEffect(() => {
-        if (initialData && initialData.dayHistory) {
-            setDayHistory(initialData.dayHistory);
-        }
-    }, [initialData]);
-
-    // Snapshot Logic: Generate stats for past days if missing (Only for PAST WEEKS)
-    useEffect(() => {
-        const today = getAdjustedDate();
-
-        // Calculate start of the current week (Monday)
-        const currentDay = today.getDay(); // 0 is Sunday
-        const daysToMonday = currentDay === 0 ? 6 : currentDay - 1;
-        const startOfCurrentWeek = new Date(today);
-        startOfCurrentWeek.setDate(today.getDate() - daysToMonday);
-        startOfCurrentWeek.setHours(0, 0, 0, 0);
-
-        let hasUpdates = false;
-        const newHistory = { ...dayHistory };
-
-        // Check the last 30 days to ensure we catch up on any missed snapshots
-        for (let i = 1; i <= 30; i++) {
-            const pastDay = new Date(startOfCurrentWeek);
-            pastDay.setDate(startOfCurrentWeek.getDate() - i);
-            const dateStr = formatDate(pastDay);
-
-            // If no snapshot exists for this past-week day
-            if (!newHistory[dateStr]) {
-                const dayTasks = taskManager.tasks.filter(t => t.dueDate === dateStr && t.status !== 'unscheduled');
-                const totalMinutes = dayTasks.reduce((acc, t) => acc + t.duration, 0);
-                const completedTasks = dayTasks.filter(t => t.status === 'completed');
-                const completedMinutes = completedTasks.reduce((acc, t) => acc + t.duration, 0);
-
-                let percentage = 0;
-                if (totalMinutes > 0) {
-                    percentage = Math.round((completedMinutes / totalMinutes) * 100);
-                }
-
-                newHistory[dateStr] = {
-                    date: dateStr,
-                    totalMinutes,
-                    completedMinutes,
-                    percentage
-                };
-                hasUpdates = true;
-            }
-        }
-
-        if (hasUpdates) {
-            setDayHistory(newHistory);
-            // Also update persistence to save this immediately
-            // Note: usePersistence handles auto-saving, but we might want to ensure this state is captured
-        }
-    }, [currentDate, taskManager.tasks, dayHistory]);
 
     // --- App Loader Cleanup ---
     useEffect(() => {
@@ -203,7 +147,6 @@ const App = () => {
                         onToggleTaskComplete={taskManager.toggleTaskComplete}
                         onTaskDrop={taskManager.handleReorderTasks}
                         showCompleted={showCompleted}
-                        dayHistory={dayHistory}
                     />
                 )}
                 {activeTab === 'focus' && (
@@ -252,6 +195,13 @@ const App = () => {
                     }}
                     currentThemeId={currentThemeId}
                     onThemeChange={setCurrentThemeId}
+                    onResetProgress={() => {
+                        if (window.confirm('This will clear all "rescheduled" ghost tasks, resetting the progress bar baseline. Continue?')) {
+                            const rescheduledTasks = taskManager.tasks.filter(t => t.status === 'rescheduled');
+                            rescheduledTasks.forEach(t => taskManager.deleteTask(t.id));
+                            alert(`Reset complete. Cleared ${rescheduledTasks.length} ghost tasks.`);
+                        }
+                    }}
                 />
             )}
         </>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Task, GridRow, DayStats } from '../../../types';
+import { Task, GridRow } from '../../../types';
 import { getWeekDays, formatDate, TARGET_HOURS_PER_DAY, ROW_CONFIG, DAYS, getAdjustedDate } from '../../../constants';
 import { TaskCard } from '@/components/TaskCard';
 import { GridCell } from './GridCell';
@@ -17,7 +17,7 @@ interface WeekViewProps {
     onDeleteTask?: (taskId: string) => void;
     onTaskDrop?: (sourceId: string, targetId: string) => void;
     showCompleted: boolean;
-    dayHistory?: Record<string, DayStats>;
+    showCompleted: boolean;
 }
 
 // Progress color: 0% = Red (nothing done), 100% = Green (all done)
@@ -50,8 +50,7 @@ export const WeekView: React.FC<WeekViewProps> = ({
     onUpdateTask,
     onDeleteTask,
     onTaskDrop,
-    showCompleted,
-    dayHistory = {}
+    showCompleted
 }) => {
     const currentWeekDays = getWeekDays(currentDate);
     const todayStr = formatDate(getAdjustedDate());
@@ -69,10 +68,13 @@ export const WeekView: React.FC<WeekViewProps> = ({
                     t.dueDate === formatDate(day)
                 );
 
-                // Get only incomplete tasks for display
-                const dayTasks = allDayTasks.filter(t => t.status !== 'completed');
+                // Get only incomplete tasks for display (exclude rescheduled from main list)
+                const activeTasks = allDayTasks.filter(t => t.status !== 'completed' && t.status !== 'rescheduled');
+                const rescheduledTasks = allDayTasks.filter(t => t.status === 'rescheduled');
 
-                const isToday = formatDate(day) === todayStr;
+                const dayStr = formatDate(day);
+                const isToday = dayStr === todayStr;
+                const isPastDay = dayStr < todayStr;
                 const hasTasksScheduled = allDayTasks.length > 0;
                 const allTasksCompleted = hasTasksScheduled && allDayTasks.every(t => t.status === 'completed');
 
@@ -84,7 +86,7 @@ export const WeekView: React.FC<WeekViewProps> = ({
                         className="flex-1 w-0 flex flex-col p-2 rounded-2xl gap-2 transition-all duration-300"
                         style={{
                             backgroundColor: isToday ? 'color-mix(in srgb, var(--accent) 2%, transparent)' : 'transparent',
-                            border: isToday ? '1px solid' : '1px solid transparent',
+                            border: isToday ? '1px solid' : (isPastDay ? '1px solid color-mix(in srgb, var(--border-light), transparent 35%)' : '1px solid transparent'),
                             borderColor: isToday ? 'color-mix(in srgb, var(--accent) 10%, transparent)' : 'transparent'
                         }}
                     >
@@ -94,7 +96,9 @@ export const WeekView: React.FC<WeekViewProps> = ({
                                 style={{
                                     backgroundColor: 'rgba(16, 185, 129, 0.05)',
                                     borderColor: 'rgba(16, 185, 129, 0.3)',
-                                    borderStyle: 'dashed'
+                                    borderColor: 'rgba(16, 185, 129, 0.3)',
+                                    borderStyle: 'dashed',
+                                    opacity: isPastDay ? 0.65 : 1
                                 }}
                             >
                                 <CheckCircle2
@@ -120,32 +124,37 @@ export const WeekView: React.FC<WeekViewProps> = ({
                                 </div>
                             </div>
                         ) : (
-                            dayTasks
-                                .sort((a, b) => {
-                                    const rowOrder: Record<string, number> = { 'GOAL': 0, 'FOCUS': 1, 'WORK': 2, 'LEISURE': 3, 'CHORES': 4 };
-                                    const aVal = rowOrder[a.assignedRow || ''] ?? 99;
-                                    const bVal = rowOrder[b.assignedRow || ''] ?? 99;
-                                    const indexA = tasks.findIndex(t => t.id === a.id);
-                                    const indexB = tasks.findIndex(t => t.id === b.id);
-                                    return (aVal - bVal) || (indexA - indexB);
-                                })
-                                .map((task, idx) => (
-                                    <div
-                                        key={task.id}
-                                        className="animate-in fade-in slide-in-from-bottom-2 duration-300"
-                                        style={{ animationDelay: `${idx * 30}ms` }}
-                                    >
-                                        <TaskCard
-                                            task={task}
-                                            variant="board"
-                                            onDragStart={onDragStart}
-                                            onUpdateTask={onUpdateTask}
-                                            onDeleteTask={onDeleteTask}
-                                            onToggleComplete={onToggleTaskComplete}
-                                            onTaskDrop={onTaskDrop}
-                                        />
-                                    </div>
-                                ))
+                            <>
+                                {activeTasks
+                                    .sort((a, b) => {
+                                        const rowOrder: Record<string, number> = { 'GOAL': 0, 'FOCUS': 1, 'WORK': 2, 'LEISURE': 3, 'CHORES': 4 };
+                                        const aVal = rowOrder[a.assignedRow || ''] ?? 99;
+                                        const bVal = rowOrder[b.assignedRow || ''] ?? 99;
+                                        const indexA = tasks.findIndex(t => t.id === a.id);
+                                        const indexB = tasks.findIndex(t => t.id === b.id);
+                                        return (aVal - bVal) || (indexA - indexB);
+                                    })
+                                    .map((task, idx) => (
+                                        <div
+                                            key={task.id}
+                                            className="animate-in fade-in slide-in-from-bottom-2 duration-300"
+                                            style={{ animationDelay: `${idx * 30}ms` }}
+                                        >
+                                            <TaskCard
+                                                task={task}
+                                                variant="board"
+                                                onDragStart={onDragStart}
+                                                onUpdateTask={onUpdateTask}
+                                                onDeleteTask={onDeleteTask}
+                                                onToggleComplete={onToggleTaskComplete}
+                                                onTaskDrop={onTaskDrop}
+                                                isOverdue={isPastDay}
+                                            />
+                                        </div>
+                                    ))}
+
+
+                            </>
                         )}
                     </div>
                 );
@@ -230,6 +239,7 @@ export const WeekView: React.FC<WeekViewProps> = ({
                                 return true;
                             });
                             const isDayEmpty = dayTasks.length === 0;
+                            const isPastDay = formatDate(day) < todayStr;
                             return (
                                 <GridCell
                                     key={`${i}-${row}`}
@@ -245,6 +255,7 @@ export const WeekView: React.FC<WeekViewProps> = ({
                                     isDayEmpty={isDayEmpty}
                                     onTaskDrop={onTaskDrop}
                                     showCompleted={showCompleted}
+                                    isPastDay={isPastDay}
                                 />
                             );
                         })}
@@ -263,38 +274,18 @@ export const WeekView: React.FC<WeekViewProps> = ({
                         const isToday = formatDate(day) === todayStr;
                         const dateStr = formatDate(day);
 
-                        // Calculate start of the current week (Monday)
-                        const todayDate = new Date(todayStr);
-                        const currentDay = todayDate.getDay(); // 0 is Sunday
-                        const daysToMonday = currentDay === 0 ? 6 : currentDay - 1;
-                        const startOfCurrentWeek = new Date(todayDate);
-                        startOfCurrentWeek.setDate(todayDate.getDate() - daysToMonday);
-                        startOfCurrentWeek.setHours(0, 0, 0, 0);
+                        // Calculate stats from live tasks (including rescheduled for denominator)
+                        const dayTasks = tasks.filter(t => t.dueDate === dateStr && t.status !== 'unscheduled');
+                        const completedTasks = dayTasks.filter(t => t.status === 'completed');
 
-                        // Check history first for past days (only if they belong to a PAST week)
-                        const history = dayHistory[dateStr];
-                        const dayDate = new Date(dateStr);
-                        const useHistory = history && dayDate < startOfCurrentWeek;
+                        const totalMinutes = dayTasks.reduce((acc, t) => acc + t.duration, 0);
+                        const completedMinutes = completedTasks.reduce((acc, t) => acc + t.duration, 0);
+                        const targetMinutesPerDay = TARGET_HOURS_PER_DAY * 60;
 
-                        let totalMinutes = 0;
-                        let completedMinutes = 0;
-                        let plannedPercent = 0;
-                        let completionPercent = 0;
+                        const plannedPercent = Math.min(100, (totalMinutes / targetMinutesPerDay) * 100);
 
-                        if (useHistory) {
-                            totalMinutes = history.totalMinutes;
-                            completedMinutes = history.completedMinutes;
-                            completionPercent = history.percentage;
-                            plannedPercent = Math.min(100, (totalMinutes / (TARGET_HOURS_PER_DAY * 60)) * 100);
-                        } else {
-                            const dayTasks = tasks.filter(t => t.dueDate === dateStr && t.status !== 'unscheduled');
-                            const completedTasks = dayTasks.filter(t => t.status === 'completed');
-                            totalMinutes = dayTasks.reduce((acc, t) => acc + t.duration, 0);
-                            completedMinutes = completedTasks.reduce((acc, t) => acc + t.duration, 0);
-                            const targetMinutesPerDay = TARGET_HOURS_PER_DAY * 60;
-                            plannedPercent = Math.min(100, (totalMinutes / targetMinutesPerDay) * 100);
-                            completionPercent = totalMinutes > 0 ? Math.round((completedMinutes / totalMinutes) * 100) : 0;
-                        }
+                        // Completion Rate: Completed / (Completed + Remaining + Rescheduled)
+                        const completionPercent = totalMinutes > 0 ? Math.round((completedMinutes / totalMinutes) * 100) : 0;
 
                         const plannedHours = (totalMinutes / 60).toFixed(1).replace(/\.0$/, '');
                         const completionColor = getGradientColor(completionPercent);
@@ -303,9 +294,9 @@ export const WeekView: React.FC<WeekViewProps> = ({
                         const isNearCapacity = plannedPercent > 80;
 
                         // Check if day is in the past (strictly before today)
+                        const todayDate = new Date(todayStr);
                         const currentDayDate = new Date(formatDate(day));
                         const isPastDay = currentDayDate < todayDate;
-                        const isFullyComplete = completionPercent >= 100;
 
                         // Apply subtle styling for past completed days
                         const isSubtle = isPastDay;
@@ -320,7 +311,8 @@ export const WeekView: React.FC<WeekViewProps> = ({
                                             : 'transparent',
                                         borderTop: isToday ? '2px solid' : 'none',
                                         borderColor: isToday ? 'color-mix(in srgb, var(--accent) 30%, transparent)' : 'transparent',
-                                        zIndex: isToday ? 10 : 'auto'
+                                        zIndex: isToday ? 10 : 'auto',
+                                        opacity: isPastDay ? 0.65 : 1
                                     }}
                                 >
                                     {/* Day Name */}
@@ -403,7 +395,7 @@ export const WeekView: React.FC<WeekViewProps> = ({
 
                 {/* Rows */}
                 {isStacked ? renderWeekStacked() : renderWeekMatrix()}
-            </div>
-        </div>
+            </div >
+        </div >
     );
 };
