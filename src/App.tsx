@@ -193,15 +193,9 @@ const App = () => {
                             taskManager.tasks.forEach(t => taskManager.deleteTask(t.id));
                         }
                     }}
+                    onClearRescheduled={taskManager.clearRescheduledTasks}
                     currentThemeId={currentThemeId}
                     onThemeChange={setCurrentThemeId}
-                    onResetProgress={() => {
-                        if (window.confirm('This will clear all "rescheduled" ghost tasks, resetting the progress bar baseline. Continue?')) {
-                            const rescheduledTasks = taskManager.tasks.filter(t => t.status === 'rescheduled');
-                            rescheduledTasks.forEach(t => taskManager.deleteTask(t.id));
-                            alert(`Reset complete. Cleared ${rescheduledTasks.length} ghost tasks.`);
-                        }
-                    }}
                 />
             )}
         </>

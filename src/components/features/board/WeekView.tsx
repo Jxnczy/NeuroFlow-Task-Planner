@@ -96,7 +96,6 @@ export const WeekView: React.FC<WeekViewProps> = ({
                                 style={{
                                     backgroundColor: 'rgba(16, 185, 129, 0.05)',
                                     borderColor: 'rgba(16, 185, 129, 0.3)',
-                                    borderColor: 'rgba(16, 185, 129, 0.3)',
                                     borderStyle: 'dashed',
                                     opacity: isPastDay ? 0.65 : 1
                                 }}
@@ -153,7 +152,18 @@ export const WeekView: React.FC<WeekViewProps> = ({
                                         </div>
                                     ))}
 
-
+                                {/* Rescheduled Tasks (Ghost Trails) */}
+                                {rescheduledTasks.map((task, idx) => (
+                                    <div key={task.id} className="mt-1">
+                                        <TaskCard
+                                            task={task}
+                                            variant="board"
+                                            onDragStart={() => { }}
+                                            onToggleComplete={() => { }}
+                                            onDeleteTask={() => { }}
+                                        />
+                                    </div>
+                                ))}
                             </>
                         )}
                     </div>
@@ -312,7 +322,7 @@ export const WeekView: React.FC<WeekViewProps> = ({
                                         borderTop: isToday ? '2px solid' : 'none',
                                         borderColor: isToday ? 'color-mix(in srgb, var(--accent) 30%, transparent)' : 'transparent',
                                         zIndex: isToday ? 10 : 'auto',
-                                        opacity: isPastDay ? 0.65 : 1
+                                        opacity: isPastDay ? 0.85 : 1
                                     }}
                                 >
                                     {/* Day Name */}

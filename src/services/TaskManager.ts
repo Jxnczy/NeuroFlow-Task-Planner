@@ -56,6 +56,11 @@ export class TaskManager {
         this.notify();
     }
 
+    clearRescheduledTasks() {
+        this.tasks = this.tasks.filter(t => t.status !== 'rescheduled');
+        this.notify();
+    }
+
     toggleTaskComplete(taskId: string): boolean {
         let isNowComplete = false;
         this.tasks = this.tasks.map(t => {

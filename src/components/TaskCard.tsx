@@ -99,9 +99,9 @@ export const TaskCard: React.FC<TaskCardProps> = ({
     // Rescheduled "Ghost Trail" variant
     if (task.status === 'rescheduled') {
         return (
-            <div className="flex items-center gap-2 px-2 py-1 rounded border border-dashed border-slate-700/50 bg-slate-800/20 opacity-40 select-none">
+            <div className="flex items-center gap-2 px-2 py-1 rounded border border-dashed border-slate-700/50 bg-slate-800/20 select-none">
                 <ArrowRight size={12} className="text-slate-500" />
-                <span className="text-[11px] text-slate-500 line-through truncate flex-1 font-medium">
+                <span className="text-[11px] text-slate-500 truncate flex-1 font-medium">
                     {task.title}
                 </span>
                 <span className="text-[10px] text-slate-600">
@@ -199,7 +199,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                     )}
                     <div className={`w-1.5 h-12 rounded-full ${TYPE_INDICATOR_COLORS[task.type]} flex-shrink-0`} />
                     <div className="flex flex-col min-w-0 gap-1">
-                        <h3 className={`font-semibold text-base truncate transition-colors ${isCompleted ? 'text-emerald-400 line-through decoration-emerald-500/50' : 'text-slate-200'}`}>
+                        <h3 className={`font-semibold text-base truncate transition-colors ${isCompleted ? 'text-emerald-400 decoration-emerald-500/50' : 'text-slate-200'}`}>
                             {task.title}
                         </h3>
                         <div className="flex items-center gap-2 text-sm text-slate-500">
@@ -264,7 +264,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                     </button>
 
                     <h3
-                        className={`flex-1 font-medium text-[13px] leading-snug line-clamp-2 ${isCompleted ? 'text-emerald-400/70 line-through' : ''}`}
+                        className={`flex-1 font-medium text-[13px] leading-snug line-clamp-2 ${isCompleted ? 'text-emerald-400/70' : ''}`}
                         style={{ color: isCompleted ? undefined : 'var(--text-primary)' }}
                     >
                         {task.title}
@@ -335,7 +335,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                 </button>
 
                 <h3
-                    className={`flex-1 font-medium text-sm leading-snug line-clamp-2 ${isCompleted ? 'text-emerald-400/70 line-through' : ''}`}
+                    className={`flex-1 font-medium text-sm leading-snug line-clamp-2 ${isCompleted ? 'text-emerald-400/70' : ''}`}
                     style={{ color: isCompleted ? undefined : 'var(--text-primary)' }}
                 >
                     {task.title}

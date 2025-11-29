@@ -7,9 +7,9 @@ interface SettingsModalProps {
     onExport: () => void;
     onImport: (event: React.ChangeEvent<HTMLInputElement>) => void;
     onDeleteAllTasks?: () => void;
+    onClearRescheduled?: () => void;
     currentThemeId: string;
     onThemeChange: (themeId: string) => void;
-    onResetProgress?: () => void;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -17,9 +17,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     onExport,
     onImport,
     onDeleteAllTasks,
+    onClearRescheduled,
     currentThemeId,
-    onThemeChange,
-    onResetProgress
+    onThemeChange
 }) => {
     return (
         <div
@@ -191,76 +191,94 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                 </span>
                                 <input type="file" accept=".json" onChange={onImport} className="hidden" />
                             </label>
-
-
-                            {onResetProgress && (
-                                <button
-                                    onClick={onResetProgress}
-                                    className="col-span-2 flex items-center justify-center gap-3 p-3 rounded-xl border transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] group"
-                                    style={{
-                                        backgroundColor: 'rgba(255,255,255,0.02)',
-                                        borderColor: 'var(--border-light)'
-                                    }}
-                                    onMouseEnter={(e) => {
-                                        e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)';
-                                        e.currentTarget.style.borderColor = 'var(--text-muted)';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.02)';
-                                        e.currentTarget.style.borderColor = 'var(--border-light)';
-                                    }}
-                                >
-                                    <div className="text-sm font-semibold" style={{ color: 'var(--text-muted)' }}>
-                                        Reset Progress Bars (Debug)
-                                    </div>
-                                </button>
-                            )}
                         </div>
                     </div>
 
                     {/* Danger Zone */}
-                    {onDeleteAllTasks && (
-                        <div>
-                            <h3
-                                className="text-[10px] font-bold uppercase tracking-[0.2em] mb-3 flex items-center gap-2"
-                                style={{ color: 'var(--error)' }}
-                            >
-                                <AlertTriangle size={12} />
-                                Danger Zone
-                            </h3>
-                            <button
-                                onClick={onDeleteAllTasks}
-                                className="w-full flex items-center justify-between p-4 rounded-xl border transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] group"
-                                style={{
-                                    backgroundColor: 'rgba(239, 68, 68, 0.05)',
-                                    borderColor: 'rgba(239, 68, 68, 0.2)'
-                                }}
-                                onMouseEnter={(e) => {
-                                    e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
-                                    e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)';
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.05)';
-                                    e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.2)';
-                                }}
-                            >
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-lg bg-rose-500/10 flex items-center justify-center">
-                                        <Trash2 size={18} className="text-rose-400" />
-                                    </div>
-                                    <div className="text-left">
-                                        <div className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
-                                            Delete All Tasks
+                    <div>
+                        <h3
+                            className="text-[10px] font-bold uppercase tracking-[0.2em] mb-3 flex items-center gap-2"
+                            style={{ color: 'var(--error)' }}
+                        >
+                            <AlertTriangle size={12} />
+                            Danger Zone
+                        </h3>
+                        <div className="space-y-3">
+                            {/* Reset Schedule Button */}
+                            {onClearRescheduled && (
+                                <button
+                                    onClick={() => {
+                                        if (window.confirm('Are you sure you want to clear all rescheduled tasks? This cannot be undone.')) {
+                                            onClearRescheduled();
+                                        }
+                                    }}
+                                    className="w-full flex items-center justify-between p-4 rounded-xl border transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] group"
+                                    style={{
+                                        backgroundColor: 'rgba(239, 68, 68, 0.05)',
+                                        borderColor: 'rgba(239, 68, 68, 0.2)'
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+                                        e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.05)';
+                                        e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.2)';
+                                    }}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-lg bg-rose-500/10 flex items-center justify-center">
+                                            <Trash2 size={18} className="text-rose-400" />
                                         </div>
-                                        <div className="text-[10px]" style={{ color: 'var(--error)' }}>
-                                            This action cannot be undone.
+                                        <div className="text-left">
+                                            <div className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+                                                Reset Schedule
+                                            </div>
+                                            <div className="text-[10px]" style={{ color: 'var(--error)' }}>
+                                                Clears all "rescheduled" ghost trails.
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <ChevronRight size={18} className="text-rose-400 opacity-50 group-hover:opacity-100 transition-opacity" />
-                            </button>
+                                    <ChevronRight size={18} className="text-rose-400 opacity-50 group-hover:opacity-100 transition-opacity" />
+                                </button>
+                            )}
+
+                            {/* Delete All Tasks Button */}
+                            {onDeleteAllTasks && (
+                                <button
+                                    onClick={onDeleteAllTasks}
+                                    className="w-full flex items-center justify-between p-4 rounded-xl border transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] group"
+                                    style={{
+                                        backgroundColor: 'rgba(239, 68, 68, 0.05)',
+                                        borderColor: 'rgba(239, 68, 68, 0.2)'
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+                                        e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.05)';
+                                        e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.2)';
+                                    }}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-lg bg-rose-500/10 flex items-center justify-center">
+                                            <Trash2 size={18} className="text-rose-400" />
+                                        </div>
+                                        <div className="text-left">
+                                            <div className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+                                                Delete All Tasks
+                                            </div>
+                                            <div className="text-[10px]" style={{ color: 'var(--error)' }}>
+                                                This action cannot be undone.
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <ChevronRight size={18} className="text-rose-400 opacity-50 group-hover:opacity-100 transition-opacity" />
+                                </button>
+                            )}
                         </div>
-                    )}
+                    </div>
                 </div>
 
                 {/* Footer */}
@@ -273,6 +291,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     </span>
                 </div>
             </div>
-        </div >
+        </div>
     );
 };

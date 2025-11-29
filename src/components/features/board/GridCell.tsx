@@ -90,7 +90,7 @@ export const GridCell: React.FC<GridCellProps> = ({
             onDrop={handleDrop}
             className="relative flex-1 w-0 flex flex-col p-1.5 gap-1 transition-colors duration-150"
             style={{
-                borderRight: isPastDay ? '1px solid color-mix(in srgb, var(--border-light), transparent 35%)' : '1px solid var(--border-light)',
+                borderRight: isPastDay ? '1px solid color-mix(in srgb, var(--border-light), transparent 20%)' : '1px solid var(--border-light)',
                 backgroundColor: isDragOver
                     ? 'var(--accent-muted)'
                     : isToday
@@ -107,7 +107,7 @@ export const GridCell: React.FC<GridCellProps> = ({
                         opacity: (!showCompleted && task.status === 'completed')
                             ? 0.15
                             : (isPastDay && task.status === 'completed')
-                                ? 0.65
+                                ? 0.85
                                 : 1,
                         transition: 'opacity 0.3s ease'
                     }}
@@ -125,40 +125,57 @@ export const GridCell: React.FC<GridCellProps> = ({
                 </div>
             ))}
 
-
+            {/* Rescheduled Tasks (Ghost Trails) */}
+            {
+                rescheduledTasks.map((task) => (
+                    <div key={task.id} className="flex-shrink-0 mt-1">
+                        <TaskCard
+                            task={task}
+                            variant="board"
+                            onDragStart={() => { }} // Disable drag
+                            onToggleComplete={() => { }} // Disable toggle
+                            onDeleteTask={() => { }} // Disable delete
+                        />
+                    </div>
+                ))
+            }
 
             {/* Drop Indicator - Fills remaining space */}
-            {isDragOver && emptySlotsToRender > 0 && (
-                <div
-                    className={`relative w-full min-h-0 border-2 border-dashed rounded-lg pointer-events-none z-20 flex items-center justify-center animate-in fade-in duration-200 ${ROW_CONFIG[row].barColor.replace('bg-', 'border-')}`}
-                    style={{
-                        flex: emptySlotsToRender,
-                        backgroundColor: 'rgba(255,255,255,0.03)'
-                    }}
-                >
-                    <span
-                        className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${ROW_CONFIG[row].barColor} text-white`}
-                    >
-                        Drop
-                    </span>
-                </div>
-            )}
-
-            {/* Empty slots */}
-            {emptySlotsToRender > 0 && !isDragOver && Array.from({ length: emptySlotsToRender }).map((_, index) => (
-                <div key={`ghost-${index}`} className="flex-1 relative w-full min-h-0 pointer-events-none">
+            {
+                isDragOver && emptySlotsToRender > 0 && (
                     <div
-                        className="absolute inset-0 rounded-lg border border-dashed flex items-center justify-center"
+                        className={`relative w-full min-h-0 border-2 border-dashed rounded-lg pointer-events-none z-20 flex items-center justify-center animate-in fade-in duration-200 ${ROW_CONFIG[row].barColor.replace('bg-', 'border-')}`}
                         style={{
-                            borderColor: 'var(--text-muted)',
-                            opacity: isPastDay ? 0.065 : 0.1
+                            flex: emptySlotsToRender,
+                            backgroundColor: 'rgba(255,255,255,0.03)'
                         }}
                     >
-                        <Plus size={14} className="opacity-30" style={{ color: 'var(--text-muted)' }} />
+                        <span
+                            className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${ROW_CONFIG[row].barColor} text-white`}
+                        >
+                            Drop
+                        </span>
                     </div>
-                </div>
-            ))}
+                )
+            }
 
-        </div>
+            {/* Empty slots */}
+            {
+                emptySlotsToRender > 0 && !isDragOver && Array.from({ length: emptySlotsToRender }).map((_, index) => (
+                    <div key={`ghost-${index}`} className="flex-1 relative w-full min-h-0 pointer-events-none">
+                        <div
+                            className="absolute inset-0 rounded-lg border border-dashed flex items-center justify-center"
+                            style={{
+                                borderColor: 'var(--text-muted)',
+                                opacity: isPastDay ? 0.065 : 0.1
+                            }}
+                        >
+                            <Plus size={14} className="opacity-30" style={{ color: 'var(--text-muted)' }} />
+                        </div>
+                    </div>
+                ))
+            }
+
+        </div >
     );
 };

@@ -116,6 +116,7 @@ export function useTaskManager(initialTasks: Task[]) {
         handleDragStart,
         handleDropOnGrid,
         handleDropOnSidebar,
-        handleDropOnEisenhower
+        handleDropOnEisenhower,
+        clearRescheduledTasks: () => manager.clearRescheduledTasks()
     };
 }
