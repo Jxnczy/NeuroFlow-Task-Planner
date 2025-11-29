@@ -59,12 +59,18 @@ export const WeekView: React.FC<WeekViewProps> = ({
     const renderWeekStacked = () => (
         <div className="flex-grow flex relative mt-0 overflow-y-auto no-scrollbar gap-2">
             {currentWeekDays.map((day, i) => {
-                const dayTasks = tasks.filter(t =>
+                // Get all tasks for the day (including completed)
+                const allDayTasks = tasks.filter(t =>
                     t.status !== 'unscheduled' &&
-                    t.dueDate === formatDate(day) &&
-                    (showCompleted || t.status !== 'completed')
+                    t.dueDate === formatDate(day)
                 );
+
+                // Get only incomplete tasks for display
+                const dayTasks = allDayTasks.filter(t => t.status !== 'completed');
+
                 const isToday = formatDate(day) === todayStr;
+                const hasTasksScheduled = allDayTasks.length > 0;
+                const allTasksCompleted = hasTasksScheduled && allDayTasks.every(t => t.status === 'completed');
 
                 return (
                     <div
@@ -78,32 +84,65 @@ export const WeekView: React.FC<WeekViewProps> = ({
                             borderColor: isToday ? 'color-mix(in srgb, var(--accent) 10%, transparent)' : 'transparent'
                         }}
                     >
-                        {dayTasks
-                            .sort((a, b) => {
-                                const rowOrder: Record<string, number> = { 'GOAL': 0, 'FOCUS': 1, 'WORK': 2, 'LEISURE': 3, 'CHORES': 4 };
-                                const aVal = rowOrder[a.assignedRow || ''] ?? 99;
-                                const bVal = rowOrder[b.assignedRow || ''] ?? 99;
-                                const indexA = tasks.findIndex(t => t.id === a.id);
-                                const indexB = tasks.findIndex(t => t.id === b.id);
-                                return (aVal - bVal) || (indexA - indexB);
-                            })
-                            .map((task, idx) => (
-                                <div
-                                    key={task.id}
-                                    className="animate-in fade-in slide-in-from-bottom-2 duration-300"
-                                    style={{ animationDelay: `${idx * 30}ms` }}
-                                >
-                                    <TaskCard
-                                        task={task}
-                                        variant="board"
-                                        onDragStart={onDragStart}
-                                        onUpdateTask={onUpdateTask}
-                                        onDeleteTask={onDeleteTask}
-                                        onToggleComplete={onToggleTaskComplete}
-                                        onTaskDrop={onTaskDrop}
-                                    />
+                        {allTasksCompleted ? (
+                            <div
+                                className="flex-1 flex flex-col items-center justify-center gap-3 rounded-xl border-2 p-8 animate-in fade-in zoom-in-95 duration-500"
+                                style={{
+                                    backgroundColor: 'rgba(16, 185, 129, 0.05)',
+                                    borderColor: 'rgba(16, 185, 129, 0.3)',
+                                    borderStyle: 'dashed'
+                                }}
+                            >
+                                <CheckCircle2
+                                    size={48}
+                                    style={{
+                                        color: '#10b981',
+                                        filter: 'drop-shadow(0 4px 12px rgba(16, 185, 129, 0.3))'
+                                    }}
+                                />
+                                <div className="text-center">
+                                    <div
+                                        className="text-sm font-bold"
+                                        style={{ color: '#10b981' }}
+                                    >
+                                        Finished all tasks
+                                    </div>
+                                    <div
+                                        className="text-[10px] mt-1 opacity-60"
+                                        style={{ color: '#10b981' }}
+                                    >
+                                        {allDayTasks.length} task{allDayTasks.length !== 1 ? 's' : ''} completed
+                                    </div>
                                 </div>
-                            ))}
+                            </div>
+                        ) : (
+                            dayTasks
+                                .sort((a, b) => {
+                                    const rowOrder: Record<string, number> = { 'GOAL': 0, 'FOCUS': 1, 'WORK': 2, 'LEISURE': 3, 'CHORES': 4 };
+                                    const aVal = rowOrder[a.assignedRow || ''] ?? 99;
+                                    const bVal = rowOrder[b.assignedRow || ''] ?? 99;
+                                    const indexA = tasks.findIndex(t => t.id === a.id);
+                                    const indexB = tasks.findIndex(t => t.id === b.id);
+                                    return (aVal - bVal) || (indexA - indexB);
+                                })
+                                .map((task, idx) => (
+                                    <div
+                                        key={task.id}
+                                        className="animate-in fade-in slide-in-from-bottom-2 duration-300"
+                                        style={{ animationDelay: `${idx * 30}ms` }}
+                                    >
+                                        <TaskCard
+                                            task={task}
+                                            variant="board"
+                                            onDragStart={onDragStart}
+                                            onUpdateTask={onUpdateTask}
+                                            onDeleteTask={onDeleteTask}
+                                            onToggleComplete={onToggleTaskComplete}
+                                            onTaskDrop={onTaskDrop}
+                                        />
+                                    </div>
+                                ))
+                        )}
                     </div>
                 );
             })}
@@ -184,7 +223,6 @@ export const WeekView: React.FC<WeekViewProps> = ({
                             const dayTasks = tasks.filter(t => {
                                 if (t.status === 'unscheduled') return false;
                                 if (t.dueDate !== formatDate(day)) return false;
-                                if (!showCompleted && t.status === 'completed') return false;
                                 return true;
                             });
                             const isDayEmpty = dayTasks.length === 0;
@@ -202,6 +240,7 @@ export const WeekView: React.FC<WeekViewProps> = ({
                                     onToggleComplete={onToggleTaskComplete}
                                     isDayEmpty={isDayEmpty}
                                     onTaskDrop={onTaskDrop}
+                                    showCompleted={showCompleted}
                                 />
                             );
                         })}
@@ -269,7 +308,7 @@ export const WeekView: React.FC<WeekViewProps> = ({
                                     {/* Workload Indicator */}
                                     <div className="w-full mt-3 flex flex-col items-center gap-1.5">
                                         <div
-                                            className="text-[10px] font-bold transition-colors"
+                                            className="text-xs font-extrabold transition-colors"
                                             style={{
                                                 color: isOverCapacity
                                                     ? 'var(--error)'
@@ -300,10 +339,10 @@ export const WeekView: React.FC<WeekViewProps> = ({
 
                                                 <div className="flex items-center gap-1">
                                                     {completionPercent >= 100 && (
-                                                        <CheckCircle2 size={10} style={{ color: completionColor }} />
+                                                        <CheckCircle2 size={12} style={{ color: completionColor }} />
                                                     )}
                                                     <span
-                                                        className="text-[9px] font-bold"
+                                                        className="text-[11px] font-extrabold"
                                                         style={{ color: completionColor }}
                                                     >
                                                         {completionPercent}% done

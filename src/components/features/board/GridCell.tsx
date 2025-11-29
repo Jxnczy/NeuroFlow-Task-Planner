@@ -16,6 +16,7 @@ interface GridCellProps {
     onDeleteTask?: (taskId: string) => void;
     isDayEmpty: boolean;
     onTaskDrop?: (sourceId: string, targetId: string) => void;
+    showCompleted: boolean;
 }
 
 export const GridCell: React.FC<GridCellProps> = ({
@@ -29,7 +30,8 @@ export const GridCell: React.FC<GridCellProps> = ({
     onUpdateTask,
     onDeleteTask,
     isDayEmpty,
-    onTaskDrop
+    onTaskDrop,
+    showCompleted
 }) => {
     const [isDragOver, setIsDragOver] = useState(false);
     const dayStr = formatDate(day);
@@ -90,7 +92,14 @@ export const GridCell: React.FC<GridCellProps> = ({
         >
             {/* Tasks */}
             {visibleTasks.map((task) => (
-                <div key={task.id} className="flex-1 min-h-0">
+                <div
+                    key={task.id}
+                    className="flex-1 min-h-0"
+                    style={{
+                        opacity: !showCompleted && task.status === 'completed' ? 0.15 : 1,
+                        transition: 'opacity 0.3s ease'
+                    }}
+                >
                     <TaskCard
                         task={task}
                         variant="board"
@@ -106,19 +115,14 @@ export const GridCell: React.FC<GridCellProps> = ({
             {/* Drop Indicator - Fills remaining space */}
             {isDragOver && emptySlotsToRender > 0 && (
                 <div
-                    className="relative w-full min-h-0 border-2 border-dashed rounded-lg pointer-events-none z-20 flex items-center justify-center animate-in fade-in duration-200"
+                    className={`relative w-full min-h-0 border-2 border-dashed rounded-lg pointer-events-none z-20 flex items-center justify-center animate-in fade-in duration-200 ${ROW_CONFIG[row].barColor.replace('bg-', 'border-')}`}
                     style={{
                         flex: emptySlotsToRender,
-                        borderColor: 'var(--accent)',
-                        backgroundColor: 'color-mix(in srgb, var(--accent) 15%, transparent)'
+                        backgroundColor: 'rgba(255,255,255,0.03)'
                     }}
                 >
                     <span
-                        className="px-2 py-1 rounded text-[10px] font-bold uppercase"
-                        style={{
-                            backgroundColor: 'var(--accent)',
-                            color: 'var(--bg-primary)'
-                        }}
+                        className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${ROW_CONFIG[row].barColor} text-white`}
                     >
                         Drop
                     </span>

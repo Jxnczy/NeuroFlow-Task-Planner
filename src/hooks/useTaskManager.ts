@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { TaskManager } from '../services/TaskManager';
 import { Task, TaskType, GridRow } from '../types';
+import { playSuccessSound } from '../constants';
 
 export function useTaskManager(initialTasks: Task[]) {
     const managerRef = useRef<TaskManager>();
@@ -39,7 +40,11 @@ export function useTaskManager(initialTasks: Task[]) {
     }, []);
 
     const toggleTaskComplete = useCallback((taskId: string) => {
-        return manager.toggleTaskComplete(taskId);
+        const isNowComplete = manager.toggleTaskComplete(taskId);
+        if (isNowComplete) {
+            playSuccessSound();
+        }
+        return isNowComplete;
     }, []);
 
     const handleReorderTasks = useCallback((sourceId: string, targetId: string) => {
