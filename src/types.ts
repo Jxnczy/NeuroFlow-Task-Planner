@@ -15,6 +15,7 @@ export interface Task {
   eisenhowerQuad: 'do' | 'decide' | 'delegate' | 'delete' | null;
   createdAt: number;
   isFrozen?: boolean;
+  sortOrder?: number;
 }
 
 export interface Habit {

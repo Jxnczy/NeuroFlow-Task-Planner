@@ -1,11 +1,14 @@
-import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { TaskManager } from '../services/TaskManager';
 import { Task, TaskType, GridRow } from '../types';
 import { playSuccessSound } from '../constants';
+import { SupabaseDataService } from '../services/supabaseDataService';
+import { generateId } from '../utils/id';
 
-export function useTaskManager(initialTasks: Task[]) {
+export function useTaskManager(initialTasks: Task[], userId?: string, supabaseEnabled: boolean = true) {
     const managerRef = useRef<TaskManager>();
     const [tasks, setTasks] = useState<Task[]>(initialTasks);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
 
     // Initialize manager once
     if (!managerRef.current) {
@@ -19,37 +22,133 @@ export function useTaskManager(initialTasks: Task[]) {
         return manager.subscribe(setTasks);
     }, []);
 
-    // Sync initial tasks if they change (e.g. from localStorage load)
+    // Sync initial tasks if they change (e.g. after remote fetch/import)
+    useEffect(() => {
+        manager.setTasks(initialTasks);
+    }, [initialTasks, manager]);
+
+    // Remote load
+    const fetchRemoteTasks = useCallback(async () => {
+        if (!userId || !supabaseEnabled) return;
+        const remoteTasks = await SupabaseDataService.fetchTasks(userId);
+        if (remoteTasks.length) {
+            manager.setTasks(remoteTasks);
+        }
+    }, [userId, manager, supabaseEnabled]);
+
+    useEffect(() => {
+        let mounted = true;
+        const load = async () => {
+            if (!userId || !supabaseEnabled) {
+                setIsLoading(false);
+                return;
+            }
+            setIsLoading(!initialTasks.length);
+            const remoteTasks = await SupabaseDataService.fetchTasks(userId);
+            if (!mounted) return;
+            if (remoteTasks.length) {
+                manager.setTasks(remoteTasks);
+            }
+            setIsLoading(false);
+        };
+        load();
+        return () => { mounted = false; };
+    }, [userId, manager, initialTasks, supabaseEnabled]);
+
+    // Lightweight polling/visibility refresh to keep devices in sync even if Realtime is blocked
+    useEffect(() => {
+        if (!userId || !supabaseEnabled) return;
+
+        const handleVisibility = () => {
+            if (document.visibilityState === 'visible') {
+                void fetchRemoteTasks();
+            }
+        };
+        window.addEventListener('visibilitychange', handleVisibility);
+        const interval = window.setInterval(() => {
+            void fetchRemoteTasks();
+        }, 15000);
+
+        return () => {
+            window.removeEventListener('visibilitychange', handleVisibility);
+            window.clearInterval(interval);
+        };
+    }, [userId, fetchRemoteTasks, supabaseEnabled]);
+
+    const persistTasks = useCallback((tasksToPersist: Task[]) => {
+        if (!userId || !supabaseEnabled || !tasksToPersist.length) return;
+        void SupabaseDataService.upsertTasks(userId, tasksToPersist);
+    }, [userId, supabaseEnabled]);
+
+    const deleteTaskRemote = useCallback((taskId: string) => {
+        if (!userId || !supabaseEnabled) return;
+        void SupabaseDataService.deleteTask(userId, taskId);
+    }, [userId, supabaseEnabled]);
+
+    const diffTasks = useCallback((previous: Task[], next: Task[]) => {
+        const prevMap = new Map(previous.map(t => [t.id, t]));
+        return next.filter(task => {
+            const prev = prevMap.get(task.id);
+            if (!prev) return true;
+            return JSON.stringify(prev) !== JSON.stringify(task);
+        });
+    }, []);
 
 
     // Expose stable API
     const addTask = useCallback((title: string, duration: number, type: TaskType) => {
-        manager.addTask(title, duration, type);
-    }, []);
+        const newTask = manager.addTask(title, duration, type, generateId());
+        persistTasks([newTask]);
+    }, [manager, persistTasks]);
 
     const updateTask = useCallback((taskId: string, updates: Partial<Task>) => {
+        const before = manager.getTasks();
         manager.updateTask(taskId, updates);
-    }, []);
+        const after = manager.getTasks();
+        const changed = diffTasks(before, after).filter(t => t.id === taskId);
+        if (changed.length) {
+            persistTasks(changed);
+        }
+    }, [manager, persistTasks, diffTasks]);
 
     const deleteTask = useCallback((taskId: string) => {
         manager.deleteTask(taskId);
-    }, []);
+        deleteTaskRemote(taskId);
+    }, [manager, deleteTaskRemote]);
 
     const scheduleTask = useCallback((taskId: string, date: Date, row: GridRow | null = null, type?: TaskType) => {
+        const before = manager.getTasks();
         manager.scheduleTask(taskId, date, row, type);
-    }, []);
+        const after = manager.getTasks();
+        const changed = diffTasks(before, after);
+        if (changed.length) {
+            persistTasks(changed);
+        }
+    }, [manager, diffTasks, persistTasks]);
 
     const toggleTaskComplete = useCallback((taskId: string) => {
+        const before = manager.getTasks();
         const isNowComplete = manager.toggleTaskComplete(taskId);
+        const after = manager.getTasks();
+        const changed = diffTasks(before, after).filter(t => t.id === taskId);
+        if (changed.length) {
+            persistTasks(changed);
+        }
         if (isNowComplete) {
             playSuccessSound();
         }
         return isNowComplete;
-    }, []);
+    }, [manager, diffTasks, persistTasks]);
 
     const handleReorderTasks = useCallback((sourceId: string, targetId: string) => {
+        const before = manager.getTasks();
         manager.reorderTasks(sourceId, targetId);
-    }, []);
+        const after = manager.getTasks();
+        const changed = diffTasks(before, after);
+        if (changed.length) {
+            persistTasks(changed);
+        }
+    }, [manager, diffTasks, persistTasks]);
 
     // Drag and Drop Logic
     const [isDragging, setIsDragging] = useState(false);
@@ -101,8 +200,8 @@ export function useTaskManager(initialTasks: Task[]) {
             }
         }
 
-        manager.scheduleTask(taskId, day, targetRow as GridRow, targetType);
-    }, [tasks]);
+        scheduleTask(taskId, day, targetRow as GridRow, targetType);
+    }, [tasks, scheduleTask]);
 
     const handleDropOnSidebar = useCallback((e: React.DragEvent<HTMLElement>) => {
         e.preventDefault();
@@ -110,7 +209,11 @@ export function useTaskManager(initialTasks: Task[]) {
         const taskId = e.dataTransfer.getData('taskId');
         if (!taskId) return;
         manager.unscheduleTask(taskId);
-    }, []);
+        const changed = diffTasks(tasks, manager.getTasks());
+        if (changed.length) {
+            persistTasks(changed);
+        }
+    }, [tasks, manager, diffTasks, persistTasks]);
 
     const handleDropOnEisenhower = useCallback((e: React.DragEvent<HTMLElement>, quad: 'do' | 'decide' | 'delegate' | 'delete') => {
         e.preventDefault();
@@ -118,7 +221,14 @@ export function useTaskManager(initialTasks: Task[]) {
         const taskId = e.dataTransfer.getData('taskId');
         if (!taskId) return;
         manager.setEisenhowerQuad(taskId, quad);
-    }, []);
+        const changed = diffTasks(tasks, manager.getTasks());
+        if (changed.length) {
+            persistTasks(changed);
+        }
+    }, [tasks, manager, diffTasks, persistTasks]);
+
+    const syncRemoteTask = useCallback((task: Task) => manager.upsertTask(task), [manager]);
+    const removeRemoteTask = useCallback((taskId: string) => manager.removeTask(taskId), [manager]);
 
     return {
         tasks,
@@ -134,7 +244,22 @@ export function useTaskManager(initialTasks: Task[]) {
         handleDropOnGrid,
         handleDropOnSidebar,
         handleDropOnEisenhower,
-        clearRescheduledTasks: () => manager.clearRescheduledTasks(),
-        deleteAllTasks: () => manager.deleteAllTasks()
+        clearRescheduledTasks: () => {
+            const before = manager.getTasks();
+            manager.clearRescheduledTasks();
+            const after = manager.getTasks();
+            const removed = before.filter(t => !after.some(nt => nt.id === t.id));
+            removed.forEach(t => deleteTaskRemote(t.id));
+        },
+        deleteAllTasks: () => {
+            manager.deleteAllTasks();
+            if (userId) {
+                void SupabaseDataService.replaceTasks(userId, []);
+            }
+        },
+        syncRemoteTask,
+        removeRemoteTask,
+        refreshTasks: fetchRemoteTasks,
+        isLoading
     };
 }

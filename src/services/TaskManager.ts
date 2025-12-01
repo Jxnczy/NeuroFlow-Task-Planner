@@ -1,5 +1,6 @@
 import { Task, TaskType, GridRow, TaskStatus } from '../types';
 import { formatDate } from '../constants';
+import { generateId } from '../utils/id';
 
 type TaskListener = (tasks: Task[]) => void;
 
@@ -27,9 +28,9 @@ export class TaskManager {
         return [...this.tasks];
     }
 
-    addTask(title: string, duration: number, type: TaskType): Task {
+    addTask(title: string, duration: number, type: TaskType, id?: string): Task {
         const newTask: Task = {
-            id: Math.random().toString(36).substr(2, 9),
+            id: id || generateId(),
             title,
             duration,
             type,
@@ -38,6 +39,7 @@ export class TaskManager {
             assignedRow: null,
             eisenhowerQuad: null,
             createdAt: Date.now(),
+            sortOrder: this.tasks.length,
         };
         this.tasks = [...this.tasks, newTask];
         this.notify();
@@ -52,6 +54,22 @@ export class TaskManager {
     }
 
     deleteTask(taskId: string) {
+        this.tasks = this.tasks.filter(t => t.id !== taskId);
+        this.notify();
+    }
+
+    upsertTask(task: Task) {
+        const existing = this.tasks.find(t => t.id === task.id);
+        if (existing) {
+            this.tasks = this.tasks.map(t => t.id === task.id ? { ...existing, ...task } : t);
+        } else {
+            this.tasks = [...this.tasks, task];
+        }
+        this.tasks = this.sortTasks(this.tasks);
+        this.notify();
+    }
+
+    removeTask(taskId: string) {
         this.tasks = this.tasks.filter(t => t.id !== taskId);
         this.notify();
     }
@@ -95,7 +113,7 @@ export class TaskManager {
         const newTasks = [...this.tasks];
         const [removed] = newTasks.splice(sourceIndex, 1);
         newTasks.splice(targetIndex, 0, removed);
-        this.tasks = newTasks;
+        this.tasks = newTasks.map((task, idx) => ({ ...task, sortOrder: idx }));
         this.notify();
     }
 
@@ -122,13 +140,14 @@ export class TaskManager {
                 // 2. Create new clone for the target date
                 const newTask: Task = {
                     ...taskToSchedule,
-                    id: Math.random().toString(36).substr(2, 9),
+                    id: generateId(),
                     status: 'scheduled',
                     dueDate: targetDateStr,
                     assignedRow: row,
                     eisenhowerQuad: null,
                     type: type || taskToSchedule.type,
-                    createdAt: Date.now()
+                    createdAt: Date.now(),
+                    sortOrder: this.tasks.length
                 };
 
                 this.tasks = [...this.tasks, newTask];
@@ -183,7 +202,15 @@ export class TaskManager {
     }
 
     setTasks(newTasks: Task[]) {
-        this.tasks = newTasks;
+        this.tasks = this.sortTasks(newTasks);
         this.notify();
+    }
+
+    private sortTasks(tasks: Task[]) {
+        const normalized = tasks.map((task, idx) => ({
+            ...task,
+            sortOrder: task.sortOrder ?? idx
+        }));
+        return [...normalized].sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
     }
 }

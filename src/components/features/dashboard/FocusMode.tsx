@@ -245,7 +245,7 @@ export const FocusMode: React.FC<FocusModeProps> = ({ tasks, onDragStart, onTogg
     return (
         <div className="h-full overflow-y-auto px-4 sm:px-8 py-6">
             <div className={`max-w-7xl mx-auto ${isMobile ? 'mt-6' : 'mt-8'} w-full px-2 sm:px-6`}>
-                <div className="mb-8 text-center md:text-left">
+                <div className="mb-8 text-center flex flex-col items-center gap-1">
                     <h2 className="text-3xl font-display font-bold text-white mb-1">Deep Focus</h2>
                     <p className="text-sm text-slate-500 font-medium">
                         Today total: {totalTasks} tasks · {timeString} planned
@@ -335,7 +335,7 @@ export const FocusMode: React.FC<FocusModeProps> = ({ tasks, onDragStart, onTogg
                     )}
 
                     {/* Queue List */}
-                    <div className="w-full max-w-md mx-auto flex flex-col gap-3 px-4 md:px-0">
+                    <div className="w-full max-w-2xl mx-auto flex flex-col gap-3 px-4 md:px-0">
                         {focusTasks.filter(t => t.id !== activeTaskId).map((task, index) => (
                             <div key={task.id} className="flex items-center gap-3 w-full">
                                 <div className="flex-1 min-w-0">

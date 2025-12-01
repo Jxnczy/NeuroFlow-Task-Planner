@@ -1,6 +1,8 @@
-import React, { createContext, useContext, ReactNode } from 'react';
+import React, { createContext, useContext, ReactNode, useEffect } from 'react';
 import { useTaskManager } from '../hooks/useTaskManager';
 import { Task, TaskType, GridRow } from '../types';
+import { supabase } from '../lib/supabase';
+import { mapTaskFromDb, DbTaskRow } from '../services/supabaseDataService';
 
 interface TaskContextType {
     tasks: Task[];
@@ -17,6 +19,8 @@ interface TaskContextType {
     handleDropOnSidebar: (e: React.DragEvent) => void;
     handleDropOnEisenhower: (e: React.DragEvent, quad: 'do' | 'decide' | 'delegate' | 'delete') => void;
     clearRescheduledTasks: () => void;
+    isLoading: boolean;
+    refreshTasks: () => void;
 }
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
@@ -24,13 +28,76 @@ const TaskContext = createContext<TaskContextType | undefined>(undefined);
 interface TaskProviderProps {
     children: ReactNode;
     initialTasks: Task[];
+    userId?: string;
+    supabaseEnabled?: boolean;
 }
 
-export const TaskProvider: React.FC<TaskProviderProps> = ({ children, initialTasks }) => {
-    const taskManager = useTaskManager(initialTasks);
+export const TaskProvider: React.FC<TaskProviderProps> = ({ children, initialTasks, userId, supabaseEnabled = true }) => {
+    const {
+        tasks,
+        addTask,
+        updateTask,
+        scheduleTask,
+        deleteTask,
+        toggleTaskComplete,
+        handleReorderTasks,
+        handleDragStart,
+        handleDragEnd,
+        isDragging,
+        handleDropOnGrid,
+        handleDropOnSidebar,
+        handleDropOnEisenhower,
+        clearRescheduledTasks,
+        syncRemoteTask,
+        removeRemoteTask,
+        isLoading,
+        refreshTasks
+    } = useTaskManager(initialTasks, userId, supabaseEnabled);
+
+    useEffect(() => {
+        if (!userId || !supabaseEnabled) return;
+
+        const channel = supabase
+            .channel('tasks-realtime')
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'tasks', filter: `user_id=eq.${userId}` },
+                (payload) => {
+                    if (payload.eventType === 'DELETE' && (payload.old as DbTaskRow)?.id) {
+                        removeRemoteTask((payload.old as DbTaskRow).id);
+                        return;
+                    }
+                    if (payload.new) {
+                        syncRemoteTask(mapTaskFromDb(payload.new as DbTaskRow));
+                    }
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [userId, syncRemoteTask, removeRemoteTask, supabaseEnabled]);
 
     return (
-        <TaskContext.Provider value={taskManager}>
+        <TaskContext.Provider value={{
+            tasks,
+            addTask,
+            updateTask,
+            scheduleTask,
+            deleteTask,
+            toggleTaskComplete,
+            handleReorderTasks,
+            handleDragStart,
+            handleDragEnd,
+            isDragging,
+            handleDropOnGrid,
+            handleDropOnSidebar,
+            handleDropOnEisenhower,
+            clearRescheduledTasks,
+            isLoading,
+            refreshTasks
+        }}>
             {children}
         </TaskContext.Provider>
     );

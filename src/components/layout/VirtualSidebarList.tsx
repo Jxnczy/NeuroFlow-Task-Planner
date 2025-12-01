@@ -277,7 +277,7 @@ export const VirtualSidebarList: React.FC<VirtualSidebarListProps> = ({
     };
 
     return (
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 min-h-0 h-full">
             <AutoSizer>
                 {({ height, width }) => (
                     <List

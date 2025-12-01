@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Cog, Download, Upload, Trash2, ChevronRight, AlertTriangle, Palette, Check, Sparkles } from 'lucide-react';
+import { X, Cog, Download, Upload, Trash2, ChevronRight, AlertTriangle, Palette, Check, Sparkles, CloudOff, Cloud } from 'lucide-react';
 import { themes } from '../../themes';
 import { modal, backdrop } from '../../utils/animations';
 import { FrostOverlay } from '../ui/FrostOverlay';
@@ -11,11 +11,14 @@ interface SettingsModalProps {
     onExport: () => void;
     onImport: (event: React.ChangeEvent<HTMLInputElement>) => void;
     onDeleteAllTasks?: () => void;
+    onFreezeOverloaded?: () => void;
     onClearRescheduled?: () => void;
     currentThemeId: string;
     onThemeChange: (themeId: string) => void;
     viewMode?: 'show' | 'fade' | 'hide';
     onViewModeChange?: (mode: 'show' | 'fade' | 'hide') => void;
+    supabaseEnabled: boolean;
+    onToggleSupabase: (enabled: boolean) => void;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -23,24 +26,27 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     onExport,
     onImport,
     onDeleteAllTasks,
+    onFreezeOverloaded,
     onClearRescheduled,
     currentThemeId,
     onThemeChange,
     viewMode = 'fade',
-    onViewModeChange
+    onViewModeChange,
+    supabaseEnabled,
+    onToggleSupabase
 }) => {
     const [freezing, setFreezing] = useState(false);
     const { play } = useIceSound();
 
     const handleDoomLoop = () => {
-        if (!onDeleteAllTasks) return;
-        const confirmed = window.confirm('Freeze everything and start fresh? This will delete all tasks.');
+        if (!onFreezeOverloaded) return;
+        const confirmed = window.confirm('Freeze everything and start fresh? This will move tasks to the Icebox.');
         if (!confirmed) return;
 
         play();
         setFreezing(true);
         setTimeout(() => {
-            onDeleteAllTasks();
+            onFreezeOverloaded();
         }, 500);
         setTimeout(() => {
             setFreezing(false);
@@ -265,6 +271,41 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                     <input type="file" accept=".json" onChange={onImport} className="hidden" />
                                 </label>
                             </div>
+                        </div>
+
+                        {/* Sync Preference */}
+                        <div>
+                            <h3
+                                className="text-[10px] font-bold uppercase tracking-[0.2em] mb-3 flex items-center gap-2"
+                                style={{ color: 'var(--text-muted)' }}
+                            >
+                                <Sparkles size={12} />
+                                Sync Mode
+                            </h3>
+                            <button
+                                onClick={() => onToggleSupabase(!supabaseEnabled)}
+                                className="w-full flex items-center justify-between p-4 rounded-2xl border transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] group"
+                                style={{
+                                    backgroundColor: supabaseEnabled ? 'rgba(34,197,94,0.08)' : 'rgba(239,68,68,0.05)',
+                                    borderColor: supabaseEnabled ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.2)'
+                                }}
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-lg flex items-center justify-center"
+                                        style={{ backgroundColor: supabaseEnabled ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.1)' }}>
+                                        {supabaseEnabled ? <Cloud size={18} className="text-emerald-400" /> : <CloudOff size={18} className="text-rose-400" />}
+                                    </div>
+                                    <div className="text-left">
+                                        <div className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+                                            {supabaseEnabled ? 'Supabase sync ON' : 'Local-only mode'}
+                                        </div>
+                                        <div className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
+                                            Local backup always saved. Turn off cloud if you prefer offline.
+                                        </div>
+                                    </div>
+                                </div>
+                                <ChevronRight size={18} className={supabaseEnabled ? 'text-emerald-400' : 'text-rose-400'} />
+                            </button>
                         </div>
 
                         {/* Danger Zone */}

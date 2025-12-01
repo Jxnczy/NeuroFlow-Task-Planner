@@ -42,14 +42,13 @@ export default defineConfig(({ mode }) => {
     plugins: [
       react(),
       tailwindcss(),
+      // Keep plugin registered so virtual:pwa-register resolves in dev; dev SW stays disabled.
       VitePWA({
         registerType: 'autoUpdate',
-        devOptions: {
-          enabled: true,
-        },
+        devOptions: { enabled: false },
         includeAssets: ['favicon.png'],
-        manifest: pwaManifest
-      }),
+        manifest: pwaManifest,
+      })
     ],
     optimizeDeps: {
       include: ['react-window', 'react-virtualized-auto-sizer'],

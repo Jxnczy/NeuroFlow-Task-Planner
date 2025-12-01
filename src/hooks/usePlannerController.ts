@@ -33,6 +33,8 @@ export interface PlannerActions {
   onDeleteTask: (taskId: string) => void;
   /** Reorder tasks (drag within list) */
   onReorderTasks: (sourceId: string, targetId: string) => void;
+  /** Move overdue/active tasks into the icebox */
+  onFreezeOverloaded: () => void;
 }
 
 export interface PlannerData {
@@ -215,7 +217,24 @@ export function usePlannerController(
     onToggleTaskComplete: toggleTaskComplete,
     onUpdateTask: updateTask,
     onDeleteTask: deleteTask,
-    onReorderTasks: handleReorderTasks
+    onReorderTasks: handleReorderTasks,
+    onFreezeOverloaded: () => {
+      const todayStr = new Date().toISOString().split('T')[0];
+      (tasks || []).forEach((task) => {
+        if (!task) return;
+        if (task.status === 'completed') return;
+        if (!task.dueDate) return;
+        if (task.dueDate > todayStr) return;
+
+        updateTask(task.id, {
+          status: 'unscheduled',
+          dueDate: null,
+          assignedRow: null,
+          eisenhowerQuad: null,
+          isFrozen: true
+        });
+      });
+    }
   }), [
     handleDropOnGrid,
     handleDragStart,
@@ -223,7 +242,8 @@ export function usePlannerController(
     toggleTaskComplete,
     updateTask,
     deleteTask,
-    handleReorderTasks
+    handleReorderTasks,
+    tasks
   ]);
 
   return {

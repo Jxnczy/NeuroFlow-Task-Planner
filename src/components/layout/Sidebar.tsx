@@ -312,30 +312,32 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </div>
             </div>
 
-            {/* Main Task Lists (scrollable) */}
-                <VirtualSidebarList
-                    tasks={visibleTasks}
-                    expandedCategories={expandedCategories}
-                    toggleCategory={toggleCategory}
-                    dragOverCategory={dragOverCategory}
-                    onCategoryDragEnter={handleCategoryDragEnter}
-                    onCategoryDragLeave={handleCategoryDragLeave}
-                    onCategoryDrop={handleCategoryDrop}
-                    isDragging={dragEnabled ? isDragging : false}
-                    onDragStart={dragEnabled ? handleDragStart : () => {}}
-                    onDragEnd={dragEnabled ? handleDragEnd : () => {}}
-                    onUpdateTask={updateTask}
-                    onDeleteTask={deleteTask}
-                    onToggleComplete={toggleTaskComplete}
-                    onScheduleTask={scheduleTask}
-                    isMobile={isMobile}
-                    onCloseSidebar={isMobile ? onClose : undefined}
-                    onLongPressTask={isMobile ? setSheetTask : undefined}
-                />
+            {/* Main Task Lists + Icebox in shared scroll area */}
+            <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-4 pb-6">
+                <div className="flex-1 min-h-0">
+                    <VirtualSidebarList
+                        tasks={visibleTasks}
+                        expandedCategories={expandedCategories}
+                        toggleCategory={toggleCategory}
+                        dragOverCategory={dragOverCategory}
+                        onCategoryDragEnter={handleCategoryDragEnter}
+                        onCategoryDragLeave={handleCategoryDragLeave}
+                        onCategoryDrop={handleCategoryDrop}
+                        isDragging={dragEnabled ? isDragging : false}
+                        onDragStart={dragEnabled ? handleDragStart : () => {}}
+                        onDragEnd={dragEnabled ? handleDragEnd : () => {}}
+                        onUpdateTask={updateTask}
+                        onDeleteTask={deleteTask}
+                        onToggleComplete={toggleTaskComplete}
+                        onScheduleTask={scheduleTask}
+                        isMobile={isMobile}
+                        onCloseSidebar={isMobile ? onClose : undefined}
+                        onLongPressTask={isMobile ? setSheetTask : undefined}
+                    />
+                </div>
 
-                {/* Icebox Section */}
                 {iceboxTasks.length > 0 && (
-                    <div className="mt-4 px-3">
+                    <div className="px-3 pb-3 mt-auto">
                         <button
                             onClick={() => setIceboxOpen(!iceboxOpen)}
                             className="w-full flex items-center justify-between px-3 py-2 rounded-lg border border-white/[0.06] bg-white/[0.02] text-left"
@@ -374,6 +376,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         </AnimatePresence>
                     </div>
                 )}
+            </div>
 
             {/* Footer */}
             <div
@@ -434,7 +437,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                             onDragOver={(e) => e.preventDefault()}
                             onDrop={handleSidebarDrop}
                         >
-                            <div className="h-full overflow-y-auto">
+                            <div className="h-full overflow-y-auto pb-24">
                                 {sidebarContent}
                             </div>
                             <FrostOverlay isVisible={freezing} />

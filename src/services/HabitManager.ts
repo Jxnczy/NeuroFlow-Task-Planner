@@ -1,4 +1,5 @@
 import { Habit } from '../types';
+import { generateId } from '../utils/id';
 
 type HabitListener = (habits: Habit[]) => void;
 
@@ -25,15 +26,16 @@ export class HabitManager {
         return [...this.habits];
     }
 
-    addHabit(name: string, goal: number) {
+    addHabit(name: string, goal: number): Habit {
         const newHabit: Habit = {
-            id: Math.random().toString(36).substr(2, 9),
+            id: generateId(),
             name,
             goal,
             checks: Array(7).fill(false)
         };
         this.habits = [...this.habits, newHabit];
         this.notify();
+        return newHabit;
     }
 
     deleteHabit(habitId: string) {
@@ -41,16 +43,19 @@ export class HabitManager {
         this.notify();
     }
 
-    toggleHabit(habitId: string, dayIndex: number) {
+    toggleHabit(habitId: string, dayIndex: number): Habit | undefined {
+        let updatedHabit: Habit | undefined;
         this.habits = this.habits.map(h => {
             if (h.id === habitId) {
                 const newChecks = [...h.checks];
                 newChecks[dayIndex] = !newChecks[dayIndex];
-                return { ...h, checks: newChecks };
+                updatedHabit = { ...h, checks: newChecks };
+                return updatedHabit;
             }
             return h;
         });
         this.notify();
+        return updatedHabit;
     }
 
     setHabits(newHabits: Habit[]) {

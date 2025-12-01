@@ -108,7 +108,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tasks })
 
     return (
         <div className="h-full p-6 overflow-y-auto overflow-x-hidden">
-            <div className="max-w-7xl mx-auto w-full max-w-full">
+            <div className="mx-auto w-full" style={{ maxWidth: '60%' }}>
                 {/* Header with Motivational Message */}
                 <div className="mb-8 flex flex-col items-center text-center gap-4">
                     <div>

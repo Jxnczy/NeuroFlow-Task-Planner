@@ -4,6 +4,7 @@ export class StorageService {
     private static instance: StorageService;
     private readonly STORAGE_KEY = 'neuroflow-app-data';
     private readonly THEME_KEY = 'neuroflow-theme';
+    private readonly SYNC_PREF_KEY = 'neuroflow-sync-enabled';
 
     private constructor() { }
 
@@ -52,6 +53,24 @@ export class StorageService {
             return localStorage.getItem(this.THEME_KEY) || 'northern-lights';
         } catch {
             return 'northern-lights';
+        }
+    }
+
+    saveSyncPreference(enabled: boolean): void {
+        try {
+            localStorage.setItem(this.SYNC_PREF_KEY, enabled ? 'true' : 'false');
+        } catch (error) {
+            console.error('Failed to save sync preference:', error);
+        }
+    }
+
+    loadSyncPreference(): boolean {
+        try {
+            const val = localStorage.getItem(this.SYNC_PREF_KEY);
+            if (val === null) return true; // default to enabled
+            return val === 'true';
+        } catch {
+            return true;
         }
     }
 

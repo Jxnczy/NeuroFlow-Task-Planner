@@ -2,12 +2,18 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
-import { registerSW } from 'virtual:pwa-register';
 
-// Register the service worker so the app can be installed and run standalone
-registerSW({
-  immediate: true,
-});
+// Service worker: enable only in production; clean up in dev to keep console quiet
+if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+  if (import.meta.env.PROD) {
+    import('virtual:pwa-register').then(({ registerSW }) => {
+      registerSW({ immediate: true });
+    });
+  } else {
+    navigator.serviceWorker.getRegistrations().then((regs) => regs.forEach((reg) => reg.unregister()));
+    caches?.keys().then((keys) => keys.forEach((k) => caches.delete(k)));
+  }
+}
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
