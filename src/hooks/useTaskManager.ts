@@ -153,11 +153,22 @@ export function useTaskManager(initialTasks: Task[], userId?: string, supabaseEn
     // Drag and Drop Logic
     const [isDragging, setIsDragging] = useState(false);
 
-    const handleDragStart = useCallback((e: React.DragEvent<HTMLElement>, taskId: string) => {
+    const setDragData = useCallback((e: React.DragEvent<HTMLElement>, taskId: string) => {
+        // Use a standard MIME type to ensure the payload is available on first drag attempts
+        e.dataTransfer.setData('text/plain', taskId);
+        // Keep the legacy custom type as well for backwards compatibility with any listeners
         e.dataTransfer.setData('taskId', taskId);
         e.dataTransfer.effectAllowed = 'move';
-        setIsDragging(true);
     }, []);
+
+    const getDragTaskId = useCallback((e: React.DragEvent<HTMLElement>) => {
+        return e.dataTransfer.getData('taskId') || e.dataTransfer.getData('text/plain');
+    }, []);
+
+    const handleDragStart = useCallback((e: React.DragEvent<HTMLElement>, taskId: string) => {
+        setDragData(e, taskId);
+        setIsDragging(true);
+    }, [setDragData]);
 
     const handleDragEnd = useCallback((e: React.DragEvent) => {
         setIsDragging(false);
@@ -166,7 +177,7 @@ export function useTaskManager(initialTasks: Task[], userId?: string, supabaseEn
     const handleDropOnGrid = useCallback((e: React.DragEvent<HTMLElement>, day: Date, row: GridRow | null) => {
         e.preventDefault();
         setIsDragging(false);
-        const taskId = e.dataTransfer.getData('taskId');
+        const taskId = getDragTaskId(e);
         if (!taskId) return;
 
         const task = tasks.find(t => t.id === taskId);
@@ -206,7 +217,7 @@ export function useTaskManager(initialTasks: Task[], userId?: string, supabaseEn
     const handleDropOnSidebar = useCallback((e: React.DragEvent<HTMLElement>) => {
         e.preventDefault();
         setIsDragging(false);
-        const taskId = e.dataTransfer.getData('taskId');
+        const taskId = getDragTaskId(e);
         if (!taskId) return;
         manager.unscheduleTask(taskId);
         const changed = diffTasks(tasks, manager.getTasks());
@@ -218,7 +229,7 @@ export function useTaskManager(initialTasks: Task[], userId?: string, supabaseEn
     const handleDropOnEisenhower = useCallback((e: React.DragEvent<HTMLElement>, quad: 'do' | 'decide' | 'delegate' | 'delete') => {
         e.preventDefault();
         setIsDragging(false);
-        const taskId = e.dataTransfer.getData('taskId');
+        const taskId = getDragTaskId(e);
         if (!taskId) return;
         manager.setEisenhowerQuad(taskId, quad);
         const changed = diffTasks(tasks, manager.getTasks());
