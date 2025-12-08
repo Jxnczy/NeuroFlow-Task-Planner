@@ -22,6 +22,40 @@ export function useHabitManager(initialHabits: Habit[], userId?: string, supabas
         manager.setHabits(initialHabits);
     }, [initialHabits, manager]);
 
+    // Visibility-based refresh for multi-device sync
+    const fetchRemoteHabits = useCallback(async () => {
+        if (!userId || !supabaseEnabled) return;
+        try {
+            const remote = await SupabaseDataService.fetchHabits(userId);
+            if (remote.length) {
+                manager.setHabits(remote);
+            }
+        } catch (error) {
+            console.error('Failed to refresh habits from Supabase', error);
+        }
+    }, [userId, supabaseEnabled, manager]);
+
+    useEffect(() => {
+        if (!userId || !supabaseEnabled) return;
+
+        const handleVisibility = () => {
+            if (document.visibilityState === 'visible') {
+                void fetchRemoteHabits();
+            }
+        };
+        window.addEventListener('visibilitychange', handleVisibility);
+
+        // Periodic polling for sync (every 30 seconds - less aggressive than tasks)
+        const interval = window.setInterval(() => {
+            void fetchRemoteHabits();
+        }, 30000);
+
+        return () => {
+            window.removeEventListener('visibilitychange', handleVisibility);
+            window.clearInterval(interval);
+        };
+    }, [userId, supabaseEnabled, fetchRemoteHabits]);
+
     const persistHabit = useCallback((habit: Habit) => {
         if (!userId || !supabaseEnabled) return;
         void SupabaseDataService.upsertHabit(userId, habit);
@@ -61,3 +95,4 @@ export function useHabitManager(initialHabits: Habit[], userId?: string, supabas
         clearHabits
     };
 }
+

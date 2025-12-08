@@ -384,11 +384,20 @@ const App = () => {
         try {
             const controller = new AbortController();
             const timer = window.setTimeout(() => controller.abort(), 4000);
-            const res = await fetch(`${supabaseUrl}/health`, { signal: controller.signal });
+            // Use the REST API endpoint with a simple query to check connectivity
+            // The /rest/v1/ endpoint returns a list of tables when accessible
+            const res = await fetch(`${supabaseUrl}/rest/v1/`, {
+                signal: controller.signal,
+                headers: {
+                    'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY || '',
+                    'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY || ''}`
+                }
+            });
             window.clearTimeout(timer);
-            return res.ok;
-        } catch (e) {
-            console.error('Supabase health check failed', e);
+            // 200 means accessible, 401/403 means auth issues but server is up
+            return res.status === 200 || res.status === 401 || res.status === 403;
+        } catch {
+            // Network error or timeout - Supabase may be down
             return false;
         }
     }, []);
@@ -399,14 +408,16 @@ const App = () => {
         storage.saveSyncPreference(false);
         setDataError(null);
         setIsDataLoading(false);
-        setInitialTasksState(localData?.tasks || []);
-        setInitialHabitsState(localData?.habits?.map(h => ({ ...h, goal: h.goal || 7 })) || []);
+        // Use fresh local data instead of stale localData from initial mount
+        const freshLocal = storage.load();
+        setInitialTasksState(freshLocal?.tasks || []);
+        setInitialHabitsState(freshLocal?.habits?.map(h => ({ ...h, goal: h.goal || 7 })) || []);
         setInitialBrainDumpState(
-            (localData?.brainDumpLists && localData.brainDumpLists.length > 0)
-                ? localData.brainDumpLists
-                : [{ id: generateId(), title: 'Main List', content: localData?.brainDumpContent || '' }]
+            (freshLocal?.brainDumpLists && freshLocal.brainDumpLists.length > 0)
+                ? freshLocal.brainDumpLists
+                : [{ id: generateId(), title: 'Main List', content: freshLocal?.brainDumpContent || '' }]
         );
-    }, [localData, storage]);
+    }, [storage]);
 
     const pushLocalToSupabase = async (data: AppData) => {
         if (!useSupabaseSync || !user) return;
@@ -461,17 +472,29 @@ const App = () => {
                 ]);
                 if (!active) return;
                 const remoteEmpty = (!tasks.length && !habits.length && !notes.length);
-                if (remoteEmpty && hasLocalData) {
-                    const fallbackData: AppData = {
-                        tasks: localData?.tasks || [],
-                        habits: localData?.habits || [],
-                        brainDumpLists: localData?.brainDumpLists || []
-                    };
-                    setInitialTasksState(fallbackData.tasks);
-                    setInitialHabitsState(fallbackData.habits);
-                    setInitialBrainDumpState(fallbackData.brainDumpLists.length ? fallbackData.brainDumpLists : [{ id: generateId(), title: 'Main List', content: '' }]);
-                    storage.save(fallbackData);
-                    void pushLocalToSupabase(fallbackData);
+                if (remoteEmpty) {
+                    // Remote is empty - use fresh local data (not stale localData from mount)
+                    const freshLocal = storage.load();
+                    const hasAnyLocalData = (freshLocal?.tasks?.length || 0) > 0 ||
+                        (freshLocal?.habits?.length || 0) > 0 ||
+                        (freshLocal?.brainDumpLists?.length || 0) > 0;
+                    if (hasAnyLocalData) {
+                        const fallbackData: AppData = {
+                            tasks: freshLocal?.tasks || [],
+                            habits: freshLocal?.habits || [],
+                            brainDumpLists: freshLocal?.brainDumpLists || []
+                        };
+                        setInitialTasksState(fallbackData.tasks);
+                        setInitialHabitsState(fallbackData.habits);
+                        setInitialBrainDumpState(fallbackData.brainDumpLists.length ? fallbackData.brainDumpLists : [{ id: generateId(), title: 'Main List', content: '' }]);
+                        storage.save(fallbackData);
+                        void pushLocalToSupabase(fallbackData);
+                    } else {
+                        // No local data either - start fresh
+                        setInitialTasksState([]);
+                        setInitialHabitsState([]);
+                        setInitialBrainDumpState([{ id: generateId(), title: 'Main List', content: '' }]);
+                    }
                 } else {
                     setInitialTasksState(tasks);
                     setInitialHabitsState(habits);
@@ -491,7 +514,7 @@ const App = () => {
         };
         load();
         return () => { active = false; };
-    }, [user, useSupabaseSync, hasLocalData, localData, fallbackToLocal, storage, checkSupabaseHealth, withTimeout]);
+    }, [user, useSupabaseSync, fallbackToLocal, storage, checkSupabaseHealth, withTimeout]);
 
     const handleDataImported = (data: AppData) => {
         const normalized: AppData = {

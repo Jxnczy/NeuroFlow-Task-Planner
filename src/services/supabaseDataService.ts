@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase';
 import { Task, TaskStatus, TaskType, GridRow, Habit, BrainDumpList } from '../types';
+import { generateId } from '../utils/id';
 
 export interface DbTaskRow {
     id: string;
@@ -34,6 +35,38 @@ export interface DbNoteRow {
     updated_at: string | null;
 }
 
+// UUID validation regex
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+/**
+ * Ensure an ID is a valid UUID. If not, generate a new one.
+ * This handles migration from legacy IDs like "1", "h3", etc.
+ */
+const ensureUUID = (id: string): string => {
+    if (UUID_REGEX.test(id)) {
+        return id;
+    }
+    // Legacy ID detected - generate a proper UUID
+    return generateId();
+};
+
+// Track legacy ID -> UUID mappings for consistency within a session
+const idMigrationMap = new Map<string, string>();
+
+const migrateId = (legacyId: string): string => {
+    if (UUID_REGEX.test(legacyId)) {
+        return legacyId;
+    }
+    // Check if we've already migrated this ID
+    if (idMigrationMap.has(legacyId)) {
+        return idMigrationMap.get(legacyId)!;
+    }
+    // Generate new UUID and cache it
+    const newId = generateId();
+    idMigrationMap.set(legacyId, newId);
+    return newId;
+};
+
 const getCompletionStatus = (row: DbTaskRow): TaskStatus => {
     if (row.status) return row.status as TaskStatus;
     if (row.is_completed) return 'completed';
@@ -56,7 +89,7 @@ export const mapTaskFromDb = (row: DbTaskRow): Task => ({
 });
 
 const mapTaskToDb = (task: Task, userId: string): Omit<DbTaskRow, 'user_id' | 'id'> & { user_id: string; id: string } => ({
-    id: task.id,
+    id: migrateId(task.id),
     user_id: userId,
     title: task.title,
     duration: task.duration,
@@ -80,7 +113,7 @@ const mapHabitFromDb = (row: DbHabitRow): Habit => ({
 });
 
 const mapHabitToDb = (habit: Habit, userId: string): Omit<DbHabitRow, 'id' | 'user_id'> & { id: string; user_id: string } => ({
-    id: habit.id,
+    id: migrateId(habit.id),
     user_id: userId,
     name: habit.name,
     goal: habit.goal,
@@ -95,7 +128,7 @@ const mapNoteFromDb = (row: DbNoteRow): BrainDumpList => ({
 });
 
 const mapNoteToDb = (list: BrainDumpList, userId: string): Omit<DbNoteRow, 'id' | 'user_id'> & { id: string; user_id: string } => ({
-    id: list.id,
+    id: migrateId(list.id),
     user_id: userId,
     title: list.title,
     content: list.content,

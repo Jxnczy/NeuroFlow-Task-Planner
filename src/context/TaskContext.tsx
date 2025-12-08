@@ -57,25 +57,43 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children, initialTas
     useEffect(() => {
         if (!userId || !supabaseEnabled || !supabaseAvailable || !supabase) return;
 
-        const channel = supabase
-            .channel('tasks-realtime')
-            .on(
-                'postgres_changes',
-                { event: '*', schema: 'public', table: 'tasks', filter: `user_id=eq.${userId}` },
-                (payload) => {
-                    if (payload.eventType === 'DELETE' && (payload.old as DbTaskRow)?.id) {
-                        removeRemoteTask((payload.old as DbTaskRow).id);
-                        return;
+        let channel: ReturnType<typeof supabase.channel> | null = null;
+        let isSubscribed = false;
+
+        const setupChannel = async () => {
+            channel = supabase
+                .channel(`tasks-realtime-${userId}`)
+                .on(
+                    'postgres_changes',
+                    { event: '*', schema: 'public', table: 'tasks', filter: `user_id=eq.${userId}` },
+                    (payload) => {
+                        if (payload.eventType === 'DELETE' && (payload.old as DbTaskRow)?.id) {
+                            removeRemoteTask((payload.old as DbTaskRow).id);
+                            return;
+                        }
+                        if (payload.new) {
+                            syncRemoteTask(mapTaskFromDb(payload.new as DbTaskRow));
+                        }
                     }
-                    if (payload.new) {
-                        syncRemoteTask(mapTaskFromDb(payload.new as DbTaskRow));
-                    }
+                );
+
+            await channel.subscribe((status) => {
+                if (status === 'SUBSCRIBED') {
+                    isSubscribed = true;
                 }
-            )
-            .subscribe();
+            });
+        };
+
+        setupChannel();
 
         return () => {
-            supabase.removeChannel(channel);
+            // Only try to remove if we have a channel and it was subscribed
+            if (channel && isSubscribed) {
+                supabase.removeChannel(channel);
+            } else if (channel) {
+                // If not subscribed yet, just unsubscribe to cancel pending connection
+                channel.unsubscribe();
+            }
         };
     }, [userId, syncRemoteTask, removeRemoteTask, supabaseEnabled]);
 

@@ -10,6 +10,40 @@ export function useBrainDumpManager(initialLists: BrainDumpList[], userId?: stri
         setLists(initialLists);
     }, [initialLists]);
 
+    // Visibility-based refresh for multi-device sync
+    const fetchRemoteNotes = useCallback(async () => {
+        if (!userId || !supabaseEnabled) return;
+        try {
+            const remote = await SupabaseDataService.fetchNotes(userId);
+            if (remote.length) {
+                setLists(remote);
+            }
+        } catch (error) {
+            console.error('Failed to refresh notes from Supabase', error);
+        }
+    }, [userId, supabaseEnabled]);
+
+    useEffect(() => {
+        if (!userId || !supabaseEnabled) return;
+
+        const handleVisibility = () => {
+            if (document.visibilityState === 'visible') {
+                void fetchRemoteNotes();
+            }
+        };
+        window.addEventListener('visibilitychange', handleVisibility);
+
+        // Periodic polling for sync (every 30 seconds - less aggressive than tasks)
+        const interval = window.setInterval(() => {
+            void fetchRemoteNotes();
+        }, 30000);
+
+        return () => {
+            window.removeEventListener('visibilitychange', handleVisibility);
+            window.clearInterval(interval);
+        };
+    }, [userId, supabaseEnabled, fetchRemoteNotes]);
+
     const persistNote = useCallback((list: BrainDumpList) => {
         if (!userId || !supabaseEnabled) return;
         void SupabaseDataService.upsertNote(userId, list);
@@ -60,3 +94,4 @@ export function useBrainDumpManager(initialLists: BrainDumpList[], userId?: stri
 
     return { lists, setLists, addList, updateList, updateTitle, deleteList, clearLists };
 }
+
