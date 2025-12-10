@@ -358,7 +358,9 @@ const AppContent = ({
 const App = () => {
     const storage = StorageService.getInstance();
     const localData = React.useMemo(() => storage.load(), []);
-    const [useSupabaseSync, setUseSupabaseSync] = useState<boolean>(() => storage.loadSyncPreference() && supabaseAvailable);
+    // Always start in local-only mode - user can enable Supabase sync manually in settings
+    const [useSupabaseSync, setUseSupabaseSync] = useState<boolean>(false);
+    const [supabaseHealthy, setSupabaseHealthy] = useState<boolean | null>(null); // null = checking
     const [authTimeoutReached, setAuthTimeoutReached] = useState(false);
 
     const { user, isAuthReady, authError, magicLinkSent, signInWithEmail, signInWithOAuth } = useSupabaseAuth();
@@ -369,7 +371,7 @@ const App = () => {
             ? localData.brainDumpLists
             : [{ id: generateId(), title: 'Main List', content: localData?.brainDumpContent || '' }]
     );
-    const [isDataLoading, setIsDataLoading] = useState<boolean>(useSupabaseSync);
+    const [isDataLoading, setIsDataLoading] = useState<boolean>(false);
     const [dataError, setDataError] = useState<string | null>(null);
     const hasLocalData = (localData?.tasks?.length || 0) > 0 || (localData?.habits?.length || 0) > 0 || (localData?.brainDumpLists?.length || 0) > 0;
     const withTimeout = useCallback(async <T,>(promise: Promise<T>, ms: number): Promise<T> => {
@@ -427,6 +429,36 @@ const App = () => {
             withTimeout(SupabaseDataService.replaceNotes(user.id, data.brainDumpLists || []), 4000)
         ]);
     };
+
+    // Early health check on mount - auto fallback to local if Supabase is unreachable
+    useEffect(() => {
+        if (!useSupabaseSync || !supabaseAvailable) {
+            setSupabaseHealthy(false);
+            setIsDataLoading(false);
+            return;
+        }
+
+        let cancelled = false;
+        const runHealthCheck = async () => {
+            try {
+                const healthy = await checkSupabaseHealth();
+                if (cancelled) return;
+
+                setSupabaseHealthy(healthy);
+                if (!healthy) {
+                    console.warn('Supabase health check failed on startup - falling back to local-only mode.');
+                    fallbackToLocal('Supabase is not reachable from this environment (localhost may not be in allowed origins).');
+                }
+            } catch {
+                if (cancelled) return;
+                setSupabaseHealthy(false);
+                fallbackToLocal('Error checking Supabase connectivity.');
+            }
+        };
+
+        runHealthCheck();
+        return () => { cancelled = true; };
+    }, []); // Run only on mount
 
     useEffect(() => {
         if (!useSupabaseSync) return;

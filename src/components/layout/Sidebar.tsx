@@ -325,8 +325,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         onCategoryDragLeave={handleCategoryDragLeave}
                         onCategoryDrop={handleCategoryDrop}
                         isDragging={dragEnabled ? isDragging : false}
-                        onDragStart={dragEnabled ? handleDragStart : () => {}}
-                        onDragEnd={dragEnabled ? handleDragEnd : () => {}}
+                        onDragStart={dragEnabled ? handleDragStart : () => { }}
+                        onDragEnd={dragEnabled ? handleDragEnd : () => { }}
                         onUpdateTask={updateTask}
                         onDeleteTask={deleteTask}
                         onToggleComplete={toggleTaskComplete}
@@ -386,6 +386,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
             >
                 <div className="flex items-center gap-2">
                     <div className="text-[10px] font-mono" style={{ color: 'var(--text-muted)' }}>v1.2</div>
+                </div>
+                <div
+                    className="px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider"
+                    style={{
+                        backgroundColor: 'rgba(251, 191, 36, 0.15)',
+                        color: 'rgba(251, 191, 36, 0.7)',
+                        border: '1px solid rgba(251, 191, 36, 0.2)'
+                    }}
+                >
+                    DEV
                 </div>
                 <motion.button
                     onClick={handleFreeze}

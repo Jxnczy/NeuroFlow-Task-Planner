@@ -178,13 +178,13 @@ export const BoardTaskCard = React.memo<BoardTaskCardProps>(({
                 scale: isCompleted ? 1 : 1,
                 opacity: isOverdue ? 1 : baseOpacity
             }}
-            whileHover={{
-                scale: 1.01,
-                opacity: isOverdue ? 1 : hoverOpacity,
-                transition: { duration: 0.15, ease: 'easeOut' }
+            style={{
+                userSelect: 'none',
+                WebkitUserSelect: 'none',
+                touchAction: 'none'
             }}
-            whileTap={{ scale: 0.98 }}
             className={`
+                hover:scale-[1.01] active:scale-[0.98] transition-transform duration-150
                 relative flex flex-row items-center justify-between gap-3 py-3 px-3 rounded-lg border min-h-[70px]
                 cursor-grab active:cursor-grabbing
                 ${isDragging ? '' : ''}

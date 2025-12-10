@@ -227,13 +227,16 @@ export const SidebarTaskCard = React.memo<SidebarTaskCardProps>(({
             onDragStart={isMobileView ? undefined : handleDragStart}
             onDragEnd={isMobileView ? undefined : handleDragEnd}
             onDoubleClick={handleDoubleClick}
-            whileHover={{
-                boxShadow: '0 2px 6px rgba(0,0,0,0.08)'
+            style={{
+                userSelect: 'none',
+                WebkitUserSelect: 'none',
+                touchAction: isMobileView ? 'auto' : 'none'
             }}
-            transition={{ duration: 0.15 }}
             className={`
                 relative flex flex-col gap-2 p-3 rounded-xl border
                 cursor-grab active:cursor-grabbing
+                hover:shadow-[0_2px_6px_rgba(0,0,0,0.08)]
+                transition-shadow duration-150
                 ${isDragging ? '' : ''}
                 ${isCompleted
                     ? 'bg-emerald-500/15 border-emerald-500/30'
