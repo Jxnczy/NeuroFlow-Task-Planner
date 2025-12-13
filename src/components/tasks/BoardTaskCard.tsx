@@ -168,26 +168,23 @@ export const BoardTaskCard = React.memo<BoardTaskCardProps>(({
     const hoverOpacity = isCompleted ? (viewMode === 'fade' ? 0.8 : 1) : 1;
 
     return (
-        <motion.div
+        <div
             draggable={!isEditing}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
             onDoubleClick={handleDoubleClick}
-            initial={false}
-            animate={{
-                scale: isCompleted ? 1 : 1,
-                opacity: isOverdue ? 1 : baseOpacity
-            }}
             style={{
                 userSelect: 'none',
                 WebkitUserSelect: 'none',
-                touchAction: 'none'
+                touchAction: 'none',
+                cursor: isEditing ? 'default' : 'grab',
+                opacity: isOverdue ? 1 : baseOpacity
             }}
             className={`
-                hover:scale-[1.01] active:scale-[0.98] transition-transform duration-150
+                hover:scale-[1.01] active:scale-[0.98] transition-all duration-150
                 relative flex flex-row items-center justify-between gap-3 py-3 px-3 rounded-lg border min-h-[70px]
                 cursor-grab active:cursor-grabbing
-                ${isDragging ? '' : ''}
+                ${isDragging ? 'opacity-50 scale-[0.98]' : ''}
                 ${isOverdue && !isCompleted
                     ? 'border-red-500/50 shadow-[0_0_10px_rgba(239,68,68,0.15)]'
                     : isCompleted
@@ -244,6 +241,6 @@ export const BoardTaskCard = React.memo<BoardTaskCardProps>(({
                     {formatDuration(task.duration)}
                 </span>
             </div>
-        </motion.div>
+        </div>
     );
 });

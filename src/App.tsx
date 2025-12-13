@@ -20,6 +20,9 @@ import { useIsMobile } from './hooks/useMediaQuery';
 import { useSupabaseAuth } from './hooks/useSupabaseAuth';
 import { SupabaseDataService } from './services/supabaseDataService';
 import { AuthOverlay } from './components/auth/AuthOverlay';
+import { SpotlightTour } from './components/onboarding/SpotlightTour';
+import { TabOnboarding } from './components/onboarding/TabOnboarding';
+import { FirstTaskGuide } from './components/onboarding/FirstTaskGuide';
 import { generateId } from './utils/id';
 import { StorageService } from './services/StorageService';
 import { supabaseAvailable, supabaseUrl } from './lib/supabase';
@@ -75,6 +78,22 @@ const AppContent = ({
     const today = getAdjustedDate();
     const [sampleTasksAdded, setSampleTasksAdded] = useState(false);
     const hasAnyTasks = (taskManager.tasks?.length || 0) > 0;
+
+    // --- Onboarding Tour ---
+    const [showTour, setShowTour] = useState(() => {
+        try {
+            return localStorage.getItem('neuroflow_tour_completed') !== 'true';
+        } catch {
+            return true;
+        }
+    });
+
+    const handleTourComplete = useCallback(() => {
+        try {
+            localStorage.setItem('neuroflow_tour_completed', 'true');
+        } catch { }
+        setShowTour(false);
+    }, []);
 
     useEffect(() => {
         if (hasAnyTasks) {
@@ -203,6 +222,22 @@ const AppContent = ({
                         <p className="text-white/70">Syncing tasks from Supabase…</p>
                     </div>
                 </div>
+            )}
+
+            {/* Onboarding Spotlight Tour - only on desktop when sidebar is open */}
+            {showTour && !isMobile && isSidebarOpen && (
+                <SpotlightTour onComplete={handleTourComplete} />
+            )}
+
+            {/* Per-tab first-visit tooltips */}
+            {!showTour && <TabOnboarding activeTab={activeTab} />}
+
+            {/* First task creation guide - shows after spotlight tour */}
+            {!showTour && !isMobile && activeTab === 'planner' && (
+                <FirstTaskGuide
+                    onComplete={() => { }}
+                    hasAnyTasks={hasAnyTasks}
+                />
             )}
             <MainLayout
                 sidebar={

@@ -166,6 +166,30 @@ export function useTaskManager(initialTasks: Task[], userId?: string, supabaseEn
     // Drag and Drop Logic
     const [isDragging, setIsDragging] = useState(false);
 
+    // Global dragstart/dragend to ensure isDragging is always set correctly
+    useEffect(() => {
+        const handleGlobalDragStart = (e: DragEvent) => {
+            // Check if it's a task drag (has our custom data type)
+            if (e.dataTransfer?.types?.includes('text/plain')) {
+                setIsDragging(true);
+            }
+        };
+
+        const handleGlobalDragEnd = () => {
+            setIsDragging(false);
+        };
+
+        document.addEventListener('dragstart', handleGlobalDragStart);
+        document.addEventListener('dragend', handleGlobalDragEnd);
+        document.addEventListener('drop', handleGlobalDragEnd);
+
+        return () => {
+            document.removeEventListener('dragstart', handleGlobalDragStart);
+            document.removeEventListener('dragend', handleGlobalDragEnd);
+            document.removeEventListener('drop', handleGlobalDragEnd);
+        };
+    }, []);
+
     const handleDragStart = useCallback((e: React.DragEvent<HTMLElement>, taskId: string) => {
         setTaskDragData(e, taskId);
         setIsDragging(true);

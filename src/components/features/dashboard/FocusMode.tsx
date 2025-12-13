@@ -87,7 +87,7 @@ export const FocusMode: React.FC<FocusModeProps> = ({ tasks, onDragStart, onTogg
         return () => {
             cancelled = true;
             if (wakeLockRef.current) {
-                wakeLockRef.current.release().catch(() => {});
+                wakeLockRef.current.release().catch(() => { });
                 wakeLockRef.current = null;
             }
         };
@@ -204,7 +204,7 @@ export const FocusMode: React.FC<FocusModeProps> = ({ tasks, onDragStart, onTogg
                                 <div className="text-[18vw] md:text-9xl font-mono font-bold text-slate-200 leading-none tracking-tighter tabular-nums">
                                     {formatTime(timer)}
                                 </div>
-                        </div>
+                            </div>
                         </div>
                     </div>
 
@@ -327,12 +327,12 @@ export const FocusMode: React.FC<FocusModeProps> = ({ tasks, onDragStart, onTogg
                                 </div>
                             </div>
                         </div>
-                    ) : (
+                    ) : focusTasks.length > 0 ? (
                         <div className="w-full border-dashed border-2 border-slate-800/50 bg-slate-900/20 rounded-2xl p-8 text-center">
-                            <h3 className="text-xl font-bold text-slate-500 mb-2">No active deep work session</h3>
-                            <p className="text-slate-600">Pick a task from your queue to start</p>
+                            <h3 className="text-xl font-bold text-slate-500 mb-2">Ready to focus?</h3>
+                            <p className="text-slate-600">Pick a task below to start a deep work session</p>
                         </div>
-                    )}
+                    ) : null}
 
                     {/* Queue List */}
                     <div className="w-full max-w-2xl mx-auto flex flex-col gap-3 px-4 md:px-0">
@@ -341,7 +341,7 @@ export const FocusMode: React.FC<FocusModeProps> = ({ tasks, onDragStart, onTogg
                                 <div className="flex-1 min-w-0">
                                     <BoardTaskCard
                                         task={task}
-                                        onDragStart={() => {}}
+                                        onDragStart={() => { }}
                                         onToggleComplete={onToggleTaskComplete}
                                         onUpdateTask={onUpdateTask}
                                         viewMode={showCompleted ? 'show' : 'fade'}
@@ -357,9 +357,14 @@ export const FocusMode: React.FC<FocusModeProps> = ({ tasks, onDragStart, onTogg
                             </div>
                         ))}
                         {focusTasks.length === 0 && (
-                            <div className="text-center py-12 text-slate-500">
-                                <p className="text-lg">No focus tasks for today.</p>
-                                <p className="text-sm mt-2">Schedule tasks to "Focus" or "Goal" to see them here.</p>
+                            <div className="text-center py-16">
+                                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-slate-800/50 flex items-center justify-center">
+                                    <Play size={28} className="text-slate-600" />
+                                </div>
+                                <h3 className="text-xl font-bold text-slate-400 mb-2">No focus tasks scheduled</h3>
+                                <p className="text-slate-600 max-w-sm mx-auto">
+                                    Schedule tasks to the "Focus" or "Goal" rows in your weekly planner to see them here.
+                                </p>
                             </div>
                         )}
                     </div>

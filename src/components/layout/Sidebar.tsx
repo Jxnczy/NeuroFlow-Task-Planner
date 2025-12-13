@@ -234,7 +234,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
 
             {/* Add Task Section */}
-            <div className="px-3 pb-4">
+            <div className="px-3 pb-4" data-tour="add-task">
                 <div className="rounded-xl p-4 bg-transparent">
                     {/* Input Row */}
                     <div className="mb-4">
@@ -314,7 +314,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
 
             {/* Main Task Lists + Icebox in shared scroll area */}
-            <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-4 pb-6">
+            <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-4 pb-6" data-tour="brain-dump">
                 <div className="flex-1 min-h-0">
                     <VirtualSidebarList
                         tasks={visibleTasks}

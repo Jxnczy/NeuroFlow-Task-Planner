@@ -222,7 +222,7 @@ export const SidebarTaskCard = React.memo<SidebarTaskCardProps>(({
     }
 
     return (
-        <motion.div
+        <div
             draggable={!isEditing && !isMobileView}
             onDragStart={isMobileView ? undefined : handleDragStart}
             onDragEnd={isMobileView ? undefined : handleDragEnd}
@@ -230,14 +230,15 @@ export const SidebarTaskCard = React.memo<SidebarTaskCardProps>(({
             style={{
                 userSelect: 'none',
                 WebkitUserSelect: 'none',
-                touchAction: isMobileView ? 'auto' : 'none'
+                touchAction: isMobileView ? 'auto' : 'none',
+                cursor: isEditing || isMobileView ? 'default' : 'grab'
             }}
             className={`
                 relative flex flex-col gap-2 p-3 rounded-xl border
                 cursor-grab active:cursor-grabbing
                 hover:shadow-[0_2px_6px_rgba(0,0,0,0.08)]
-                transition-shadow duration-150
-                ${isDragging ? '' : ''}
+                transition-all duration-150
+                ${isDragging ? 'opacity-50 scale-[0.98]' : ''}
                 ${isCompleted
                     ? 'bg-emerald-500/15 border-emerald-500/30'
                     : `bg-white/[0.03] border-white/[0.06] ${TASK_CARD_BORDER_COLORS[task.type]} border-l-[3px]`
@@ -330,6 +331,6 @@ export const SidebarTaskCard = React.memo<SidebarTaskCardProps>(({
                     )}
                 </AnimatePresence>
             )}
-        </motion.div>
+        </div>
     );
 });

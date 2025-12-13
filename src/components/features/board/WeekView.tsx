@@ -63,9 +63,9 @@ const DayHeader: React.FC<DayHeaderProps> = React.memo(({
         {/* Day Name */}
         <span
           className="text-[11px] font-black uppercase tracking-widest mb-0.5"
-          style={{ 
-            color: isToday ? 'var(--accent)' : 'var(--text-muted)', 
-            opacity: isToday ? 1 : 0.6 
+          style={{
+            color: isToday ? 'var(--accent)' : 'var(--text-muted)',
+            opacity: isToday ? 1 : 0.6
           }}
         >
           {DAYS[dayIndex]}
@@ -96,8 +96,8 @@ const DayHeader: React.FC<DayHeaderProps> = React.memo(({
               opacity: stats.totalMinutes > 0 ? 1 : 0.4
             }}
           >
-            {stats.totalMinutes > 0 
-              ? `${stats.plannedHours}h / ${TARGET_HOURS_PER_DAY}h` 
+            {stats.totalMinutes > 0
+              ? `${stats.plannedHours}h / ${TARGET_HOURS_PER_DAY}h`
               : '—'
             }
           </div>
@@ -116,8 +116,8 @@ const DayHeader: React.FC<DayHeaderProps> = React.memo(({
                     width: `${stats.completionPercent}%`,
                     backgroundColor: stats.completionColor,
                     opacity: isSubtle ? 0.4 : 1,
-                    boxShadow: (stats.completionPercent > 0 && !isSubtle) 
-                      ? `0 0 10px ${stats.completionColor}50` 
+                    boxShadow: (stats.completionPercent > 0 && !isSubtle)
+                      ? `0 0 10px ${stats.completionColor}50`
                       : 'none'
                   }}
                   transition={{ type: "spring", stiffness: 40, damping: 15 }}
@@ -193,19 +193,20 @@ export const WeekView: React.FC<WeekViewProps> = React.memo(({
   } = actions;
 
   return (
-    <div 
-      className="flex flex-col h-full font-sans overflow-hidden" 
+    <div
+      className="flex flex-col h-full font-sans overflow-hidden"
       style={{ color: 'var(--text-secondary)' }}
+      data-tour="week-view"
     >
       <div className="flex-grow flex flex-col px-4 pb-4 overflow-hidden relative">
         {/* Days Header Row */}
-        <div 
+        <div
           className={`flex ${isStacked ? 'pl-0' : 'pl-20'} pb-0 shrink-0 transition-all duration-300 pt-1 gap-0`}
         >
           {currentWeekDays.map((day, i) => {
             const stats = dailyStats[i];
             const isToday = stats.dateStr === todayStr;
-            
+
             // Check if day is in the past (strictly before today)
             const todayDate = new Date(todayStr);
             const currentDayDate = new Date(stats.dateStr);
