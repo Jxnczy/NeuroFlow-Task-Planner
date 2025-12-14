@@ -13,6 +13,7 @@ export interface DbTaskRow {
     is_completed: boolean | null;
     is_frozen: boolean | null;
     scheduled_date: string | null;
+    deadline: string | null;
     completed_at: string | null;
     status?: string | null;
     eisenhower_quad?: string | null;
@@ -81,6 +82,7 @@ export const mapTaskFromDb = (row: DbTaskRow): Task => ({
     type: (row.priority as TaskType) ?? 'medium',
     status: getCompletionStatus(row),
     dueDate: row.scheduled_date,
+    deadline: row.deadline ?? null,
     assignedRow: (row.category as GridRow) ?? null,
     eisenhowerQuad: (row.eisenhower_quad as Task['eisenhowerQuad']) ?? null,
     createdAt: row.created_at ? new Date(row.created_at).getTime() : Date.now(),
@@ -97,6 +99,7 @@ const mapTaskToDb = (task: Task, userId: string): Omit<DbTaskRow, 'user_id' | 'i
     category: task.assignedRow,
     status: task.status,
     scheduled_date: task.dueDate,
+    deadline: task.deadline ?? null,
     eisenhower_quad: task.eisenhowerQuad,
     is_completed: task.status === 'completed',
     is_frozen: task.isFrozen ?? false,

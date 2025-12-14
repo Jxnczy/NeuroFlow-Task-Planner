@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Check, AlertCircle } from 'lucide-react';
+import { Check, AlertCircle, Calendar } from 'lucide-react';
 import { Task } from '../../types';
 import { TASK_CARD_BORDER_COLORS } from '../../constants';
 import { setTaskDragData } from '../../utils/drag';
@@ -199,13 +199,24 @@ export const BoardTaskCard = React.memo<BoardTaskCardProps>(({
                 </div>
             )}
 
-            <div className="flex-1 flex items-center min-w-0">
+            <div className="flex-1 flex flex-col justify-center min-w-0">
                 <h3
                     className={`font-medium text-base leading-tight whitespace-normal break-words pr-2`}
                     style={{ color: isCompleted ? '#f1f5f9' : 'var(--text-primary)' }}
                 >
                     {task.title}
                 </h3>
+                {task.deadline && !isCompleted && (
+                    <div
+                        className={`flex items-center gap-1 mt-1 text-[10px] font-medium ${new Date(task.deadline) < new Date(new Date().toISOString().split('T')[0])
+                                ? 'text-red-400'
+                                : 'text-amber-400/70'
+                            }`}
+                    >
+                        <Calendar size={10} />
+                        <span>Due {new Date(task.deadline).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</span>
+                    </div>
+                )}
             </div>
 
             <div className="flex flex-col items-center justify-center gap-1 flex-shrink-0 w-12">

@@ -10,7 +10,8 @@ export interface Task {
   duration: number; // minutes
   type: TaskType;
   status: TaskStatus;
-  dueDate: string | null; // ISO Date string YYYY-MM-DD
+  dueDate: string | null; // ISO Date string YYYY-MM-DD (when scheduled on board)
+  deadline: string | null; // ISO Date string YYYY-MM-DD (must be done by this date)
   assignedRow: GridRow | null;
   eisenhowerQuad: 'do' | 'decide' | 'delegate' | 'delete' | null;
   createdAt: number;

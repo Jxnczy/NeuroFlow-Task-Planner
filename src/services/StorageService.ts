@@ -106,7 +106,8 @@ export class StorageService {
             typeof t.id === 'string' && t.id.length > 0 &&
             typeof t.title === 'string' &&
             (t.duration === undefined || typeof t.duration === 'number') &&
-            (t.type === undefined || ['low', 'medium', 'high', 'leisure'].includes(t.type as string))
+            (t.type === undefined || ['low', 'medium', 'high', 'leisure', 'backlog', 'chores'].includes(t.type as string)) &&
+            (t.deadline === undefined || t.deadline === null || typeof t.deadline === 'string')
         );
     }
 

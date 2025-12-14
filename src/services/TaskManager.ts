@@ -36,6 +36,7 @@ export class TaskManager {
             type,
             status: 'unscheduled',
             dueDate: null,
+            deadline: null,
             assignedRow: null,
             eisenhowerQuad: null,
             createdAt: Date.now(),
@@ -143,6 +144,7 @@ export class TaskManager {
                     id: generateId(),
                     status: 'scheduled',
                     dueDate: targetDateStr,
+                    deadline: taskToSchedule.deadline, // Preserve deadline
                     assignedRow: row,
                     eisenhowerQuad: null,
                     type: type || taskToSchedule.type,

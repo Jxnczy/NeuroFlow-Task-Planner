@@ -12,6 +12,7 @@ import { FrostOverlay } from '../ui/FrostOverlay';
 import { useIceSound } from '../../hooks/useIceSound';
 import { useDoomLoopDetector } from '../../hooks/useDoomLoopDetector';
 import { getTaskIdFromDragEvent } from '../../utils/drag';
+import { DeadlinePicker } from '../ui/DeadlinePicker';
 
 interface SidebarProps {
     onOpenSettings: () => void;
@@ -51,6 +52,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     const [newTaskTitle, setNewTaskTitle] = useState('');
     const [newTaskDuration, setNewTaskDuration] = useState(30);
     const [newTaskType, setNewTaskType] = useState<TaskType>('backlog');
+    const [newTaskDeadline, setNewTaskDeadline] = useState<string>('');
     const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({
         'high': true, 'medium': true, 'low': true, 'leisure': false, 'backlog': true, 'chores': false
     });
@@ -70,8 +72,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
     const handleAddTask = () => {
         if (!newTaskTitle.trim()) return;
-        addTask(newTaskTitle.trim(), newTaskDuration, newTaskType);
+        const newTask = addTask(newTaskTitle.trim(), newTaskDuration, newTaskType);
+        // If deadline was set, update the task with it
+        if (newTaskDeadline) {
+            updateTask(newTask.id, { deadline: newTaskDeadline });
+        }
         setNewTaskTitle('');
+        setNewTaskDeadline('');
         setExpandedCategories(prev => ({ ...prev, [newTaskType]: true }));
     };
 
@@ -307,6 +314,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
                                 </button>
                             ))}
                         </div>
+                    </div>
+
+                    {/* Deadline (Optional) */}
+                    <div className="mb-4">
+                        <div className="text-[10px] font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>
+                            Deadline (optional)
+                        </div>
+                        <DeadlinePicker
+                            value={newTaskDeadline}
+                            onChange={setNewTaskDeadline}
+                            placeholder="Add deadline"
+                        />
                     </div>
 
                     {/* Add Button */}

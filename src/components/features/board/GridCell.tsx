@@ -145,23 +145,6 @@ export const GridCell = React.memo<GridCellProps>(({
                 ))}
             </AnimatePresence>
 
-            {/* Rescheduled Tasks (Ghost Trails) */}
-            {
-                rescheduledTasks.map((task) => (
-                    <div key={task.id} className="flex-shrink-0 mt-1">
-                        <div className="flex items-center gap-2 px-2 py-1 rounded border border-dashed border-zinc-700/50 bg-zinc-800/20 select-none">
-                            <ArrowRight size={12} className="text-zinc-500" />
-                            <span className="text-[11px] text-zinc-500 truncate flex-1 font-medium">
-                                {task.title}
-                            </span>
-                            <span className="text-[10px] text-zinc-600">
-                                Rescheduled
-                            </span>
-                        </div>
-                    </div>
-                ))
-            }
-
             {/* Drop Indicator - Fills remaining space */}
             {
                 isDragOver && emptySlotsToRender > 0 && (
