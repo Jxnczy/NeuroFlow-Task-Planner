@@ -18,6 +18,7 @@ export interface Task {
   createdAt: number;
   isFrozen?: boolean;
   sortOrder?: number;
+  completedAt?: number; // millisecond timestamp
 }
 
 export interface Habit {
@@ -47,4 +48,5 @@ export interface AppData {
   brainDumpContent?: string; // Legacy
   notes?: Note[]; // Legacy
   dayHistory?: Record<string, any>;
+  statsResetAt?: number; // millisecond timestamp
 }

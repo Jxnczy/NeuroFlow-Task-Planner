@@ -48,6 +48,7 @@ const AppContent = ({
     userId,
     initialHabitsState,
     initialBrainDump,
+    initialStatsResetAt,
     onDataImported,
     onDeleteAllTasks,
     supabaseEnabled,
@@ -59,6 +60,7 @@ const AppContent = ({
     userId?: string,
     initialHabitsState: Habit[],
     initialBrainDump: BrainDumpList[],
+    initialStatsResetAt: number,
     onDataImported: (data: AppData) => void,
     onDeleteAllTasks: () => Promise<void>,
     supabaseEnabled: boolean,
@@ -71,7 +73,11 @@ const AppContent = ({
     const taskManager = useTaskContext();
     const habitManager = useHabitManager(initialHabitsState, userId, supabaseEnabled);
     const brainDumpManager = useBrainDumpManager(initialBrainDump, userId, supabaseEnabled);
-    const persistence = usePersistence(taskManager.tasks, habitManager.habits, brainDumpManager.lists);
+
+    // UI State for stats reset baseline
+    const [statsResetAt, setStatsResetAt] = useState<number>(initialStatsResetAt);
+
+    const persistence = usePersistence(taskManager.tasks, habitManager.habits, brainDumpManager.lists, statsResetAt);
 
     // --- Responsive ---
     const isMobile = useIsMobile();
@@ -137,11 +143,26 @@ const AppContent = ({
         setShowTour(true);
     }, []);
 
+
     useEffect(() => {
         if (hasAnyTasks) {
             setSampleTasksAdded(true);
         }
     }, [hasAnyTasks]);
+
+    // Fetch stats reset baseline
+    useEffect(() => {
+        if (!userId || !supabaseEnabled) return;
+        const fetchBaseline = async () => {
+            try {
+                const baseline = await SupabaseDataService.fetchStatsResetAt(userId);
+                if (baseline) setStatsResetAt(baseline);
+            } catch (error) {
+                console.error('Failed to fetch stats reset baseline', error);
+            }
+        };
+        fetchBaseline();
+    }, [userId, supabaseEnabled]);
 
     // Auto-close sidebar when switching to mobile, auto-open on desktop
     useEffect(() => {
@@ -278,6 +299,15 @@ const AppContent = ({
         setSampleTasksAdded(true);
         // Delegate storage and remote clearing to App component
         await onDeleteAllTasks();
+    };
+
+    const handleResetStats = () => {
+        const now = Date.now();
+        setStatsResetAt(now);
+        taskManager.resetStats();
+        if (userId && supabaseEnabled) {
+            void SupabaseDataService.setStatsResetAt(userId, now);
+        }
     };
 
     return (
@@ -434,7 +464,7 @@ const AppContent = ({
                             style={{ height: '100%', display: 'flex', flexDirection: 'column', paddingBottom: isMobile ? 80 : 0 }}
                         >
                             <Suspense fallback={<div className="flex items-center justify-center h-full text-white/50">Loading analytics...</div>}>
-                                <AnalyticsDashboard tasks={taskManager.tasks} />
+                                <AnalyticsDashboard tasks={taskManager.tasks} statsResetAt={statsResetAt} />
                             </Suspense>
                         </motion.div>
                     )}
@@ -449,6 +479,7 @@ const AppContent = ({
                     onDeleteAllTasks={handleDeleteAllTasks}
                     onFreezeOverloaded={handleFreezeOverloaded}
                     onClearRescheduled={taskManager.clearRescheduledTasks}
+                    onResetStats={handleResetStats}
                     currentThemeId={currentThemeId}
                     onThemeChange={setCurrentThemeId}
                     viewMode={viewMode}
@@ -834,6 +865,7 @@ const App = () => {
                     userId={user.id}
                     initialHabitsState={initialHabitsState}
                     initialBrainDump={initialBrainDumpState}
+                    initialStatsResetAt={localData?.statsResetAt || 0}
                     onDataImported={handleDataImported}
                     onDeleteAllTasks={handleDeleteAllTasks}
                     supabaseEnabled={true}
@@ -852,6 +884,7 @@ const App = () => {
             <AppContent
                 initialHabitsState={initialHabitsState}
                 initialBrainDump={initialBrainDumpState}
+                initialStatsResetAt={localData?.statsResetAt || 0}
                 onDataImported={handleDataImported}
                 onDeleteAllTasks={handleDeleteAllTasks}
                 supabaseEnabled={false}

@@ -6,9 +6,18 @@ import { formatDate, TARGET_HOURS_PER_DAY, getWeekDays } from '../../../constant
 
 interface AnalyticsDashboardProps {
     tasks: Task[];
+    statsResetAt?: number;
 }
 
-export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tasks }) => {
+export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tasks: allTasks, statsResetAt = 0 }) => {
+    // Filter tasks based on statsResetAt baseline
+    const tasks = (allTasks || []).filter(t => {
+        // If not completed, keep it for "Planned" stats (capacity, progress)
+        if (t.status !== 'completed') return true;
+        // If completed, only keep if it was completed AFTER the reset
+        return t.completedAt && t.completedAt > statsResetAt;
+    });
+
     const [showFlowScoreTooltip, setShowFlowScoreTooltip] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
 

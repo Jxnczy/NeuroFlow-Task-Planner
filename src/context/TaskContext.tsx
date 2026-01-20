@@ -19,6 +19,7 @@ interface TaskContextType {
     handleDropOnSidebar: (e: React.DragEvent) => void;
     handleDropOnEisenhower: (e: React.DragEvent, quad: 'do' | 'decide' | 'delegate' | 'delete') => void;
     clearRescheduledTasks: () => void;
+    resetStats: () => void;
     isLoading: boolean;
     refreshTasks: () => void;
 }
@@ -48,6 +49,7 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children, initialTas
         handleDropOnSidebar,
         handleDropOnEisenhower,
         clearRescheduledTasks,
+        resetStats,
         syncRemoteTask,
         removeRemoteTask,
         isLoading,
@@ -113,6 +115,7 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children, initialTas
             handleDropOnSidebar,
             handleDropOnEisenhower,
             clearRescheduledTasks,
+            resetStats,
             isLoading,
             refreshTasks
         }}>

@@ -101,7 +101,7 @@ const DayHeader: React.FC<DayHeaderProps> = React.memo(({
               opacity: stats.totalMinutes > 0 ? 1 : 0.4
             }}
           >
-            {stats.totalMinutes > 0 && (isToday || isPastDay)
+            {stats.totalMinutes > 0
               ? `${stats.plannedHours}h / ${TARGET_HOURS_PER_DAY}h`
               : '—'
             }

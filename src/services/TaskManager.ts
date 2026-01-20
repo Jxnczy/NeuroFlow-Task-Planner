@@ -85,6 +85,12 @@ export class TaskManager {
         this.notify();
     }
 
+    resetStats() {
+        // No longer uncompleting tasks here.
+        // The baseline will be updated in App/Context and Analytics will filter.
+        this.notify();
+    }
+
     toggleTaskComplete(taskId: string): boolean {
         let isNowComplete = false;
         this.tasks = this.tasks.map(t => {
@@ -94,11 +100,12 @@ export class TaskManager {
 
                 if (isComplete) {
                     newStatus = (t.dueDate && t.assignedRow) ? 'scheduled' : 'unscheduled';
+                    return { ...t, status: newStatus, completedAt: undefined };
                 } else {
                     newStatus = 'completed';
                     isNowComplete = true;
+                    return { ...t, status: newStatus, completedAt: Date.now() };
                 }
-                return { ...t, status: newStatus };
             }
             return t;
         });

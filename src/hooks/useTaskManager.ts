@@ -287,6 +287,15 @@ export function useTaskManager(initialTasks: Task[], userId?: string, supabaseEn
             const removed = before.filter(t => !after.some(nt => nt.id === t.id));
             removed.forEach(t => deleteTaskRemote(t.id));
         },
+        resetStats: () => {
+            const before = manager.getTasks();
+            manager.resetStats();
+            const after = manager.getTasks();
+            const changed = diffTasks(before, after);
+            if (changed.length) {
+                persistTasks(changed);
+            }
+        },
         deleteAllTasks: () => {
             const toDelete = manager.getTasks();
             // Remove locally

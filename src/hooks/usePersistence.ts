@@ -2,19 +2,19 @@ import React, { useCallback } from 'react';
 import { StorageService } from '../services/StorageService';
 import { AppData, Task, Habit, BrainDumpList } from '../types';
 
-export function usePersistence(tasks: Task[], habits: Habit[], brainDumpLists: BrainDumpList[]) {
+export function usePersistence(tasks: Task[], habits: Habit[], brainDumpLists: BrainDumpList[], statsResetAt: number) {
     const storage = StorageService.getInstance();
 
     // Local autosave for offline resilience
     React.useEffect(() => {
-        const data: AppData = { tasks, habits, brainDumpLists };
+        const data: AppData = { tasks, habits, brainDumpLists, statsResetAt };
         storage.save(data);
-    }, [tasks, habits, brainDumpLists]);
+    }, [tasks, habits, brainDumpLists, statsResetAt]);
 
     const exportData = useCallback(() => {
-        const data: AppData = { tasks, habits, brainDumpLists };
+        const data: AppData = { tasks, habits, brainDumpLists, statsResetAt };
         storage.exportData(data);
-    }, [tasks, habits, brainDumpLists]);
+    }, [tasks, habits, brainDumpLists, statsResetAt]);
 
     const importData = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];

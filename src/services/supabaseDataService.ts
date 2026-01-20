@@ -89,7 +89,8 @@ export const mapTaskFromDb = (row: DbTaskRow): Task => ({
     eisenhowerQuad: (row.eisenhower_quad as Task['eisenhowerQuad']) ?? null,
     createdAt: row.created_at ? new Date(row.created_at).getTime() : Date.now(),
     isFrozen: row.is_frozen ?? false,
-    sortOrder: row.sort_order ?? 0
+    sortOrder: row.sort_order ?? 0,
+    completedAt: row.completed_at ? new Date(row.completed_at).getTime() : undefined
 });
 
 const mapTaskToDb = (task: Task, userId: string): Omit<DbTaskRow, 'user_id' | 'id'> & { user_id: string; id: string } => ({
@@ -108,7 +109,7 @@ const mapTaskToDb = (task: Task, userId: string): Omit<DbTaskRow, 'user_id' | 'i
     is_frozen: task.isFrozen ?? false,
     sort_order: task.sortOrder ?? 0,
     created_at: new Date(task.createdAt || Date.now()).toISOString(),
-    completed_at: task.status === 'completed' ? new Date().toISOString() : null
+    completed_at: task.completedAt ? new Date(task.completedAt).toISOString() : (task.status === 'completed' ? new Date().toISOString() : null)
 });
 
 const mapHabitFromDb = (row: DbHabitRow): Habit => ({
@@ -309,6 +310,37 @@ export const SupabaseDataService = {
 
         if (error) {
             console.error('Failed to set onboarding completed', error);
+        }
+    },
+
+    async fetchStatsResetAt(userId: string): Promise<number | undefined> {
+        if (!supabase) throw new Error('Supabase unavailable');
+        const { data, error } = await supabase
+            .from('user_preferences')
+            .select('stats_reset_at')
+            .eq('user_id', userId)
+            .single();
+
+        if (error) {
+            if (error.code === 'PGRST116') return undefined;
+            console.error('Failed to fetch stats reset preference', error);
+            return undefined;
+        }
+        return data?.stats_reset_at ? new Date(data.stats_reset_at).getTime() : undefined;
+    },
+
+    async setStatsResetAt(userId: string, timestamp: number): Promise<void> {
+        if (!supabase) throw new Error('Supabase unavailable');
+        const { error } = await supabase
+            .from('user_preferences')
+            .upsert({
+                user_id: userId,
+                stats_reset_at: new Date(timestamp).toISOString(),
+                updated_at: new Date().toISOString()
+            });
+
+        if (error) {
+            console.error('Failed to update stats reset preference', error);
         }
     }
 };

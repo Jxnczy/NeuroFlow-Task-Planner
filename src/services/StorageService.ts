@@ -201,7 +201,8 @@ export class StorageService {
                         brainDumpLists: validLists,
                         brainDumpContent: typeof data.brainDumpContent === 'string' ? data.brainDumpContent : undefined,
                         notes: data.notes,
-                        dayHistory: typeof data.dayHistory === 'object' ? data.dayHistory : {}
+                        dayHistory: typeof data.dayHistory === 'object' ? data.dayHistory : {},
+                        statsResetAt: typeof data.statsResetAt === 'number' ? data.statsResetAt : undefined
                     };
                     resolve(validData);
                 } catch (error) {

@@ -100,7 +100,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     supabaseEnabled,
     onToggleSupabase,
     onResetTour,
-    onLogout
+    onLogout,
+    onResetStats
 }) => {
     const [dayBoundary, setDayBoundaryState] = useState(getDayBoundaryHour);
 
@@ -368,6 +369,21 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                     >
                                         <RotateCcw size={16} className="text-rose-400" />
                                         <span className="text-sm" style={{ color: 'var(--text-primary)' }}>Reset Schedule Trails</span>
+                                    </button>
+                                )}
+
+                                {onResetStats && (
+                                    <button
+                                        onClick={() => {
+                                            if (window.confirm('Reset all progress (completed tasks)? This will un-complete all tasks but NOT delete them.')) {
+                                                onResetStats();
+                                            }
+                                        }}
+                                        className="w-full flex items-center gap-3 p-3 rounded-xl transition-all hover:bg-rose-500/10"
+                                        style={{ border: '1px solid rgba(239,68,68,0.2)' }}
+                                    >
+                                        <BarChart3 size={16} className="text-rose-400" />
+                                        <span className="text-sm" style={{ color: 'var(--text-primary)' }}>Reset All Progress (Stats)</span>
                                     </button>
                                 )}
 
