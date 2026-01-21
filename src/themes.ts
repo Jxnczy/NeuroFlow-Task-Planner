@@ -9,6 +9,9 @@ export interface Theme {
     bgSecondary: string;
     bgTertiary: string;
     bgGlow: string;
+    bgSurfaceSubtle: string; // NEW: For subtle hover states
+    bgSurfaceStrong: string; // NEW: For active states/cards
+    bgGlass: string;      // NEW: For glassmorphism
 
     // Text colors
     textPrimary: string;
@@ -23,6 +26,7 @@ export interface Theme {
     // Border colors
     borderLight: string;
     borderMedium: string;
+    borderSubtle: string; // NEW: Ultra faint borders
 
     // Status colors (kept consistent across themes)
     success: string;
@@ -46,6 +50,9 @@ export const themes: Theme[] = [
       bgSecondary: '#161b22',
       bgTertiary: '#21262d',
       bgGlow: 'rgba(88, 166, 255, 0.12)',
+      bgSurfaceSubtle: 'rgba(255, 255, 255, 0.03)',
+      bgSurfaceStrong: 'rgba(255, 255, 255, 0.08)',
+      bgGlass: 'rgba(22, 27, 46, 0.6)',
       textPrimary: 'rgba(255, 255, 255, 0.87)',
       textSecondary: 'rgba(255, 255, 255, 0.60)',
       textMuted: 'rgba(255, 255, 255, 0.38)',
@@ -54,6 +61,7 @@ export const themes: Theme[] = [
       accentMuted: 'rgba(88, 166, 255, 0.1)',
       borderLight: 'rgba(255, 255, 255, 0.05)',
       borderMedium: 'rgba(255, 255, 255, 0.1)',
+      borderSubtle: 'transparent', // Only visible in light theme
       success: '#3fb950',
       warning: '#d29922',
       error: '#f85149',
@@ -73,6 +81,9 @@ export const themes: Theme[] = [
       bgSecondary: '#1C1C1E',
       bgTertiary: '#242428',
       bgGlow: 'rgba(56, 189, 248, 0.15)',
+      bgSurfaceSubtle: 'rgba(255, 255, 255, 0.03)',
+      bgSurfaceStrong: 'rgba(255, 255, 255, 0.08)',
+      bgGlass: 'rgba(28, 28, 30, 0.7)',
       textPrimary: 'rgba(255, 255, 255, 0.87)',
       textSecondary: 'rgba(255, 255, 255, 0.60)',
       textMuted: 'rgba(255, 255, 255, 0.38)',
@@ -81,6 +92,7 @@ export const themes: Theme[] = [
       accentMuted: 'rgba(6, 182, 212, 0.1)',
       borderLight: 'rgba(255, 255, 255, 0.05)',
       borderMedium: 'rgba(255, 255, 255, 0.1)',
+      borderSubtle: 'transparent', // Only visible in light theme
       success: '#10b981',
       warning: '#f59e0b',
       error: '#ef4444',
@@ -100,6 +112,9 @@ export const themes: Theme[] = [
       bgSecondary: '#121218',
       bgTertiary: '#1a1a24',
       bgGlow: 'rgba(255, 255, 255, 0.02)',
+      bgSurfaceSubtle: 'rgba(255, 255, 255, 0.02)',
+      bgSurfaceStrong: 'rgba(255, 255, 255, 0.06)',
+      bgGlass: 'rgba(18, 18, 24, 0.7)',
       textPrimary: 'rgba(255, 255, 255, 0.87)',
       textSecondary: 'rgba(255, 255, 255, 0.60)',
       textMuted: 'rgba(255, 255, 255, 0.38)',
@@ -108,6 +123,7 @@ export const themes: Theme[] = [
       accentMuted: 'rgba(82, 167, 255, 0.08)',
       borderLight: 'rgba(255, 255, 255, 0.04)',
       borderMedium: 'rgba(255, 255, 255, 0.08)',
+      borderSubtle: 'transparent', // Only visible in light theme
       success: '#10b981',
       warning: '#f59e0b',
       error: '#ef4444',
@@ -120,29 +136,38 @@ export const themes: Theme[] = [
   },
   {
     id: 'daylight',
-    name: 'Daylight',
-    description: 'Clean, bright light mode inspired by modern design',
+    name: 'Light Mode',
+    description: 'Clean, readable light theme with semantic tokens',
     isLight: true,
     colors: {
-      bgPrimary: '#ffffff',
-      bgSecondary: '#f5f5f7',
-      bgTertiary: '#e8e8ed',
-      bgGlow: 'rgba(0, 122, 255, 0.08)',
-      textPrimary: 'rgba(0, 0, 0, 0.87)',
-      textSecondary: 'rgba(0, 0, 0, 0.55)',
-      textMuted: 'rgba(0, 0, 0, 0.35)',
-      accent: '#007aff',
-      accentGlow: 'rgba(0, 122, 255, 0.25)',
-      accentMuted: 'rgba(0, 122, 255, 0.08)',
-      borderLight: 'rgba(0, 0, 0, 0.06)',
-      borderMedium: 'rgba(0, 0, 0, 0.12)',
-      success: '#34c759',
-      warning: '#ff9500',
-      error: '#ff3b30',
+      // Canvas & Surfaces (v2 semantic tokens)
+      bgPrimary: '#F6F7F9', // --bg (app canvas)
+      bgSecondary: '#FFFFFF', // --panel (surfaces)
+      bgTertiary: '#F2F4F7', // --surface-alt (hover/alt)
+      bgGlow: 'transparent', // No glow in v2
+      bgSurfaceSubtle: 'rgba(0, 0, 0, 0.02)',
+      bgSurfaceStrong: 'rgba(0, 0, 0, 0.05)',
+      bgGlass: '#FFFFFF', // Solid, no blur
+      // Typography (High Contrast >= 4.5:1)
+      textPrimary: '#101828', // --text
+      textSecondary: '#475467', // --text-muted
+      textMuted: '#667085', // --text-subtle
+      // Accent
+      accent: '#2563EB', // --primary (brand blue)
+      accentGlow: 'rgba(37, 99, 235, 0.2)',
+      accentMuted: 'rgba(37, 99, 235, 0.1)',
+      // Borders (Visible structure)
+      borderLight: '#E4E7EC', // --border
+      borderMedium: '#D0D5DD', // --border-strong
+      borderSubtle: '#F2F4F7', // Very subtle
+      // Status
+      success: '#16a34a',
+      warning: '#ea580c',
+      error: '#dc2626',
     },
     fonts: {
-      sans: "'-apple-system', 'SF Pro Text', 'Lexend', system-ui, sans-serif",
-      display: "'-apple-system', 'SF Pro Display', 'Lexend', system-ui, sans-serif",
+      sans: "'-apple-system', 'SF Pro Text', 'Inter', system-ui, sans-serif",
+      display: "'-apple-system', 'SF Pro Display', 'Inter', system-ui, sans-serif",
       mono: "'SF Mono', 'Menlo', monospace",
     },
   },
@@ -160,6 +185,9 @@ export const applyTheme = (theme: Theme): void => {
   root.style.setProperty('--bg-secondary', theme.colors.bgSecondary);
   root.style.setProperty('--bg-tertiary', theme.colors.bgTertiary);
   root.style.setProperty('--bg-glow', theme.colors.bgGlow);
+  root.style.setProperty('--bg-surface-subtle', theme.colors.bgSurfaceSubtle);
+  root.style.setProperty('--bg-surface-strong', theme.colors.bgSurfaceStrong);
+  root.style.setProperty('--bg-glass', theme.colors.bgGlass);
 
   root.style.setProperty('--text-primary', theme.colors.textPrimary);
   root.style.setProperty('--text-secondary', theme.colors.textSecondary);
@@ -171,6 +199,7 @@ export const applyTheme = (theme: Theme): void => {
 
   root.style.setProperty('--border-light', theme.colors.borderLight);
   root.style.setProperty('--border-medium', theme.colors.borderMedium);
+  root.style.setProperty('--border-subtle', theme.colors.borderSubtle);
 
   root.style.setProperty('--success', theme.colors.success);
   root.style.setProperty('--warning', theme.colors.warning);

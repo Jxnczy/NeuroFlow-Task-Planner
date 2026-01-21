@@ -56,11 +56,11 @@ const DayHeader: React.FC<DayHeaderProps> = React.memo(({
       <div
         className="flex flex-col items-center py-3 rounded-t-2xl transition-all duration-300 relative"
         style={{
-          background: isToday ? 'rgba(255,255,255,0.02)' : 'transparent',
-          borderLeft: isToday ? '1px solid rgba(255,255,255,0.05)' : 'none',
-          borderRight: isToday ? '1px solid rgba(255,255,255,0.05)' : 'none',
-          borderTop: isToday ? '1px solid rgba(255,255,255,0.05)' : 'none',
-          boxShadow: isToday ? '0 0 20px rgba(34,211,238,0.15)' : 'none',
+          background: isToday ? 'var(--bg-surface-subtle)' : 'transparent',
+          borderLeft: isToday ? '1px solid var(--border-subtle)' : 'none',
+          borderRight: isToday ? '1px solid var(--border-subtle)' : 'none',
+          borderTop: isToday ? '1px solid var(--border-subtle)' : 'none',
+          boxShadow: isToday ? '0 0 20px var(--bg-glow)' : 'none',
           zIndex: isToday ? 10 : 'auto',
           opacity: isPastDay ? 0.85 : 1
         }}
@@ -81,7 +81,7 @@ const DayHeader: React.FC<DayHeaderProps> = React.memo(({
           className="text-4xl font-display font-black leading-none transition-all duration-300"
           style={{
             color: isToday ? 'var(--text-primary)' : 'var(--text-muted)',
-            textShadow: isToday ? '0 0 20px rgba(255,255,255,0.2)' : 'none',
+            textShadow: isToday ? '0 0 20px var(--bg-glow)' : 'none',
             opacity: isToday ? 1 : 0.5
           }}
         >
@@ -112,7 +112,7 @@ const DayHeader: React.FC<DayHeaderProps> = React.memo(({
               {/* Progress Bar */}
               <div
                 className="w-full h-2 rounded-full overflow-hidden relative"
-                style={{ backgroundColor: 'rgba(255,255,255,0.08)' }}
+                style={{ backgroundColor: 'var(--bg-surface-strong)' }}
               >
                 <motion.div
                   className="absolute left-0 top-0 bottom-0 rounded-full"

@@ -69,11 +69,10 @@ export const TimelineBlock = React.memo<TimelineBlockProps>(({
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: isFaded ? 0.4 : 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            className={`absolute left-1 right-1 rounded-xl overflow-hidden cursor-pointer border-l-[4px] ${borderColorClass}`}
+            className={`absolute left-1 right-1 rounded-xl overflow-hidden cursor-pointer border-l-[4px] ${borderColorClass} bg-white/[0.04] border-y border-r border-white/[0.08]`}
             style={{
                 top: topOffset,
                 height: Math.max(height, MIN_BLOCK_HEIGHT),
-                backgroundColor: 'var(--bg-tertiary)',
                 boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
                 zIndex: 10
             }}

@@ -280,7 +280,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                             onClick={onClose}
                             className="p-2.5 rounded-xl transition-colors"
                             style={{ color: 'var(--text-muted)' }}
-                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'}
+                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-surface-strong)'}
                             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                             title="Close Sidebar"
                         >
@@ -291,7 +291,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                             onClick={onToggle}
                             className="p-2.5 rounded-xl transition-colors"
                             style={{ color: 'var(--text-muted)' }}
-                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'}
+                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-surface-strong)'}
                             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                             title="Collapse Sidebar"
                         >
@@ -303,7 +303,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                             onClick={() => onDayViewModeChange(dayViewMode === 'list' ? 'timeline' : 'list')}
                             className="p-2.5 rounded-xl transition-colors"
                             style={{ color: 'var(--text-muted)' }}
-                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'}
+                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-surface-strong)'}
                             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                             title={dayViewMode === 'list' ? "Switch to Timeline View" : "Switch to List View"}
                         >
@@ -324,7 +324,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
             {/* Add Task Section */}
             <div className="px-3 pb-4" data-tour="add-task">
-                <div className="rounded-xl p-4 bg-transparent border border-white/[0.05]">
+                <div className="rounded-xl p-4 bg-transparent border" style={{ borderColor: 'var(--border-light)' }}>
 
                     {/* 1. Title Input (Essential) */}
                     <div className="mb-3">
@@ -335,9 +335,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                             onChange={(e) => setNewTaskTitle(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleAddTask()}
                             placeholder="Add new task..."
-                            className="w-full bg-transparent text-sm px-3 py-2.5 rounded-lg placeholder-zinc-500 focus:outline-none border border-white/10 focus:border-cyan-400/50 transition-colors"
+                            className="w-full bg-transparent text-sm px-3 py-2.5 rounded-lg placeholder-zinc-500 focus:outline-none border focus:border-cyan-400/50 transition-colors"
                             style={{
-                                color: 'var(--text-primary)'
+                                color: 'var(--text-primary)',
+                                borderColor: 'var(--border-light)'
                             }}
                         />
                     </div>
@@ -354,7 +355,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                                     onClick={() => setNewTaskType(cat.id as TaskType)}
                                     className="py-2 px-1 rounded-lg text-[10px] font-bold uppercase tracking-wide transition-all border"
                                     style={{
-                                        backgroundColor: newTaskType === cat.id ? `${cat.color}20` : 'rgba(255,255,255,0.03)',
+                                        backgroundColor: newTaskType === cat.id ? `${cat.color}20` : 'var(--bg-surface-subtle)',
                                         color: newTaskType === cat.id ? cat.color : 'var(--text-muted)',
                                         border: newTaskType === cat.id ? `1px solid ${cat.color}40` : '1px solid transparent'
                                     }}
@@ -421,8 +422,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
                                             type="date"
                                             value={newTaskDate || (selectedDate ? formatDate(selectedDate) : formatDate(new Date()))}
                                             onChange={(e) => setNewTaskDate(e.target.value)}
-                                            className="w-full bg-black/20 text-xs px-2 py-1.5 rounded-lg focus:outline-none border border-white/10"
-                                            style={{ color: 'var(--text-primary)' }}
+                                            className="w-full text-xs px-2 py-1.5 rounded-lg focus:outline-none border"
+                                            style={{
+                                                color: 'var(--text-primary)',
+                                                backgroundColor: 'var(--bg-surface-strong)',
+                                                borderColor: 'var(--border-light)'
+                                            }}
                                         />
                                     </div>
 
@@ -433,8 +438,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
                                             type="time"
                                             value={newTaskScheduledTime}
                                             onChange={(e) => setNewTaskScheduledTime(e.target.value)}
-                                            className="w-full bg-black/20 text-xs px-2 py-1.5 rounded-lg focus:outline-none border border-white/10"
-                                            style={{ color: 'var(--text-primary)' }}
+                                            className="w-full text-xs px-2 py-1.5 rounded-lg focus:outline-none border"
+                                            style={{
+                                                color: 'var(--text-primary)',
+                                                backgroundColor: 'var(--bg-surface-strong)',
+                                                borderColor: 'var(--border-light)'
+                                            }}
                                         />
                                         {/* Quick Times */}
                                         <div className="flex gap-1 mt-1.5">
@@ -445,7 +454,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                                                     className="flex-1 py-1 rounded text-[9px] font-mono border transition-colors"
                                                     style={{
                                                         borderColor: newTaskScheduledTime === time ? 'var(--accent)' : 'transparent',
-                                                        backgroundColor: newTaskScheduledTime === time ? 'rgba(34,211,238,0.1)' : 'rgba(255,255,255,0.03)',
+                                                        backgroundColor: newTaskScheduledTime === time ? 'rgba(34,211,238,0.1)' : 'var(--bg-surface-subtle)',
                                                         color: newTaskScheduledTime === time ? 'var(--accent)' : 'var(--text-muted)'
                                                     }}
                                                 >
@@ -469,7 +478,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         style={{
                             backgroundColor: newTaskTitle.trim()
                                 ? (newTaskScheduledTime ? 'var(--accent)' : selectedCategory?.color)
-                                : 'rgba(255,255,255,0.05)',
+                                : 'var(--bg-surface-subtle)',
                             color: newTaskTitle.trim() ? 'white' : 'var(--text-muted)',
                             opacity: newTaskTitle.trim() ? 1 : 0.5
                         }}

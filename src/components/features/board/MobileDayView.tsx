@@ -198,9 +198,9 @@ const MobileTaskCard: React.FC<MobileTaskCardProps> = React.memo(({
         className={`
           relative rounded-xl overflow-hidden
           transition-shadow duration-200
+          bg-white/[0.04] border-y border-r border-white/[0.08]
         `}
         style={{
-          backgroundColor: 'var(--bg-tertiary)',
           opacity: isFaded ? 0.5 : 1,
           borderLeft: `3px solid ${getTypeColor()}`,
           minHeight: '56px',
