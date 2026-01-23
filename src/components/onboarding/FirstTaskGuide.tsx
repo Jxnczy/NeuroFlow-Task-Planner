@@ -164,7 +164,7 @@ export const FirstTaskGuide: React.FC<FirstTaskGuideProps> = ({ onComplete, hasA
                     const scheduledTasks = document.querySelectorAll('[data-tour="week-view"] [draggable="true"]');
                     if (scheduledTasks.length > 0) {
                         setStep('done');
-                        setTimeout(() => handleComplete(), 2000);
+                        // Don't auto-complete - wait for user to click "Okay" button
                     }
                 };
 
@@ -224,28 +224,28 @@ export const FirstTaskGuide: React.FC<FirstTaskGuideProps> = ({ onComplete, hasA
                 return {
                     icon: <Sparkles size={20} className="text-amber-400" />,
                     title: 'Create your first task',
-                    description: 'Type something like "Plan my day" and press Enter',
+                    description: 'Type something like "Plan my day", select a priority and a duration. Then click + Add.',
                     showPulse: true
                 };
             case 'drag':
                 return {
                     icon: <GripVertical size={20} className="text-cyan-400" />,
                     title: 'Now drag it to your schedule',
-                    description: 'Grab your task and drop it onto any day in the planner',
+                    description: 'Grab your task and drop it onto any day and category in the planner.',
                     showPulse: true
                 };
             case 'done':
                 return {
                     icon: <Check size={20} className="text-emerald-400" />,
                     title: 'Perfect! You\'re all set',
-                    description: 'You just learned the core workflow. Keep going!',
+                    description: 'You\'ve learned the core workflow. Now go plan your week and stay productive!',
                     showPulse: false
                 };
             default:
                 return {
                     icon: <Sparkles size={20} className="text-amber-400" />,
                     title: 'Create your first task',
-                    description: 'Type something like "Plan my day" and press Enter',
+                    description: 'Type something like "Plan my day", select a priority and a duration. Then click + Add.',
                     showPulse: true
                 };
         }
@@ -298,16 +298,25 @@ export const FirstTaskGuide: React.FC<FirstTaskGuideProps> = ({ onComplete, hasA
         }
 
         if (step === 'type') {
+            // Position to the right of the sidebar, aligned with the date row
             return {
-                top: targetRect.bottom + PAD,
-                left: targetRect.left + targetRect.width / 2,
-                transform: 'translateX(-50%)'
+                top: 60, // Fixed at header/date row level
+                left: targetRect.right + PAD + 20,
+                transform: 'translateY(0)'
             };
         } else if (step === 'drag') {
+            // Position higher up to not block the dragging view
             return {
-                top: targetRect.top + targetRect.height / 2,
+                top: '25%', // Move to 25% as requested
                 left: targetRect.right + PAD + 8,
-                transform: 'translateY(-50%)'
+                transform: 'translateY(0)'
+            };
+        } else if (step === 'done') {
+            // Center the done modal strictly in the viewport
+            return {
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)'
             };
         }
 
@@ -375,63 +384,99 @@ export const FirstTaskGuide: React.FC<FirstTaskGuideProps> = ({ onComplete, hasA
                         exit={{ opacity: 0, y: -8 }}
                         transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
                         className="fixed z-[10000] pointer-events-auto"
-                        style={{ ...getTooltipStyle(), width: isMobile ? 'auto' : 280 }}
+                        style={{
+                            ...getTooltipStyle(),
+                            width: step === 'done' ? (isMobile ? '90%' : 400) : (isMobile ? 'auto' : 280),
+                            maxWidth: step === 'done' ? '450px' : undefined
+                        }}
                     >
-                        <div
-                            className="rounded-2xl overflow-hidden"
-                            style={{
-                                background: 'var(--bg-secondary)',
-                                backdropFilter: 'blur(40px) saturate(180%)',
-                                WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-                                border: '1px solid var(--border-medium)',
-                                boxShadow: '0 20px 40px -12px rgba(0, 0, 0, 0.25)'
-                            }}
-                        >
-                            <div className="p-5">
-                                <div className="flex items-start gap-3 mb-3">
+                        {step === 'done' ? (
+                            <div className="relative overflow-hidden rounded-2xl"
+                                style={{
+                                    background: 'linear-gradient(145deg, rgba(35, 35, 42, 0.98) 0%, rgba(25, 25, 32, 0.98) 100%)',
+                                    backdropFilter: 'blur(60px) saturate(200%)',
+                                    WebkitBackdropFilter: 'blur(60px) saturate(200%)',
+                                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                                    boxShadow: `
+                                        0 32px 64px -12px rgba(0, 0, 0, 0.6),
+                                        0 0 0 1px rgba(255, 255, 255, 0.04),
+                                        inset 0 1px 0 rgba(255, 255, 255, 0.06)
+                                    `
+                                }}
+                            >
+                                <div className="p-8 text-center">
                                     <div
-                                        className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                                        className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-6"
                                         style={{
-                                            background: 'var(--accent-muted)',
-                                            border: '1px solid var(--border-light)'
+                                            background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.15) 100%)',
+                                            border: '1px solid rgba(16, 185, 129, 0.2)'
                                         }}
                                     >
-                                        {content.icon}
+                                        <Check size={28} className="text-emerald-400" />
                                     </div>
-                                    <div>
-                                        <h4
-                                            className="text-[15px] font-semibold mb-1"
-                                            style={{ color: 'var(--text-primary)' }}
-                                        >
-                                            {content.title}
-                                        </h4>
-                                        <p
-                                            className="text-[13px] leading-relaxed"
-                                            style={{ color: 'var(--text-secondary)' }}
-                                        >
-                                            {content.description}
-                                        </p>
-                                    </div>
-                                </div>
 
-                                {step === 'done' && isMobile ? (
-                                    // Mobile "done" step: show Okay button
-                                    <div
-                                        className="flex justify-end pt-3"
-                                        style={{ borderTop: '1px solid var(--border-light)' }}
+                                    <h2 className="text-2xl font-bold text-white mb-2 tracking-tight">
+                                        {content.title}
+                                    </h2>
+
+                                    <p className="text-[15px] text-white/50 leading-relaxed mb-8 max-w-sm mx-auto">
+                                        {content.description}
+                                    </p>
+
+                                    <motion.button
+                                        onClick={handleComplete}
+                                        whileHover={{ scale: 1.03, y: -1 }}
+                                        whileTap={{ scale: 0.97 }}
+                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-[14px] font-semibold text-white transition-all"
+                                        style={{
+                                            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                                            boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35), inset 0 1px 0 rgba(255,255,255,0.2)',
+                                            color: '#ffffff'
+                                        }}
                                     >
-                                        <button
-                                            onClick={handleComplete}
-                                            className="px-5 py-2 rounded-lg text-[14px] font-medium transition-all"
+                                        Okay
+                                        <ArrowRight size={16} strokeWidth={2.5} />
+                                    </motion.button>
+                                </div>
+                            </div>
+                        ) : (
+                            <div
+                                className="rounded-2xl overflow-hidden"
+                                style={{
+                                    background: 'var(--bg-secondary)',
+                                    backdropFilter: 'blur(40px) saturate(180%)',
+                                    WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+                                    border: '1px solid var(--border-medium)',
+                                    boxShadow: '0 20px 40px -12px rgba(0, 0, 0, 0.25)'
+                                }}
+                            >
+                                <div className="p-5">
+                                    <div className="flex items-start gap-3 mb-3">
+                                        <div
+                                            className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
                                             style={{
-                                                color: 'var(--text-primary)',
-                                                background: 'var(--accent)',
+                                                background: 'var(--accent-muted)',
+                                                border: '1px solid var(--border-light)'
                                             }}
                                         >
-                                            Okay
-                                        </button>
+                                            {content.icon}
+                                        </div>
+                                        <div>
+                                            <h4
+                                                className="text-[15px] font-semibold mb-1"
+                                                style={{ color: 'var(--text-primary)' }}
+                                            >
+                                                {content.title}
+                                            </h4>
+                                            <p
+                                                className="text-[13px] leading-relaxed"
+                                                style={{ color: 'var(--text-secondary)' }}
+                                            >
+                                                {content.description}
+                                            </p>
+                                        </div>
                                     </div>
-                                ) : step !== 'done' && (
+
                                     <div
                                         className="flex items-center justify-between pt-2"
                                         style={{ borderTop: '1px solid var(--border-light)' }}
@@ -444,10 +489,8 @@ export const FirstTaskGuide: React.FC<FirstTaskGuideProps> = ({ onComplete, hasA
                                             Skip tutorial
                                         </button>
 
-                                        {/* Progress dots */}
                                         <div className="flex gap-1.5">
                                             {isMobile ? (
-                                                // Mobile: 3 dots for tap-fab, add-form, tap-task
                                                 Array.from({ length: totalMobileSteps }).map((_, i) => (
                                                     <div
                                                         key={i}
@@ -460,7 +503,6 @@ export const FirstTaskGuide: React.FC<FirstTaskGuideProps> = ({ onComplete, hasA
                                                     />
                                                 ))
                                             ) : (
-                                                // Desktop: 2 dots for type, drag
                                                 <>
                                                     <div
                                                         className="w-1.5 h-1.5 rounded-full"
@@ -474,9 +516,9 @@ export const FirstTaskGuide: React.FC<FirstTaskGuideProps> = ({ onComplete, hasA
                                             )}
                                         </div>
                                     </div>
-                                )}
+                                </div>
                             </div>
-                        </div>
+                        )}
 
                         {/* Arrow pointer */}
                         {step === 'type' && targetRect && (

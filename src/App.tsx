@@ -23,6 +23,7 @@ import { AuthOverlay } from './components/auth/AuthOverlay';
 import { SpotlightTour } from './components/onboarding/SpotlightTour';
 import { TabOnboarding } from './components/onboarding/TabOnboarding';
 import { FirstTaskGuide } from './components/onboarding/FirstTaskGuide';
+import { WelcomePrompt, getOnboardingChoice } from './components/onboarding/WelcomePrompt';
 import { generateId } from './utils/id';
 import { StorageService } from './services/StorageService';
 import { supabaseAvailable, supabaseUrl } from './lib/supabase';
@@ -112,10 +113,26 @@ const AppContent = ({
     const [showCommandPalette, setShowCommandPalette] = useState(false);
 
     // --- Onboarding Tour ---
+    // Check if user has made an onboarding choice (yes/no to tour)
+    const [onboardingChoice, setOnboardingChoice] = useState<'yes' | 'no' | null>(() => {
+        if (isReturningUser) return 'no'; // Skip for returning users
+        return getOnboardingChoice();
+    });
+
+    // Show welcome prompt for new users who haven't made a choice yet
+    const [showWelcomePrompt, setShowWelcomePrompt] = useState(() => {
+        if (isReturningUser) return false;
+        return getOnboardingChoice() === null;
+    });
+
+    // Only show onboarding if user explicitly accepted the tour
+    const onboardingEnabled = onboardingChoice === 'yes';
+
     // Don't show tour for returning users (those who completed onboarding before)
     const [showTour, setShowTour] = useState(() => {
-        // Skip tour entirely for returning logged-in users
+        // Skip tour entirely for returning logged-in users or if they declined
         if (isReturningUser) return false;
+        if (getOnboardingChoice() === 'no') return false;
         try {
             return localStorage.getItem('neuroflow_tour_completed') !== 'true';
         } catch {
@@ -146,8 +163,26 @@ const AppContent = ({
     const handleResetTour = useCallback(() => {
         try {
             localStorage.removeItem('neuroflow_tour_completed');
+            localStorage.removeItem('neuroflow_onboarding_choice');
+            localStorage.removeItem('neuroflow_first_task_guide_completed');
+            localStorage.removeItem('neuroflow_tab_tips_seen');
         } catch { }
+        setOnboardingChoice('yes');
+        setShowWelcomePrompt(false);
         setShowTour(true);
+        setFirstGuideComplete(false);
+    }, []);
+
+    const handleWelcomeAccept = useCallback(() => {
+        setOnboardingChoice('yes');
+        setShowWelcomePrompt(false);
+    }, []);
+
+    const handleWelcomeDecline = useCallback(() => {
+        setOnboardingChoice('no');
+        setShowWelcomePrompt(false);
+        setShowTour(false);
+        setFirstGuideComplete(true);
     }, []);
 
 
@@ -328,17 +363,26 @@ const AppContent = ({
                 </div>
             )}
 
-            {/* Onboarding Spotlight Tour - only on desktop when sidebar is open */}
-            {showTour && !isMobile && isSidebarOpen && (
+            {/* Welcome Prompt - ask new users if they want a tour */}
+            {showWelcomePrompt && (
+                <WelcomePrompt
+                    onAccept={handleWelcomeAccept}
+                    onDecline={handleWelcomeDecline}
+                />
+            )}
+
+            {/* Onboarding Spotlight Tour - only on desktop when sidebar is open AND user accepted tour */}
+            {onboardingEnabled && showTour && !isMobile && isSidebarOpen && (
                 <SpotlightTour onComplete={handleTourComplete} />
             )}
 
             {/* Per-tab first-visit tooltips - show on mobile regardless of tour (tour is desktop-only) */}
-            {/* Don't show planner tab tip when FirstTaskGuide is active/incomplete */}
-            {(!showTour || isMobile) && (activeTab !== 'planner' || firstGuideComplete) && !isReturningUser && <TabOnboarding activeTab={activeTab} />}
+            {/* Only show if user accepted tour and don't show planner tab tip when FirstTaskGuide is active */}
+            {onboardingEnabled && (!showTour || isMobile) && (activeTab !== 'planner' || firstGuideComplete) && !isReturningUser && <TabOnboarding activeTab={activeTab} />}
 
             {/* First task creation guide - shows after spotlight tour (mobile-responsive) */}
-            {(!showTour || isMobile) && activeTab === 'planner' && (
+            {/* Only show if user accepted tour */}
+            {onboardingEnabled && (!showTour || isMobile) && activeTab === 'planner' && (
                 <FirstTaskGuide
                     onComplete={() => setFirstGuideComplete(true)}
                     hasAnyTasks={hasAnyTasks}

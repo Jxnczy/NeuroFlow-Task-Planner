@@ -10,11 +10,6 @@ interface TabTip {
 }
 
 const TAB_TIPS: Record<string, TabTip> = {
-    planner: {
-        id: 'planner',
-        title: 'Weekly Planner',
-        description: 'Your command center. Add tasks, drag them to schedule, and stay on top of your week.'
-    },
     focus: {
         id: 'focus',
         title: 'Deep Focus Mode',

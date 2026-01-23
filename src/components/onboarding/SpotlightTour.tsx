@@ -7,26 +7,30 @@ interface TourStep {
     title: string;
     subtitle: string;
     position: 'right' | 'left' | 'bottom' | 'top';
+    verticalOffset?: number; // Offset from center, negative = up, positive = down
 }
 
 const TOUR_STEPS: TourStep[] = [
     {
-        target: '[data-tour="brain-dump"]',
-        title: 'Your Task Inbox',
-        subtitle: 'Capture ideas here. Drag to your schedule when ready.',
-        position: 'right'
-    },
-    {
         target: '[data-tour="week-view"]',
         title: 'Weekly Overview',
         subtitle: 'See your week at a glance. Drop tasks to schedule them.',
-        position: 'left'
+        position: 'left',
+        verticalOffset: -350 // Align with header/date row
     },
     {
         target: '[data-tour="add-task"]',
         title: 'Quick Add',
-        subtitle: 'Type a task and press Enter. That\'s it.',
-        position: 'right'
+        subtitle: 'This is where you add your tasks and to-dos, assign a priority and set a duration for them.',
+        position: 'right',
+        verticalOffset: -200 // Align with header/date row
+    },
+    {
+        target: '[data-tour="brain-dump"]',
+        title: 'Your Task Inbox',
+        subtitle: 'Your tasks will be stored here, ready to be planned.',
+        position: 'right',
+        verticalOffset: -250 // Align with HIGH category
     }
 ];
 
@@ -95,17 +99,18 @@ export const SpotlightTour: React.FC<SpotlightTourProps> = ({ onComplete, onSkip
 
         const padding = 20;
         const tooltipWidth = 300;
+        const vOffset = step.verticalOffset || 0;
 
         switch (step.position) {
             case 'right':
                 return {
-                    top: targetRect.top + targetRect.height / 2,
+                    top: targetRect.top + targetRect.height / 2 + vOffset,
                     left: targetRect.right + PAD + padding,
                     transform: 'translateY(-50%)'
                 };
             case 'left':
                 return {
-                    top: targetRect.top + targetRect.height / 2,
+                    top: targetRect.top + targetRect.height / 2 + vOffset,
                     left: targetRect.left - PAD - tooltipWidth - padding,
                     transform: 'translateY(-50%)'
                 };
@@ -127,6 +132,9 @@ export const SpotlightTour: React.FC<SpotlightTourProps> = ({ onComplete, onSkip
     };
 
     if (!isVisible) return null;
+
+    // Don't render until we've found the target element to prevent flash in center
+    if (!targetRect) return null;
 
     // Calculate cutout dimensions
     const cutout = targetRect ? {
