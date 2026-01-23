@@ -26,20 +26,22 @@ export function useBrainDumpManager(initialLists: BrainDumpList[], userId?: stri
     useEffect(() => {
         if (!userId || !supabaseEnabled) return;
 
+        /*
         const handleVisibility = () => {
             if (document.visibilityState === 'visible') {
                 void fetchRemoteNotes();
             }
         };
         window.addEventListener('visibilitychange', handleVisibility);
+        */
 
-        // Periodic polling for sync (every 30 seconds - less aggressive than tasks)
+        // Periodic polling for sync (every 60 seconds)
         const interval = window.setInterval(() => {
             void fetchRemoteNotes();
-        }, 30000);
+        }, 60000);
 
         return () => {
-            window.removeEventListener('visibilitychange', handleVisibility);
+            // window.removeEventListener('visibilitychange', handleVisibility);
             window.clearInterval(interval);
         };
     }, [userId, supabaseEnabled, fetchRemoteNotes]);

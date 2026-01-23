@@ -91,7 +91,31 @@ const AppContent = ({
     const isMobile = useIsMobile();
 
     // --- UI State ---
-    const [activeTab, setActiveTab] = useState<string>('planner');
+    const [activeTab, setActiveTab] = useState<string>(() => {
+        try {
+            // Priority 1: Restore last visited tab
+            const storedTab = localStorage.getItem('neuroflow_active_tab');
+            if (storedTab) return storedTab;
+
+            // Priority 2: Fallback to focus if active session exists (legacy safety)
+            const storedFocus = localStorage.getItem('neuroflow_focus_state');
+            if (storedFocus) {
+                const data = JSON.parse(storedFocus);
+                if (data.taskId && (Date.now() - (data.lastUpdated || 0) < 12 * 60 * 60 * 1000)) {
+                    return 'focus';
+                }
+            }
+        } catch (e) {
+            console.error('Failed to restore active tab', e);
+        }
+        return 'planner';
+    });
+
+    // Persist active tab
+    useEffect(() => {
+        localStorage.setItem('neuroflow_active_tab', activeTab);
+    }, [activeTab]);
+
     const [currentDate, setCurrentDate] = useState(getAdjustedDate());
     const [weekDirection, setWeekDirection] = useState<'next' | 'prev'>('next');
     const [isStacked, setIsStacked] = useState(false);

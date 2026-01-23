@@ -71,18 +71,25 @@ export function useTaskManager(initialTasks: Task[], userId?: string, supabaseEn
     useEffect(() => {
         if (!userId || !supabaseEnabled) return;
 
+        /* 
+         * Disabled visibility-based refresh to prevent "reload" sensation.
+         * Relying on periodic polling and manual refreshes for now.
+         */
+        /*
         const handleVisibility = () => {
             if (document.visibilityState === 'visible') {
                 void fetchRemoteTasks();
             }
         };
         window.addEventListener('visibilitychange', handleVisibility);
+        */
+
         const interval = window.setInterval(() => {
             void fetchRemoteTasks();
-        }, 15000);
+        }, 30000); // Increased to 30s to reduce background activity
 
         return () => {
-            window.removeEventListener('visibilitychange', handleVisibility);
+            // window.removeEventListener('visibilitychange', handleVisibility);
             window.clearInterval(interval);
         };
     }, [userId, fetchRemoteTasks, supabaseEnabled]);
