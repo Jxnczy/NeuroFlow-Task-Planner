@@ -56,18 +56,18 @@ const DayHeader: React.FC<DayHeaderProps> = React.memo(({
       <div
         className="flex flex-col items-center py-3 rounded-t-2xl transition-all duration-300 relative"
         style={{
-          background: isToday ? 'var(--bg-surface-subtle)' : 'transparent',
+          background: isToday ? 'color-mix(in srgb, var(--surface) 75%, transparent)' : 'transparent',
           borderLeft: isToday ? '1px solid var(--border-subtle)' : 'none',
           borderRight: isToday ? '1px solid var(--border-subtle)' : 'none',
           borderTop: isToday ? '1px solid var(--border-subtle)' : 'none',
-          boxShadow: isToday ? '0 0 20px var(--bg-glow)' : 'none',
+          boxShadow: isToday ? 'var(--shadow-sm)' : 'none',
           zIndex: isToday ? 10 : 'auto',
           opacity: isPastDay ? 0.85 : 1
         }}
       >
         {/* Day Name */}
         <span
-          className="text-[11px] font-black uppercase tracking-widest mb-0.5"
+          className="text-[10px] font-semibold uppercase tracking-[0.3em] mb-0.5"
           style={{
             color: isToday ? 'var(--accent)' : 'var(--text-muted)',
             opacity: isToday ? 1 : 0.6
@@ -78,10 +78,10 @@ const DayHeader: React.FC<DayHeaderProps> = React.memo(({
 
         {/* Date Number */}
         <span
-          className="text-4xl font-display font-black leading-none transition-all duration-300"
+          className="text-4xl font-display font-semibold leading-none transition-all duration-300"
           style={{
             color: isToday ? 'var(--text-primary)' : 'var(--text-muted)',
-            textShadow: isToday ? '0 0 20px var(--bg-glow)' : 'none',
+            textShadow: isToday ? '0 0 16px color-mix(in srgb, var(--accent) 35%, transparent)' : 'none',
             opacity: isToday ? 1 : 0.5
           }}
         >
@@ -112,7 +112,7 @@ const DayHeader: React.FC<DayHeaderProps> = React.memo(({
               {/* Progress Bar */}
               <div
                 className="w-full h-2 rounded-full overflow-hidden relative"
-                style={{ backgroundColor: 'var(--bg-surface-strong)' }}
+                style={{ backgroundColor: 'color-mix(in srgb, var(--surface2) 70%, transparent)' }}
               >
                 <motion.div
                   className="absolute left-0 top-0 bottom-0 rounded-full"
@@ -122,10 +122,10 @@ const DayHeader: React.FC<DayHeaderProps> = React.memo(({
                     backgroundColor: stats.completionColor,
                     opacity: isSubtle ? 0.4 : 1,
                     boxShadow: (stats.completionPercent > 0 && !isSubtle)
-                      ? `0 0 10px ${stats.completionColor}50`
+                      ? `0 0 12px ${stats.completionColor}40`
                       : 'none'
                   }}
-                  transition={{ type: "spring", stiffness: 40, damping: 15 }}
+                  transition={{ duration: 0.2, ease: 'easeOut' }}
                 />
               </div>
 

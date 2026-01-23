@@ -69,11 +69,11 @@ export const TimelineBlock = React.memo<TimelineBlockProps>(({
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: isFaded ? 0.4 : 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            className={`absolute left-1 right-1 rounded-xl overflow-hidden cursor-pointer border-l-[4px] ${borderColorClass} bg-white/[0.04] border-y border-r border-white/[0.08]`}
+            className={`absolute left-1 right-1 rounded-[var(--radius-md)] overflow-hidden cursor-pointer border-l-[4px] ${borderColorClass} bg-white/[0.03] border-y border-r border-white/[0.06]`}
             style={{
                 top: topOffset,
                 height: Math.max(height, MIN_BLOCK_HEIGHT),
-                boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+                boxShadow: 'var(--shadow-sm)',
                 zIndex: 10
             }}
             onDragStart={(e) => onDragStart(e, task.id)}

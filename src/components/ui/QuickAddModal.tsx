@@ -61,27 +61,30 @@ export const QuickAddModal: React.FC<QuickAddModalProps> = ({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
+                transition={{ duration: 0.18, ease: 'easeOut' }}
             >
                 {/* Backdrop */}
                 <motion.div
-                    className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+                    className="absolute inset-0 bg-black/60 backdrop-blur-sm"
                     onClick={onClose}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
+                    transition={{ duration: 0.18, ease: 'easeOut' }}
                 />
 
                 {/* Modal */}
                 <motion.div
-                    className="relative w-full max-w-lg mx-4 rounded-2xl border shadow-2xl overflow-hidden"
+                    className="relative w-full max-w-lg mx-4 rounded-[var(--radius-lg)] border overflow-hidden"
                     style={{
-                        backgroundColor: 'var(--bg-secondary)',
-                        borderColor: 'var(--border-medium)'
+                        backgroundColor: 'var(--surface)',
+                        borderColor: 'var(--border)',
+                        boxShadow: 'var(--shadow-md)'
                     }}
-                    initial={{ opacity: 0, scale: 0.95, y: -20 }}
+                    initial={{ opacity: 0, scale: 0.98, y: -16 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95, y: -20 }}
-                    transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                    exit={{ opacity: 0, scale: 0.98, y: -16 }}
+                    transition={{ duration: 0.2, ease: 'easeOut' }}
                 >
                     {/* Header */}
                     <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: 'var(--border-light)' }}>
@@ -94,7 +97,7 @@ export const QuickAddModal: React.FC<QuickAddModalProps> = ({
                         </div>
                         <button
                             onClick={onClose}
-                            className="p-1.5 rounded-lg hover:bg-white/5 transition-colors"
+                            className="p-1.5 rounded-[var(--radius-sm)] hover:bg-white/5 transition-colors"
                             style={{ color: 'var(--text-muted)' }}
                         >
                             <X size={18} />
@@ -132,9 +135,9 @@ export const QuickAddModal: React.FC<QuickAddModalProps> = ({
                                         key={d}
                                         type="button"
                                         onClick={() => setDuration(d)}
-                                        className="py-2 rounded-lg text-xs font-semibold transition-all"
+                                        className="py-2 rounded-[var(--radius-sm)] text-xs font-semibold transition-all"
                                         style={{
-                                            backgroundColor: duration === d ? 'var(--accent)' : 'rgba(255,255,255,0.05)',
+                                            backgroundColor: duration === d ? 'var(--accent)' : 'color-mix(in srgb, var(--surface2) 65%, transparent)',
                                             color: duration === d ? 'white' : 'var(--text-secondary)'
                                         }}
                                     >
@@ -155,9 +158,9 @@ export const QuickAddModal: React.FC<QuickAddModalProps> = ({
                                         key={cat.id}
                                         type="button"
                                         onClick={() => setType(cat.id as TaskType)}
-                                        className="py-2 px-1 rounded-lg text-[10px] font-bold uppercase tracking-wide transition-all"
+                                        className="py-2 px-1 rounded-[var(--radius-sm)] text-[10px] font-semibold uppercase tracking-[0.18em] transition-all"
                                         style={{
-                                            backgroundColor: type === cat.id ? `${cat.color}20` : 'rgba(255,255,255,0.03)',
+                                            backgroundColor: type === cat.id ? `${cat.color}18` : 'color-mix(in srgb, var(--surface2) 55%, transparent)',
                                             color: type === cat.id ? cat.color : 'var(--text-muted)',
                                             border: type === cat.id ? `1px solid ${cat.color}40` : '1px solid transparent'
                                         }}
@@ -172,9 +175,9 @@ export const QuickAddModal: React.FC<QuickAddModalProps> = ({
                         <button
                             type="submit"
                             disabled={!title.trim()}
-                            className="w-full py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                            className="w-full py-3 rounded-[var(--radius-md)] text-sm font-semibold flex items-center justify-center gap-2 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
                             style={{
-                                backgroundColor: title.trim() ? selectedCategory?.color : 'rgba(255,255,255,0.05)',
+                                backgroundColor: title.trim() ? selectedCategory?.color : 'color-mix(in srgb, var(--surface2) 60%, transparent)',
                                 color: title.trim() ? 'white' : 'var(--text-muted)'
                             }}
                         >

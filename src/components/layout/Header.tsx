@@ -41,8 +41,8 @@ export const Header: React.FC<HeaderProps> = ({
         <div
             className="hidden md:flex items-center justify-between px-6 py-4 backdrop-blur-md border-b sticky top-0 z-50"
             style={{
-                backgroundColor: 'color-mix(in srgb, var(--bg-primary) 80%, transparent)',
-                borderColor: 'var(--border-medium)'
+                backgroundColor: 'color-mix(in srgb, var(--surface) 92%, transparent)',
+                borderColor: 'var(--border)'
             }}
         >
             {/* LEFT: Overview & Date */}
@@ -50,7 +50,7 @@ export const Header: React.FC<HeaderProps> = ({
                 {!isSidebarOpen && (
                     <button
                         onClick={onToggleSidebar}
-                        className="p-2 rounded-xl transition-colors hover:bg-white/10 text-zinc-400 hover:text-white"
+                        className="p-2 rounded-[var(--radius-sm)] transition-colors hover:bg-white/5 text-zinc-400 hover:text-white"
                         title="Open Sidebar"
                     >
                         <PanelLeft size={20} />
@@ -58,12 +58,12 @@ export const Header: React.FC<HeaderProps> = ({
                 )}
                 <div className="flex items-center gap-3">
                     <h1
-                        className="text-xl font-display font-extrabold tracking-tight drop-shadow-[0_2px_10px_rgba(255,255,255,0.1)]"
+                        className="text-xl font-display font-semibold tracking-tight"
                         style={{ color: 'var(--text-primary)' }}
                     >
                         Overview:
                     </h1>
-                    <p className="text-xl font-display font-bold" style={{ color: 'var(--text-primary)' }}>
+                    <p className="text-xl font-display font-semibold" style={{ color: 'var(--text-primary)' }}>
                         {currentWeekDays[0].toLocaleDateString('en-US', { month: 'short' })} {currentWeekDays[0].getDate()} — {currentWeekDays[6].getDate()}, {currentWeekDays[0].getFullYear()}
                     </p>
                 </div>
@@ -73,10 +73,11 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="pointer-events-auto flex items-center gap-3 relative">
                 {/* Main Menu */}
                 <div
-                    className="flex items-center gap-1 p-1 rounded-2xl backdrop-blur-md border shadow-2xl"
+                    className="flex items-center gap-1 p-1 rounded-[var(--radius-lg)] backdrop-blur-md border"
                     style={{
-                        backgroundColor: 'color-mix(in srgb, var(--bg-tertiary) 70%, transparent)',
-                        borderColor: 'var(--border-medium)'
+                        backgroundColor: 'color-mix(in srgb, var(--surface2) 80%, transparent)',
+                        borderColor: 'var(--border)',
+                        boxShadow: 'var(--shadow-sm)'
                     }}
                 >
                     {tabs.map(tab => {
@@ -87,17 +88,16 @@ export const Header: React.FC<HeaderProps> = ({
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
-                                className="relative flex items-center gap-1.5 px-3 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all duration-300"
+                                className="relative flex items-center gap-1.5 px-3 py-2 rounded-[var(--radius-sm)] text-[10px] font-semibold uppercase tracking-[0.18em] transition-all duration-200"
                                 style={{
                                     color: isActive ? 'var(--text-primary)' : 'var(--text-muted)',
-                                    backgroundColor: isActive ? 'rgba(255,255,255,0.08)' : 'transparent',
-                                    boxShadow: isActive ? '0 4px 6px -1px rgba(0, 0, 0, 0.1)' : 'none',
-                                    transform: isActive ? 'scale(1.02)' : 'scale(1)'
+                                    backgroundColor: isActive ? 'color-mix(in srgb, var(--surface) 80%, transparent)' : 'transparent',
+                                    boxShadow: isActive ? 'var(--shadow-sm)' : 'none'
                                 }}
                                 onMouseEnter={(e) => {
                                     if (!isActive) {
                                         e.currentTarget.style.color = 'var(--text-primary)';
-                                        e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)';
+                                        e.currentTarget.style.backgroundColor = 'color-mix(in srgb, var(--surface2) 70%, transparent)';
                                     }
                                 }}
                                 onMouseLeave={(e) => {
@@ -112,9 +112,9 @@ export const Header: React.FC<HeaderProps> = ({
                                 {isActive && (
                                     <motion.div
                                         layoutId="activeTabIndicator"
-                                        className="absolute inset-0 rounded-xl bg-gradient-to-b from-white/[0.08] to-transparent pointer-events-none border"
+                                        className="absolute inset-0 rounded-[var(--radius-sm)] pointer-events-none border"
                                         style={{ borderColor: 'var(--border-light)' }}
-                                        transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+                                        transition={{ duration: 0.18, ease: [0.4, 0, 0.2, 1] }}
                                     ></motion.div>
                                 )}
                             </button>
@@ -126,15 +126,15 @@ export const Header: React.FC<HeaderProps> = ({
             {/* RIGHT: Week Navigation & Late Night Badge */}
             <div className="pointer-events-auto flex items-center gap-3">
                 <div
-                    className="flex items-center gap-1 rounded-xl p-1 border shadow-inner backdrop-blur-md justify-center shrink-0"
+                    className="flex items-center gap-1 rounded-[var(--radius-lg)] p-1 border backdrop-blur-md justify-center shrink-0"
                     style={{
-                        backgroundColor: 'color-mix(in srgb, var(--bg-tertiary) 70%, transparent)',
-                        borderColor: 'var(--border-medium)'
+                        backgroundColor: 'color-mix(in srgb, var(--surface2) 80%, transparent)',
+                        borderColor: 'var(--border)'
                     }}
                 >
                     <button
                         onClick={() => onWeekChange('prev')}
-                        className="px-3 py-1.5 hover:bg-white/[0.05] rounded-lg transition-colors flex items-center justify-center"
+                        className="px-3 py-1.5 hover:bg-white/[0.05] rounded-[var(--radius-sm)] transition-colors flex items-center justify-center"
                         style={{ color: 'var(--text-muted)' }}
                         onMouseEnter={(e) => e.currentTarget.style.color = 'var(--text-primary)'}
                         onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
@@ -143,13 +143,13 @@ export const Header: React.FC<HeaderProps> = ({
                     </button>
                     <button
                         onClick={onJumpToCurrentWeek}
-                        className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider hover:bg-white/[0.05] rounded-md transition-colors cursor-pointer"
+                        className="px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] hover:bg-white/[0.05] rounded-[var(--radius-sm)] transition-colors cursor-pointer"
                         style={{ color: 'var(--text-secondary)' }}
                         title="Jump to current week"
                     >Week</button>
                     <button
                         onClick={() => onWeekChange('next')}
-                        className="px-3 py-1.5 hover:bg-white/[0.05] rounded-lg transition-colors flex items-center justify-center"
+                        className="px-3 py-1.5 hover:bg-white/[0.05] rounded-[var(--radius-sm)] transition-colors flex items-center justify-center"
                         style={{ color: 'var(--text-muted)' }}
                         onMouseEnter={(e) => e.currentTarget.style.color = 'var(--text-primary)'}
                         onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
@@ -166,7 +166,11 @@ export const Header: React.FC<HeaderProps> = ({
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95, y: -4 }}
                             transition={{ duration: 0.18, ease: 'easeOut' }}
-                            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400"
+                            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-indigo-400"
+                            style={{
+                                backgroundColor: 'color-mix(in srgb, var(--surface2) 75%, transparent)',
+                                borderColor: 'color-mix(in srgb, var(--accent) 30%, transparent)'
+                            }}
                         >
                             <Moon size={12} />
                             <span className="text-[10px] font-bold uppercase tracking-wider">Late Night Session</span>

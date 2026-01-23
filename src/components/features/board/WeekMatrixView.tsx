@@ -69,7 +69,7 @@ export const WeekMatrixView: React.FC<WeekMatrixViewProps> = ({
                         >
                             <div
                                 className={`absolute left-0 top-3 bottom-3 w-1 rounded-r-full ${style.barColor} transition-all duration-300`}
-                                style={{ opacity: 0.6 }}
+                                style={{ opacity: 0.55 }}
                             />
 
                             {/* Icon with hover for tooltip */}
@@ -87,13 +87,14 @@ export const WeekMatrixView: React.FC<WeekMatrixViewProps> = ({
                                 {/* Tooltip - only shows when icon is hovered */}
                                 {isIconHovered && (
                                     <div
-                                        className="absolute left-full ml-3 top-1/2 -translate-y-1/2 z-50 px-3 py-2 rounded-xl text-[10px] whitespace-nowrap shadow-2xl border animate-in fade-in slide-in-from-left-2 duration-150"
-                                        style={{
-                                            backgroundColor: 'var(--bg-secondary)',
-                                            borderColor: 'var(--border-medium)',
-                                            color: 'var(--text-secondary)'
-                                        }}
-                                    >
+                                    className="absolute left-full ml-3 top-1/2 -translate-y-1/2 z-50 px-3 py-2 rounded-[var(--radius-md)] text-[10px] whitespace-nowrap border animate-in fade-in slide-in-from-left-2 duration-150"
+                                    style={{
+                                        backgroundColor: 'var(--surface)',
+                                        borderColor: 'var(--border)',
+                                        color: 'var(--text-secondary)',
+                                        boxShadow: 'var(--shadow-md)'
+                                    }}
+                                >
                                         <div className="font-bold mb-0.5" style={{ color: 'var(--text-primary)' }}>{rowConfig.label}</div>
                                         {rowConfig.description}
                                     </div>

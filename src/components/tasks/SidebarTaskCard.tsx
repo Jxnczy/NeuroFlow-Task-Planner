@@ -166,10 +166,11 @@ export const SidebarTaskCard = React.memo<SidebarTaskCardProps>(({
                             value={editedTitle}
                             onChange={(e) => setEditedTitle(e.target.value)}
                             onKeyDown={handleKeyDown}
-                            className="bg-black/20 text-sm font-medium rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-1 transition-all"
+                            className="bg-transparent text-sm font-medium rounded-[var(--radius-sm)] px-3 py-2 w-full border border-transparent focus:outline-none focus:ring-1 transition-all"
                             style={{
                                 color: 'var(--text-primary)',
-                                '--tw-ring-color': 'var(--accent)'
+                                '--tw-ring-color': 'var(--accent)',
+                                borderColor: 'var(--border)'
                             } as React.CSSProperties}
                             autoFocus
                         />
@@ -179,10 +180,11 @@ export const SidebarTaskCard = React.memo<SidebarTaskCardProps>(({
                                 value={editedDuration}
                                 onChange={(e) => setEditedDuration(e.target.value)}
                                 onKeyDown={handleKeyDown}
-                                className="bg-black/20 text-xs rounded-lg px-3 py-1.5 w-16 focus:outline-none focus:ring-1 transition-all"
+                                className="bg-transparent text-xs rounded-[var(--radius-sm)] px-3 py-1.5 w-16 border border-transparent focus:outline-none focus:ring-1 transition-all"
                                 style={{
                                     color: 'var(--text-muted)',
-                                    '--tw-ring-color': 'var(--accent)'
+                                    '--tw-ring-color': 'var(--accent)',
+                                    borderColor: 'var(--border)'
                                 } as React.CSSProperties}
                             />
                             <span className="text-xs" style={{ color: 'var(--text-muted)' }}>min</span>
@@ -199,7 +201,7 @@ export const SidebarTaskCard = React.memo<SidebarTaskCardProps>(({
                             </button>
                             <button
                                 onClick={() => setIsEditing(false)}
-                                className="p-2 rounded-lg bg-zinc-500/20 text-zinc-400 hover:bg-zinc-500/30 transition-all"
+                                className="p-2 rounded-[var(--radius-sm)] bg-zinc-500/15 text-zinc-400 hover:bg-zinc-500/25 transition-all"
                                 title="Cancel editing"
                             >
                                 <X size={14} />
@@ -207,7 +209,7 @@ export const SidebarTaskCard = React.memo<SidebarTaskCardProps>(({
                         </div>
                         <button
                             onClick={handleDeleteTask}
-                            className="px-2 py-1 rounded-lg bg-rose-500/20 text-rose-400 hover:bg-rose-500/30 transition-all text-[10px] font-bold uppercase"
+                            className="px-2 py-1 rounded-[var(--radius-sm)] bg-rose-500/15 text-rose-400 hover:bg-rose-500/25 transition-all text-[10px] font-semibold uppercase tracking-[0.2em]"
                             title="Delete task"
                         >
                             Delete
@@ -235,13 +237,13 @@ export const SidebarTaskCard = React.memo<SidebarTaskCardProps>(({
                 transform: 'translateZ(0)',
             }}
             className={`
-                relative flex flex-col gap-2 p-3 rounded-xl border
+                relative flex flex-col gap-2 p-3 rounded-[var(--radius-md)] border
                 cursor-grab active:cursor-grabbing
-                hover:shadow-[0_2px_6px_rgba(0,0,0,0.08)]
+                hover:-translate-y-0.5 hover:shadow-[var(--shadow-sm)]
                 transition-all duration-150
                 ${isDragging ? 'opacity-50 scale-[0.98]' : ''}
                 ${isCompleted
-                    ? 'bg-emerald-500/15 border-emerald-500/30'
+                    ? 'bg-emerald-500/12 border-emerald-500/25'
                     : `bg-white/[0.03] border-white/[0.06] ${TASK_CARD_BORDER_COLORS[task.type]} border-l-[3px]`
                 }
             `}
@@ -258,9 +260,9 @@ export const SidebarTaskCard = React.memo<SidebarTaskCardProps>(({
 
             <div className="flex items-center justify-between gap-2">
                 <span
-                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium ${isCompleted ? 'bg-emerald-500/20 text-emerald-400' : ''}`}
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[var(--radius-sm)] text-xs font-medium ${isCompleted ? 'bg-emerald-500/15 text-emerald-400' : ''}`}
                     style={{
-                        backgroundColor: isCompleted ? undefined : 'rgba(255,255,255,0.05)',
+                        backgroundColor: isCompleted ? undefined : 'color-mix(in srgb, var(--surface2) 60%, transparent)',
                         color: isCompleted ? undefined : 'var(--text-secondary)'
                     }}
                 >
@@ -280,16 +282,20 @@ export const SidebarTaskCard = React.memo<SidebarTaskCardProps>(({
                                 onClick={() => setShowScheduleSheet(false)}
                             />
                             <motion.div
-                                className="fixed inset-x-0 bottom-0 z-50 bg-[#0f1117] border-t border-zinc-800 rounded-t-2xl p-4 space-y-3 shadow-2xl"
+                                className="fixed inset-x-0 bottom-0 z-50 border-t rounded-t-2xl p-4 space-y-3 shadow-2xl"
                                 initial={{ y: '100%' }}
                                 animate={{ y: 0 }}
                                 exit={{ y: '100%' }}
-                                transition={{ type: 'spring', stiffness: 320, damping: 30 }}
+                                transition={{ duration: 0.2, ease: 'easeOut' }}
+                                style={{
+                                    backgroundColor: 'var(--surface)',
+                                    borderColor: 'var(--border)'
+                                }}
                             >
                                 <div className="flex items-center justify-between">
                                     <div className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Schedule task</div>
                                     <button
-                                        className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-white/[0.06] transition-colors"
+                                        className="p-2 rounded-[var(--radius-sm)] text-zinc-400 hover:text-white hover:bg-white/[0.06] transition-colors"
                                         onClick={() => setShowScheduleSheet(false)}
                                         aria-label="Close scheduler"
                                     >
@@ -298,13 +304,13 @@ export const SidebarTaskCard = React.memo<SidebarTaskCardProps>(({
                                 </div>
                                 <div className="grid grid-cols-2 gap-2">
                                     <button
-                                        className="w-full py-2.5 rounded-lg bg-white/[0.04] text-sm font-semibold text-white hover:bg-white/[0.08] transition-colors"
+                                        className="w-full py-2.5 rounded-[var(--radius-sm)] bg-white/[0.04] text-sm font-semibold text-white hover:bg-white/[0.08] transition-colors"
                                         onClick={() => handleQuickSchedule(0)}
                                     >
                                         Today
                                     </button>
                                     <button
-                                        className="w-full py-2.5 rounded-lg bg-white/[0.04] text-sm font-semibold text-white hover:bg-white/[0.08] transition-colors"
+                                        className="w-full py-2.5 rounded-[var(--radius-sm)] bg-white/[0.04] text-sm font-semibold text-white hover:bg-white/[0.08] transition-colors"
                                         onClick={() => handleQuickSchedule(1)}
                                     >
                                         Tomorrow
@@ -315,10 +321,11 @@ export const SidebarTaskCard = React.memo<SidebarTaskCardProps>(({
                                         type="date"
                                         value={customDate}
                                         onChange={(e) => setCustomDate(e.target.value)}
-                                        className="flex-1 bg-black/30 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
+                                        className="flex-1 bg-transparent border rounded-[var(--radius-sm)] px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
+                                        style={{ borderColor: 'var(--border)' }}
                                     />
                                     <button
-                                        className="px-4 py-2 rounded-lg bg-[var(--accent)] text-black font-semibold hover:brightness-110 transition-colors disabled:opacity-50"
+                                        className="px-4 py-2 rounded-[var(--radius-sm)] bg-[var(--accent)] text-black font-semibold hover:brightness-110 transition-colors disabled:opacity-50"
                                         onClick={handleCustomSchedule}
                                         disabled={!customDate}
                                     >

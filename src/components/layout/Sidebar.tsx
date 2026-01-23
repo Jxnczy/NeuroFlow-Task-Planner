@@ -278,9 +278,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     {isMobile ? (
                         <button
                             onClick={onClose}
-                            className="p-2.5 rounded-xl transition-colors"
+                            className="p-2.5 rounded-[var(--radius-sm)] transition-colors"
                             style={{ color: 'var(--text-muted)' }}
-                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-surface-strong)'}
+                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'color-mix(in srgb, var(--surface2) 70%, transparent)'}
                             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                             title="Close Sidebar"
                         >
@@ -289,9 +289,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     ) : (
                         <button
                             onClick={onToggle}
-                            className="p-2.5 rounded-xl transition-colors"
+                            className="p-2.5 rounded-[var(--radius-sm)] transition-colors"
                             style={{ color: 'var(--text-muted)' }}
-                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-surface-strong)'}
+                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'color-mix(in srgb, var(--surface2) 70%, transparent)'}
                             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                             title="Collapse Sidebar"
                         >
@@ -301,9 +301,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     {onDayViewModeChange && (
                         <button
                             onClick={() => onDayViewModeChange(dayViewMode === 'list' ? 'timeline' : 'list')}
-                            className="p-2.5 rounded-xl transition-colors"
+                            className="p-2.5 rounded-[var(--radius-sm)] transition-colors"
                             style={{ color: 'var(--text-muted)' }}
-                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-surface-strong)'}
+                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'color-mix(in srgb, var(--surface2) 70%, transparent)'}
                             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                             title={dayViewMode === 'list' ? "Switch to Timeline View" : "Switch to List View"}
                         >
@@ -312,9 +312,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     )}
                     <button
                         onClick={onOpenSettings}
-                        className="p-2.5 rounded-xl transition-colors"
+                        className="p-2.5 rounded-[var(--radius-sm)] transition-colors"
                         style={{ color: 'var(--text-muted)' }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'color-mix(in srgb, var(--surface2) 70%, transparent)'}
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                     >
                         <Settings size={18} />
@@ -324,7 +324,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
             {/* Add Task Section */}
             <div className="px-3 pb-4" data-tour="add-task">
-                <div className="rounded-xl p-4 bg-transparent border" style={{ borderColor: 'var(--border-light)' }}>
+                <div
+                    className="rounded-[var(--radius-md)] p-4 border"
+                    style={{
+                        borderColor: 'var(--border)',
+                        backgroundColor: 'color-mix(in srgb, var(--surface) 75%, transparent)'
+                    }}
+                >
 
                     {/* 1. Title Input (Essential) */}
                     <div className="mb-3">
@@ -335,7 +341,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                             onChange={(e) => setNewTaskTitle(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleAddTask()}
                             placeholder="Add new task..."
-                            className="w-full bg-transparent text-sm px-3 py-2.5 rounded-lg placeholder-zinc-500 focus:outline-none border focus:border-cyan-400/50 transition-colors"
+                            className="w-full bg-transparent text-sm px-3 py-2.5 rounded-[var(--radius-sm)] placeholder-zinc-500 focus:outline-none border transition-colors"
                             style={{
                                 color: 'var(--text-primary)',
                                 borderColor: 'var(--border-light)'
@@ -353,9 +359,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                                 <button
                                     key={cat.id}
                                     onClick={() => setNewTaskType(cat.id as TaskType)}
-                                    className="py-2 px-1 rounded-lg text-[10px] font-bold uppercase tracking-wide transition-all border"
+                                    className="py-2 px-1 rounded-[var(--radius-sm)] text-[10px] font-semibold uppercase tracking-[0.18em] transition-all border"
                                     style={{
-                                        backgroundColor: newTaskType === cat.id ? `${cat.color}20` : 'var(--bg-surface-subtle)',
+                                        backgroundColor: newTaskType === cat.id ? `${cat.color}18` : 'color-mix(in srgb, var(--surface2) 55%, transparent)',
                                         color: newTaskType === cat.id ? cat.color : 'var(--text-muted)',
                                         border: newTaskType === cat.id ? `1px solid ${cat.color}40` : '1px solid transparent'
                                     }}
@@ -376,7 +382,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                                 <button
                                     key={d}
                                     onClick={() => setNewTaskDuration(d)}
-                                    className="py-1.5 rounded-md text-[10px] font-semibold transition-all border"
+                                    className="py-1.5 rounded-[var(--radius-sm)] text-[10px] font-semibold transition-all border"
                                     style={{
                                         backgroundColor: newTaskDuration === d ? 'var(--accent)' : 'transparent',
                                         borderColor: newTaskDuration === d ? 'var(--accent)' : 'var(--border-light)',
@@ -392,7 +398,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     {/* 3. Schedule Toggle */}
                     <button
                         onClick={() => setIsScheduleOpen(!isScheduleOpen)}
-                        className="w-full flex items-center justify-between text-[10px] font-bold uppercase tracking-wider px-1 py-2 mb-2 transition-colors"
+                        className="w-full flex items-center justify-between text-[10px] font-semibold uppercase tracking-[0.18em] px-1 py-2 mb-2 transition-colors"
                         style={{ color: (newTaskScheduledTime || isScheduleOpen) ? 'var(--accent)' : 'var(--text-muted)' }}
                     >
                         <span className="flex items-center gap-1.5">

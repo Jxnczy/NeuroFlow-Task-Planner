@@ -36,10 +36,10 @@ export const UnscheduledSection: React.FC<UnscheduledSectionProps> = ({
 
     return (
         <div
-            className="mb-4 p-3 rounded-2xl"
+            className="mb-4 p-3 rounded-[var(--radius-lg)]"
             style={{
-                backgroundColor: 'var(--bg-secondary)',
-                border: '1px dashed var(--border-medium)'
+                backgroundColor: 'var(--surface)',
+                border: '1px dashed var(--border)'
             }}
         >
             <div className="flex items-center gap-2 mb-2">
@@ -63,13 +63,13 @@ export const UnscheduledSection: React.FC<UnscheduledSectionProps> = ({
                             layout
                             initial={{ opacity: 0 }}
                             animate={{ opacity: isFaded ? 0.4 : 1 }}
-                            className="flex items-center gap-3 p-2 rounded-xl cursor-pointer"
+                            className="flex items-center gap-3 p-2 rounded-[var(--radius-md)] cursor-pointer"
                             style={{
-                                backgroundColor: 'var(--bg-tertiary)',
+                                backgroundColor: 'var(--surface2)',
                                 borderLeft: `3px solid ${typeColor}`
                             }}
                             onClick={() => onTap(task)}
-                            whileTap={{ scale: 0.98 }}
+                            whileTap={{ scale: 0.99 }}
                             draggable
                             onDragStart={(e) => {
                                 // Add visible style for dragging

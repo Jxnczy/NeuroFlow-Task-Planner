@@ -98,10 +98,11 @@ export const BoardTaskCard = React.memo<BoardTaskCardProps>(({
     if (isEditing) {
         return (
             <div
-                className="relative flex flex-col gap-2 p-3 rounded-xl border backdrop-blur-md animate-in zoom-in-95 duration-200"
+                className="relative flex flex-col gap-2 p-3 rounded-[var(--radius-md)] border backdrop-blur-md animate-in zoom-in-95 duration-200"
                 style={{
-                    backgroundColor: 'color-mix(in srgb, var(--bg-tertiary) 90%, transparent)',
-                    borderColor: 'var(--accent)'
+                    backgroundColor: 'color-mix(in srgb, var(--surface2) 85%, transparent)',
+                    borderColor: 'var(--accent)',
+                    boxShadow: 'var(--shadow-sm)'
                 }}
             >
                 <div className="flex items-start justify-between gap-2">
@@ -111,10 +112,11 @@ export const BoardTaskCard = React.memo<BoardTaskCardProps>(({
                             value={editedTitle}
                             onChange={(e) => setEditedTitle(e.target.value)}
                             onKeyDown={handleKeyDown}
-                            className="bg-black/20 text-sm font-medium rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-1 transition-all"
+                            className="bg-transparent text-sm font-medium rounded-[var(--radius-sm)] px-3 py-2 w-full border border-transparent focus:outline-none focus:ring-1 transition-all"
                             style={{
                                 color: 'var(--text-primary)',
-                                '--tw-ring-color': 'var(--accent)'
+                                '--tw-ring-color': 'var(--accent)',
+                                borderColor: 'var(--border)'
                             } as React.CSSProperties}
                             autoFocus
                         />
@@ -124,10 +126,11 @@ export const BoardTaskCard = React.memo<BoardTaskCardProps>(({
                                 value={editedDuration}
                                 onChange={(e) => setEditedDuration(e.target.value)}
                                 onKeyDown={handleKeyDown}
-                                className="bg-black/20 text-xs rounded-lg px-3 py-1.5 w-16 focus:outline-none focus:ring-1 transition-all"
+                                className="bg-transparent text-xs rounded-[var(--radius-sm)] px-3 py-1.5 w-16 border border-transparent focus:outline-none focus:ring-1 transition-all"
                                 style={{
                                     color: 'var(--text-muted)',
-                                    '--tw-ring-color': 'var(--accent)'
+                                    '--tw-ring-color': 'var(--accent)',
+                                    borderColor: 'var(--border)'
                                 } as React.CSSProperties}
                             />
                             <span className="text-xs" style={{ color: 'var(--text-muted)' }}>min</span>
@@ -137,14 +140,14 @@ export const BoardTaskCard = React.memo<BoardTaskCardProps>(({
                         <div className="flex gap-1.5">
                             <button
                                 onClick={handleAcceptChanges}
-                                className="p-2 rounded-lg bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 transition-all"
+                                className="p-2 rounded-[var(--radius-sm)] bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500/25 transition-all"
                                 title="Save changes"
                             >
                                 <Check size={14} />
                             </button>
                             <button
                                 onClick={() => setIsEditing(false)}
-                                className="p-2 rounded-lg bg-zinc-500/20 text-zinc-400 hover:bg-zinc-500/30 transition-all"
+                                className="p-2 rounded-[var(--radius-sm)] bg-zinc-500/15 text-zinc-400 hover:bg-zinc-500/25 transition-all"
                                 title="Cancel editing"
                             >
                                 {/* X icon manually SVG to avoid import if not needed, or import X */}
@@ -153,7 +156,7 @@ export const BoardTaskCard = React.memo<BoardTaskCardProps>(({
                         </div>
                         <button
                             onClick={handleDeleteTask}
-                            className="px-2 py-1 rounded-lg bg-rose-500/20 text-rose-400 hover:bg-rose-500/30 transition-all text-[10px] font-bold uppercase"
+                            className="px-2 py-1 rounded-[var(--radius-sm)] bg-rose-500/15 text-rose-400 hover:bg-rose-500/25 transition-all text-[10px] font-semibold uppercase tracking-[0.2em]"
                             title="Delete task"
                         >
                             Delete
@@ -184,15 +187,15 @@ export const BoardTaskCard = React.memo<BoardTaskCardProps>(({
                 transform: 'translateZ(0)',
             }}
             className={`
-                hover:scale-[1.01] active:scale-[0.98] transition-all duration-150
-                relative flex flex-row items-center justify-between gap-2 py-2 px-2 rounded-lg border h-full
+                hover:-translate-y-0.5 hover:shadow-[var(--shadow-sm)] active:translate-y-0 transition-all duration-150
+                relative flex flex-row items-center justify-between gap-2 py-2 px-2 rounded-[var(--radius-sm)] border h-full
                 cursor-grab active:cursor-grabbing
                 ${isDragging ? 'opacity-50 scale-[0.98]' : ''}
                 ${isOverdue && !isCompleted
-                    ? 'border-red-500/50 shadow-[0_0_10px_rgba(239,68,68,0.15)]'
+                    ? 'border-red-500/40 shadow-[0_0_12px_rgba(239,68,68,0.12)]'
                     : isCompleted
-                        ? 'bg-emerald-900/20 border-emerald-500/20'
-                        : `bg-white/[0.04] border-white/[0.08] ${TASK_CARD_BORDER_COLORS[task.type]} border-l-[3px]`
+                        ? 'bg-emerald-900/15 border-emerald-500/20'
+                        : `bg-white/[0.03] border-white/[0.06] ${TASK_CARD_BORDER_COLORS[task.type]} border-l-[3px]`
                 }
             `}
         >
@@ -204,7 +207,7 @@ export const BoardTaskCard = React.memo<BoardTaskCardProps>(({
 
             <div className="flex-1 flex flex-col justify-center min-w-0">
                 <h3
-                    className={`font-medium text-sm leading-tight whitespace-normal break-words pr-1 line-clamp-2`}
+                    className={`font-medium text-sm leading-snug whitespace-normal break-words pr-1 line-clamp-2`}
                     style={{ color: isCompleted ? '#f1f5f9' : 'var(--text-primary)' }}
                 >
                     {task.title}
@@ -236,15 +239,15 @@ export const BoardTaskCard = React.memo<BoardTaskCardProps>(({
                         w-5 h-5 rounded flex items-center justify-center
                         transition-all duration-200
                         ${isCompleted
-                            ? 'bg-emerald-500/20 text-emerald-400'
-                            : 'bg-white/[0.1] text-zinc-500 hover:bg-emerald-500/20 hover:text-emerald-400'}
+                            ? 'bg-emerald-500/15 text-emerald-400'
+                            : 'bg-white/[0.06] text-zinc-500 hover:bg-emerald-500/20 hover:text-emerald-400'}
                     `}
                 >
                     {isCompleted ? (
                         <motion.div
                             initial={{ scale: 0.9 }}
                             animate={{ scale: 1, rotate: [0, 3, 0] }}
-                            transition={{ duration: 0.14, ease: 'easeOut' }}
+                            transition={{ duration: 0.18, ease: 'easeOut' }}
                         >
                             <Check size={14} strokeWidth={3} />
                         </motion.div>
@@ -254,7 +257,7 @@ export const BoardTaskCard = React.memo<BoardTaskCardProps>(({
                 </button>
 
                 <span
-                    className={`text-[12px] font-mono leading-none text-center pt-[0.4rem] ${isCompleted ? 'text-emerald-400/80' : 'text-zinc-500'}`}
+                    className={`text-[12px] font-mono leading-none text-center pt-[0.4rem] ${isCompleted ? 'text-emerald-400/80' : 'text-zinc-400'}`}
                 >
                     {formatDuration(task.duration)}
                 </span>

@@ -1,28 +1,33 @@
 @import "tailwindcss";
+@import "./styles/theme.css";
 
 @theme {
-  --font-sans: var(--font-sans, 'Lexend', 'Manrope', sans-serif);
-  --font-display: var(--font-display, 'Lexend', 'Manrope', sans-serif);
-  --font-mono: var(--font-mono, 'Manrope', monospace);
+  --font-sans: var(--font-sans, '-apple-system', 'SF Pro Text', 'Inter', system-ui, sans-serif);
+  --font-display: var(--font-display, '-apple-system', 'SF Pro Display', 'Inter', system-ui, sans-serif);
+  --font-mono: var(--font-mono, 'SF Mono', 'Menlo', monospace);
 
   --color-neon-pink: #f472b6;
   --color-neon-cyan: #22d3ee;
 
   /* Theme-aware colors */
-  --color-theme-bg: var(--bg-primary, #161b2e);
-  --color-theme-bg-secondary: var(--bg-secondary, #1a1f35);
-  --color-theme-bg-tertiary: var(--bg-tertiary, #1e2338);
-  --color-theme-text: var(--text-primary, #e2e8f0);
+  --color-theme-bg: var(--bg, #0f1115);
+  --color-theme-bg-secondary: var(--surface, #14171d);
+  --color-theme-bg-tertiary: var(--surface2, #1b1f26);
+  --color-theme-text: var(--text, #f1f5f9);
   --color-theme-text-secondary: var(--text-secondary, #94a3b8);
-  --color-theme-text-muted: var(--text-muted, #64748b);
-  --color-theme-accent: var(--accent, #22d3ee);
-  --color-theme-border: var(--border-medium, rgba(255, 255, 255, 0.1));
+  --color-theme-text-muted: var(--muted, #64748b);
+  --color-theme-accent: var(--accent, #5ac8fa);
+  --color-theme-border: var(--border, rgba(255, 255, 255, 0.08));
 
   /* New Semantic Surfaces */
   --color-surface-subtle: var(--bg-surface-subtle, rgba(255, 255, 255, 0.03));
   --color-surface-strong: var(--bg-surface-strong, rgba(255, 255, 255, 0.08));
   --color-glass: var(--bg-glass, rgba(22, 27, 46, 0.6));
   --color-border-subtle: var(--border-subtle, rgba(255, 255, 255, 0.02));
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
 
   --text-xs: 12px;
   --text-sm: 14px;
@@ -38,19 +43,22 @@
   --sidebar-width: clamp(260px, 22vw, 320px);
   --row-label-width: clamp(48px, 5vw, 80px);
 
-  background-image:
-    radial-gradient(circle at 50% -10%, var(--bg-glow) 0%, transparent 70%),
-    linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
-  color: var(--text-primary);
+  background-color: var(--bg);
+  color: var(--text);
   font-family: var(--font-sans);
   font-size: 16px;
-  line-height: 1.5;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  line-height: 1.55;
+  letter-spacing: -0.01em;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+body {
+  background-color: var(--bg);
 }
 
 /* Smooth transitions for theme changes - SCOPED to interactive elements only for 60fps */
-button,
 a,
+button,
 input,
 select,
 textarea,
@@ -58,7 +66,18 @@ textarea,
 [draggable="true"],
 .transition-colors,
 .transition-all {
-  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.15s ease, box-shadow 0.2s ease;
+  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.15s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-color: color-mix(in srgb, var(--accent) 60%, transparent);
 }
 
 /* Task completion celebration */
@@ -183,7 +202,7 @@ textarea,
 .dragging {
   opacity: 0.6;
   transform: scale(1.05) rotate(2deg);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-md);
   z-index: 1000;
 }
 
