@@ -34,19 +34,13 @@ import { CommandPalette } from './components/ui/CommandPalette';
 import { VaultUnlockScreen } from './components/auth/VaultUnlockScreen';
 import { useEncryption } from './hooks/useEncryption';
 import { CryptoService } from './services/CryptoService';
+import { LoadingScreen } from './components/ui/LoadingScreen';
+import { useEntryRouting } from './hooks/useEntryRouting';
+
 // Lazy load components
 const AnalyticsDashboard = React.lazy(() => import('./components/features/dashboard/AnalyticsDashboard').then(module => ({ default: module.AnalyticsDashboard })));
 const HabitTracker = React.lazy(() => import('./components/features/tools/HabitTracker').then(module => ({ default: module.HabitTracker })));
 const BrainDump = React.lazy(() => import('./components/features/tools/BrainDump').then(module => ({ default: module.BrainDump })));
-
-const LoadingScreen = ({ message }: { message: string }) => (
-    <div className="min-h-screen flex items-center justify-center bg-slate-950 text-white">
-        <div className="space-y-3 text-center">
-            <div className="h-10 w-10 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto" />
-            <p className="text-white/70">{message}</p>
-        </div>
-    </div>
-);
 
 const AppContent = ({
     userId,
@@ -630,14 +624,35 @@ const AppContent = ({
 const App = () => {
     const storage = StorageService.getInstance();
 
+    // --- Auth & Routing ---
+    const { user, isAuthReady, authError, magicLinkSent, signInWithEmail, signInWithOAuth, signOut } = useSupabaseAuth();
+
     // --- Encryption State ---
     const encryption = useEncryption();
     const [encryptionSkipped, setEncryptionSkipped] = useState(false);
     const [showVaultSetup, setShowVaultSetup] = useState(false);
 
-    // Check if we need to show vault unlock (existing encrypted data OR user wants to enable)
-    // Only show if encryption is enabled AND vault is locked AND user hasn't skipped
-    const needsVaultUnlock = (storage.isEncryptionEnabled() && !encryption.isUnlocked && !encryptionSkipped) || showVaultSetup;
+    // --- User State ---
+    const [isReturningUser, setIsReturningUser] = useState<boolean>(() => {
+        try {
+            return localStorage.getItem('neuroflow_is_returning_user') === 'true';
+        } catch {
+            return false;
+        }
+    });
+
+    // --- Restore State (Hoisted for routing) ---
+    const [showRestorePrompt, setShowRestorePrompt] = useState(false);
+    const [statsResetAt, setStatsResetAt] = useState<number>(0);
+
+    const { currentRoute, markFeatureOverviewSeen } = useEntryRouting({
+        isAuthReady,
+        user,
+        isVaultSetup: encryption.isVaultSetup || StorageService.getInstance().isEncryptionEnabled() || showRestorePrompt,
+        isUnlocked: encryption.isUnlocked,
+        isReturningUser
+    });
+
     const hasUnencryptedData = storage.hasUnencryptedData();
 
     // Always load plaintext data as fallback
@@ -718,7 +733,7 @@ const App = () => {
     const [supabaseHealthy, setSupabaseHealthy] = useState<boolean | null>(null);
     const [authTimeoutReached, setAuthTimeoutReached] = useState(false);
 
-    const { user, isAuthReady, authError, magicLinkSent, signInWithEmail, signInWithOAuth, signOut } = useSupabaseAuth();
+    // useSupabaseAuth hoisted to top
     const [initialTasksState, setInitialTasksState] = useState<Task[]>(effectiveLocalData?.tasks || []);
     const [initialHabitsState, setInitialHabitsState] = useState<Habit[]>(effectiveLocalData?.habits?.map(h => ({ ...h, goal: h.goal || 7 })) || []);
     const [initialBrainDumpState, setInitialBrainDumpState] = useState<BrainDumpList[]>(
@@ -728,14 +743,6 @@ const App = () => {
     );
     const [isDataLoading, setIsDataLoading] = useState<boolean>(false);
     const [dataError, setDataError] = useState<string | null>(null);
-    const [isReturningUser, setIsReturningUser] = useState<boolean>(() => {
-        try {
-            return localStorage.getItem('neuroflow_is_returning_user') === 'true';
-        } catch {
-            return false;
-        }
-    });
-    const [showRestorePrompt, setShowRestorePrompt] = useState(false);
 
     // Sync state when effectiveLocalData changes (handles encryption skip/unlock)
     useEffect(() => {
@@ -1089,119 +1096,107 @@ const App = () => {
 
     // HTML loader handles the splash screen - no React SplashScreen needed
 
-    // --- Vault Unlock Gate ---
-    // Show vault unlock screen if encryption is enabled but vault is locked
-    if (needsVaultUnlock || showRestorePrompt) {
-        return (
-            <VaultUnlockScreen
-                isVaultSetup={encryption.isVaultSetup && !showRestorePrompt}
-                isRestoreMode={showRestorePrompt}
-                isLoading={encryption.isLoading}
-                error={encryption.error}
-                onSetup={async (pass) => {
-                    // This is the auto-restore success handler
-                    const success = await handleRestoreVault(pass);
-                    if (success) {
-                        setShowRestorePrompt(false);
-                        // Seamless unlock: The data is currently placeholders.
-                        // We need to force a re-fetch.
-                        // Simplest way for "Recovered from auto-restore" is to reload, 
-                        // UNLESS we want to manually trigger a re-fetch.
-                        // Given the reversion, let's just use window.location.reload() to be safe and functional.
-                        // It guarantees clean state.
-                        window.location.reload();
-                    }
-                    return success;
-                }}
-                onUnlock={encryption.unlock}
-                onReset={() => {
-                    encryption.resetVault();
-                    storage.clearEncryptedData();
-                    setShowVaultSetup(false);
-                    setShowRestorePrompt(false);
-                }}
-                onSkip={() => {
-                    setEncryptionSkipped(true);
-                    setShowVaultSetup(false);
-                    setShowRestorePrompt(false);
-                }}
-            />
-        );
-    }
+    // --- RENDER BASED ON ROUTE ---
+    switch (currentRoute) {
+        case 'loading':
+            return <LoadingScreen message="Checking session..." />;
 
-    // Show vault setup screen for first-time users who want encryption
-    // (This is optional - encryption is opt-in via settings for now)
-
-    if (useSupabaseSync) {
-        // Always surface the auth overlay when sync is requested and there is no session,
-        // even if auth is still warming up.
-        if (!user) {
+        case 'feature-overview':
             return (
                 <AuthOverlay
-                    onMagicLink={signInWithEmail}
-                    onOAuth={signInWithOAuth}
-                    magicLinkSent={magicLinkSent}
-                    authError={authTimeoutReached && !isAuthReady ? (authError || 'Supabase is slow to respond. Try signing in or continue without sync.') : authError}
-                    onCancel={() => handleToggleSupabaseSync(false)}
-                    skipSplash={true}
+                    isLoading={false}
+                    authError={null}
+                    onMagicLink={(email) => signInWithEmail(email)}
+                    onOAuth={(provider) => signInWithOAuth(provider)}
+                    onCancel={() => {
+                        // "Get Started" clicked - mark seen and go to login
+                        markFeatureOverviewSeen();
+                    }}
+                    showFeatureOverview={true}
+                    magicLinkSent={false}
                 />
             );
-        }
 
-        // If auth somehow still isn't ready after we have a user, show a brief loader.
-        if (!isAuthReady) {
-            return <LoadingScreen message="Checking your session..." />;
-        }
-
-        if (dataError) {
-            return <LoadingScreen message={dataError} />;
-        }
-
-        if (isDataLoading) {
-            return <LoadingScreen message="Loading your workspace from Supabase..." />;
-        }
-
-        // Security: If encryption is enabled but the vault is locked/skipped, disable Supabase sync
-        // This prevents the app from downloading plaintext data from the cloud into the local view.
-        // User must unlock the vault to sync securely.
-        const isVaultLocked = encryption.isVaultSetup && !encryption.isUnlocked;
-        const safeSupabaseEnabled = isVaultLocked ? false : true;
-
-        return (
-            <TaskProvider initialTasks={initialTasksState} userId={user.id} supabaseEnabled={safeSupabaseEnabled}>
-                <AppContent
-                    userId={user.id}
-                    initialHabitsState={initialHabitsState}
-                    initialBrainDump={initialBrainDumpState}
-                    initialStatsResetAt={effectiveLocalData?.statsResetAt || 0}
-                    onDataImported={handleDataImported}
-                    onDeleteAllTasks={handleDeleteAllTasks}
-                    supabaseEnabled={safeSupabaseEnabled}
-                    onToggleSupabaseSync={handleToggleSupabaseSync}
-                    isReturningUser={isReturningUser}
-                    onOnboardingComplete={handleOnboardingComplete}
-                    onLogout={handleLogout}
-                    onEnableEncryption={handleEnableEncryption}
+        case 'login':
+            return (
+                <AuthOverlay
+                    isLoading={isDataLoading || !isAuthReady}
+                    authError={authError || dataError}
+                    onMagicLink={(email) => signInWithEmail(email)}
+                    onOAuth={(provider) => signInWithOAuth(provider)}
+                    onCancel={() => {
+                        // "Continue as Guest" / Skip Sync
+                        setUseSupabaseSync(false);
+                        storage.saveSyncPreference(false);
+                    }}
+                    magicLinkSent={magicLinkSent}
+                    showFeatureOverview={false}
                 />
-            </TaskProvider>
-        );
-    }
+            );
 
-    // Local-only mode (no Supabase auth required)
-    return (
-        <TaskProvider initialTasks={initialTasksState} supabaseEnabled={false}>
-            <AppContent
-                initialHabitsState={initialHabitsState}
-                initialBrainDump={initialBrainDumpState}
-                initialStatsResetAt={effectiveLocalData?.statsResetAt || 0}
-                onDataImported={handleDataImported}
-                onDeleteAllTasks={handleDeleteAllTasks}
-                supabaseEnabled={false}
-                onToggleSupabaseSync={handleToggleSupabaseSync}
-                onEnableEncryption={handleEnableEncryption}
-            />
-        </TaskProvider>
-    );
+        case 'unlock':
+            return (
+                <VaultUnlockScreen
+                    isVaultSetup={encryption.isVaultSetup && !showRestorePrompt}
+                    isRestoreMode={showRestorePrompt}
+                    isLoading={encryption.isLoading}
+                    error={encryption.error}
+                    onSetup={async (pass) => {
+                        if (showRestorePrompt) {
+                            const success = await handleRestoreVault(pass);
+                            if (success) {
+                                setShowRestorePrompt(false);
+                                window.location.reload();
+                            }
+                            return success;
+                        }
+                        return encryption.setupVault(pass);
+                    }}
+                    onUnlock={encryption.unlock}
+                    onReset={() => {
+                        encryption.resetVault();
+                        storage.clearEncryptedData();
+                        setShowVaultSetup(false);
+                        setShowRestorePrompt(false);
+                    }}
+                    onSkip={() => {
+                        setEncryptionSkipped(true);
+                        setShowVaultSetup(false);
+                        setShowRestorePrompt(false);
+                    }}
+                />
+            );
+
+        case 'app':
+            // Provide data context to the app
+            return (
+                <TaskProvider initialTasks={initialTasksState} userId={user?.id} supabaseEnabled={useSupabaseSync && !!user}>
+                    <AppContent
+                        userId={user?.id}
+                        initialHabitsState={initialHabitsState}
+                        initialBrainDump={initialBrainDumpState}
+                        initialStatsResetAt={statsResetAt}
+                        onDataImported={handleDataImported}
+                        onDeleteAllTasks={async () => {
+                            if (user && useSupabaseSync) {
+                                await SupabaseDataService.replaceTasks(user.id, []);
+                                await SupabaseDataService.replaceHabits(user.id, []);
+                                await SupabaseDataService.replaceNotes(user.id, []);
+                            }
+                            storage.save({ tasks: [], habits: [], brainDumpLists: [] });
+                        }}
+                        supabaseEnabled={useSupabaseSync && !!user}
+                        onToggleSupabaseSync={handleToggleSupabaseSync}
+                        isReturningUser={isReturningUser}
+                        onOnboardingComplete={handleOnboardingComplete}
+                        onLogout={handleLogout}
+                        onEnableEncryption={handleEnableEncryption}
+                    />
+                </TaskProvider>
+            );
+        default:
+            return <LoadingScreen message="Initializing..." />;
+    }
 };
 
 export default App;

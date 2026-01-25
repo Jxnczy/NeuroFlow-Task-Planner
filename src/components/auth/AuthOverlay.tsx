@@ -9,6 +9,8 @@ interface AuthOverlayProps {
     authError?: string | null;
     onCancel?: () => void;
     skipSplash?: boolean;
+    isLoading?: boolean;
+    showFeatureOverview?: boolean;
 }
 
 export const AuthOverlay: React.FC<AuthOverlayProps> = ({
@@ -17,13 +19,20 @@ export const AuthOverlay: React.FC<AuthOverlayProps> = ({
     magicLinkSent,
     authError,
     onCancel,
-    skipSplash = false
+    skipSplash = false,
+    isLoading = false,
+    showFeatureOverview = true
 }) => {
     const [email, setEmail] = useState('');
     const [submitting, setSubmitting] = useState(false);
     // Start directly with Welcome screen (no long splash)
     const [showSplash, setShowSplash] = useState(false);
-    const [showWelcome, setShowWelcome] = useState(true);
+    const [showWelcome, setShowWelcome] = useState(showFeatureOverview);
+
+    // Sync internal welcome state with prop if it changes
+    useEffect(() => {
+        setShowWelcome(showFeatureOverview);
+    }, [showFeatureOverview]);
 
     // Hide the HTML app loader IMMEDIATELY
     useEffect(() => {
