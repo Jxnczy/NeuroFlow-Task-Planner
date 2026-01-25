@@ -22,6 +22,7 @@ interface TaskContextType {
     resetStats: () => void;
     isLoading: boolean;
     refreshTasks: () => void;
+    deleteAllTasks: () => void;
 }
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
@@ -53,7 +54,8 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children, initialTas
         syncRemoteTask,
         removeRemoteTask,
         isLoading,
-        refreshTasks
+        refreshTasks,
+        deleteAllTasks
     } = useTaskManager(initialTasks, userId, supabaseEnabled);
 
     useEffect(() => {
@@ -74,7 +76,9 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children, initialTas
                             return;
                         }
                         if (payload.new) {
-                            syncRemoteTask(mapTaskFromDb(payload.new as DbTaskRow));
+                            mapTaskFromDb(payload.new as DbTaskRow).then(task => {
+                                syncRemoteTask(task);
+                            });
                         }
                     }
                 );
@@ -117,7 +121,8 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children, initialTas
             clearRescheduledTasks,
             resetStats,
             isLoading,
-            refreshTasks
+            refreshTasks,
+            deleteAllTasks
         }}>
             {children}
         </TaskContext.Provider>

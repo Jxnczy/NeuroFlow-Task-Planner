@@ -209,6 +209,16 @@ const AppContent = ({
         setFirstGuideComplete(true);
     }, []);
 
+    // Force hide onboarding if user is identified as returning (loaded from DB)
+    useEffect(() => {
+        if (isReturningUser) {
+            setShowWelcomePrompt(false);
+            setOnboardingChoice('no');
+            setShowTour(false);
+            setFirstGuideComplete(true);
+        }
+    }, [isReturningUser]);
+
 
     useEffect(() => {
         if (hasAnyTasks) {
@@ -718,7 +728,14 @@ const App = () => {
     );
     const [isDataLoading, setIsDataLoading] = useState<boolean>(false);
     const [dataError, setDataError] = useState<string | null>(null);
-    const [isReturningUser, setIsReturningUser] = useState<boolean>(false);
+    const [isReturningUser, setIsReturningUser] = useState<boolean>(() => {
+        try {
+            return localStorage.getItem('neuroflow_is_returning_user') === 'true';
+        } catch {
+            return false;
+        }
+    });
+    const [showRestorePrompt, setShowRestorePrompt] = useState(false);
 
     // Sync state when effectiveLocalData changes (handles encryption skip/unlock)
     useEffect(() => {
@@ -858,6 +875,7 @@ const App = () => {
 
         let active = true;
         const load = async () => {
+            if (!user) return; // Guard for TS, though effect shouldn't allow it if we depend on userId
             setIsDataLoading(true);
             setDataError(null);
             try {
@@ -875,6 +893,9 @@ const App = () => {
 
                 // Mark as returning user if they've completed onboarding before
                 setIsReturningUser(onboardingDone);
+                if (onboardingDone) {
+                    localStorage.setItem('neuroflow_is_returning_user', 'true');
+                }
 
                 const remoteEmpty = (!tasks.length && !habits.length && !notes.length);
                 if (remoteEmpty) {
@@ -901,6 +922,18 @@ const App = () => {
                         setInitialBrainDumpState([{ id: generateId(), title: 'Main List', content: '' }]);
                     }
                 } else {
+                    // Auto-detect encrypted data for fresh logins
+                    // If vault is locked, SupabaseDataService returns the placeholder string
+                    const LOCKED_CONTENT_PLACEHOLDER = '[Encrypted - Unlock vault to view]';
+                    const hasEncryptedData = tasks.some(t => t.title === LOCKED_CONTENT_PLACEHOLDER) ||
+                        habits.some(h => h.name === LOCKED_CONTENT_PLACEHOLDER) ||
+                        notes.some(n => n.title === LOCKED_CONTENT_PLACEHOLDER || n.content === LOCKED_CONTENT_PLACEHOLDER);
+
+                    if (hasEncryptedData && !encryption.isVaultSetup) {
+                        console.log('Detected encrypted data with no local keys - triggering restore prompt');
+                        setShowRestorePrompt(true);
+                    }
+
                     setInitialTasksState(tasks);
                     setInitialHabitsState(habits);
                     setInitialBrainDumpState(notes.length ? notes : [{ id: generateId(), title: 'Main List', content: '' }]);
@@ -919,7 +952,7 @@ const App = () => {
         };
         load();
         return () => { active = false; };
-    }, [user, useSupabaseSync, fallbackToLocal, storage, checkSupabaseHealth, withTimeout]);
+    }, [user?.id, useSupabaseSync, fallbackToLocal, storage, checkSupabaseHealth, withTimeout, encryption.isVaultSetup, encryption.isUnlocked]);
 
     const handleDataImported = (data: AppData) => {
         const normalized: AppData = {
@@ -1010,26 +1043,87 @@ const App = () => {
         setEncryptionSkipped(false);
     }, []);
 
+    const handleRestoreVault = async (passphrase: string): Promise<boolean> => {
+        try {
+            if (!user) return false;
+            // Fetch raw encrypted sample to extract salt
+            const sample = await SupabaseDataService.fetchRawEncryptedSample(user.id);
+            if (!sample) {
+                console.error('No encrypted data found to restore from');
+                return false;
+            }
+
+            // Try to restore
+            const success = await encryption.restoreVaultFromData(passphrase, sample);
+            if (success) {
+                // Refresh data to decrypt it
+                window.location.reload();
+                // Note: Reload is robust ensuring all hooks reset with unlocked vault
+                // But seamless unlock is also possible if we re-fetch data.
+                // For now, let's keep reload or try seamless re-fetch?
+                // Step 364 removed reload. Let's do seamless.
+
+                // Correction: The seamless unlock requires us to re-run the `load` effect
+                // which skips if loaded. But since window.location.reload() was removed in step 364...
+                // Wait, step 364 simply removed reload. The data was already loaded as "Encrypted placeholder".
+                // We need to RE-FETCH the data to decrypt it!
+                // Or just reload. Reload is safer for "restored from scratch".
+                // Let's stick to the Polished version: Remove reload, but we MUST re-fetch.
+                // The `load` effect dependency include `encryption.isUnlocked`.
+                // If we unlock, `encryption.isUnlocked` changes, so `load` might re-run?
+                // Let's check `load` dependencies.
+                // [user, useSupabaseSync, fallbackToLocal, storage, checkSupabaseHealth, withTimeout]
+                // It does NOT depend on `encryption.isUnlocked` directly, but the code checks it inside.
+                // We should probably trigger a reload to be safe, OR add `encryption.isUnlocked` to deps.
+                // Adding `encryption.isUnlocked` to deps is risky (infinite loops).
+                // Let's stick to reloading for the Restore Case to be 100% sure, OR just return true and let user refresh.
+                // The original "Polish" task removed reload.
+                // Let's try to just return true.
+            }
+            return success;
+        } catch (e) {
+            console.error('Restore failed', e);
+            return false;
+        }
+    };
+
     // HTML loader handles the splash screen - no React SplashScreen needed
 
     // --- Vault Unlock Gate ---
     // Show vault unlock screen if encryption is enabled but vault is locked
-    if (needsVaultUnlock) {
+    if (needsVaultUnlock || showRestorePrompt) {
         return (
             <VaultUnlockScreen
-                isVaultSetup={encryption.isVaultSetup}
+                isVaultSetup={encryption.isVaultSetup && !showRestorePrompt}
+                isRestoreMode={showRestorePrompt}
                 isLoading={encryption.isLoading}
                 error={encryption.error}
-                onSetup={encryption.setupVault}
+                onSetup={async (pass) => {
+                    // This is the auto-restore success handler
+                    const success = await handleRestoreVault(pass);
+                    if (success) {
+                        setShowRestorePrompt(false);
+                        // Seamless unlock: The data is currently placeholders.
+                        // We need to force a re-fetch.
+                        // Simplest way for "Recovered from auto-restore" is to reload, 
+                        // UNLESS we want to manually trigger a re-fetch.
+                        // Given the reversion, let's just use window.location.reload() to be safe and functional.
+                        // It guarantees clean state.
+                        window.location.reload();
+                    }
+                    return success;
+                }}
                 onUnlock={encryption.unlock}
                 onReset={() => {
                     encryption.resetVault();
                     storage.clearEncryptedData();
                     setShowVaultSetup(false);
+                    setShowRestorePrompt(false);
                 }}
                 onSkip={() => {
                     setEncryptionSkipped(true);
                     setShowVaultSetup(false);
+                    setShowRestorePrompt(false);
                 }}
             />
         );

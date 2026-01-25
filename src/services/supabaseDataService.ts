@@ -6,6 +6,8 @@ import { logger } from '../utils/logger';
 
 // Encryption marker prefix to identify encrypted strings
 const ENCRYPTED_PREFIX = 'ENC:';
+export const LOCKED_CONTENT_PLACEHOLDER = '[Encrypted - Unlock vault to view]';
+
 
 /**
  * Encrypt a string field if encryption is enabled and vault is unlocked
@@ -48,7 +50,7 @@ const decryptField = async (value: string | null, context?: string): Promise<str
     const crypto = CryptoService.getInstance();
     if (!crypto.getIsUnlocked()) {
         logger.warn('Cannot decrypt field - vault is locked');
-        return '[Encrypted - Unlock vault to view]';
+        return LOCKED_CONTENT_PLACEHOLDER;
     }
 
     try {
@@ -361,6 +363,91 @@ export const SupabaseDataService = {
                 logger.error('Failed to import notes', insertError);
             }
         }
+    },
+
+    // Vault Metadata Sync
+    async fetchVaultMetadata(userId: string): Promise<{ salt: string | null; isSetup: boolean }> {
+        if (!supabase) throw new Error('Supabase unavailable');
+        const { data, error } = await supabase
+            .from('user_preferences')
+            .select('vault_salt, vault_initialized')
+            .eq('user_id', userId)
+            .single();
+
+        if (error) {
+            if (error.code === 'PGRST116') return { salt: null, isSetup: false };
+            logger.error('Failed to fetch vault metadata', error);
+            return { salt: null, isSetup: false };
+        }
+        return {
+            salt: data?.vault_salt ?? null,
+            isSetup: data?.vault_initialized ?? false
+        };
+    },
+
+    async upsertVaultMetadata(userId: string, salt: string): Promise<void> {
+        if (!supabase) throw new Error('Supabase unavailable');
+        const { error } = await supabase
+            .from('user_preferences')
+            .upsert({
+                user_id: userId,
+                vault_salt: salt,
+                vault_initialized: true,
+                encryption_enabled: true,
+                onboarding_completed: true, // Restoring/enabling encryption implies onboarding is done
+                updated_at: new Date().toISOString()
+            });
+
+        if (error) {
+            logger.error('Failed to sync vault metadata', error);
+        }
+    },
+
+    /**
+     * Fetch a raw sample of encrypted data (task or habit) to extract salt
+     * Used for vault restoration
+     */
+    async fetchRawEncryptedSample(userId: string): Promise<string | null> {
+        if (!supabase) throw new Error('Supabase unavailable');
+
+        // Try tasks first
+        const { data: tasks } = await supabase
+            .from('tasks')
+            .select('title')
+            .eq('user_id', userId)
+            .ilike('title', 'ENC:%')
+            .limit(1);
+
+        if (tasks && tasks.length > 0 && tasks[0].title) {
+            return tasks[0].title.substring(4); // Remove ENC: prefix
+        }
+
+        // Try habits
+        const { data: habits } = await supabase
+            .from('habits')
+            .select('name')
+            .eq('user_id', userId)
+            .ilike('name', 'ENC:%')
+            .limit(1);
+
+        if (habits && habits.length > 0 && habits[0].name) {
+            return habits[0].name.substring(4);
+        }
+
+        // Try notes
+        const { data: notes } = await supabase
+            .from('notes')
+            .select('title, content')
+            .eq('user_id', userId)
+            .or('title.ilike.ENC:%,content.ilike.ENC:%')
+            .limit(1);
+
+        if (notes && notes.length > 0) {
+            if (notes[0].title?.startsWith(ENCRYPTED_PREFIX)) return notes[0].title.substring(4);
+            if (notes[0].content?.startsWith(ENCRYPTED_PREFIX)) return notes[0].content.substring(4);
+        }
+
+        return null;
     },
 
     // User Preferences - Onboarding Status
