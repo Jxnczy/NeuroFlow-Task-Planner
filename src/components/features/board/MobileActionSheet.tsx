@@ -231,139 +231,139 @@ export const MobileActionSheet: React.FC<MobileActionSheetProps> = ({
 
   return (
     <AnimatePresence>
-      {isOpen && task && (
-        <>
-          {/* Backdrop */}
-          <motion.div
-            key="backdrop"
-            className="fixed inset-0 bg-black/60 z-50"
-            variants={backdropVariants}
-            initial="hidden"
-            animate="visible"
-            exit="hidden"
-            onClick={handleBackdropClick}
-          />
+      {isOpen && task && [
+        /* Backdrop */
+        <motion.div
+          key="backdrop"
+          className="fixed inset-0 bg-black/60 z-50"
+          variants={backdropVariants}
+          initial="hidden"
+          animate="visible"
+          exit="hidden"
+          onClick={handleBackdropClick}
+        />,
 
-          {/* Sheet */}
-          <motion.div
-            key="sheet"
-            className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl overflow-hidden"
-            style={{ backgroundColor: 'var(--bg-secondary)' }}
-            variants={sheetVariants}
-            initial="hidden"
-            animate="visible"
-            exit="hidden"
-          >
-            {/* Handle bar */}
-            <div className="flex justify-center pt-3 pb-2">
+        /* Sheet */
+        <motion.div
+          key="sheet"
+          className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl overflow-hidden"
+          style={{ backgroundColor: 'var(--bg-secondary)' }}
+          variants={sheetVariants}
+          initial="hidden"
+          animate="visible"
+          exit="hidden"
+        >
+          {/* Handle bar */}
+          <div className="flex justify-center pt-3 pb-2">
+            <div
+              className="w-10 h-1 rounded-full"
+              style={{ backgroundColor: 'rgba(255,255,255,0.2)' }}
+            />
+          </div>
+
+          {/* Task Preview Header */}
+          <div className="px-5 pb-4 border-b" style={{ borderColor: 'var(--border-light)' }}>
+            <div className="flex items-start gap-3">
+              {/* Type indicator */}
               <div
-                className="w-10 h-1 rounded-full"
-                style={{ backgroundColor: 'rgba(255,255,255,0.2)' }}
+                className="w-1 h-12 rounded-full mt-1"
+                style={{ backgroundColor: getTypeColor(task.type) }}
               />
-            </div>
-
-            {/* Task Preview Header */}
-            <div className="px-5 pb-4 border-b" style={{ borderColor: 'var(--border-light)' }}>
-              <div className="flex items-start gap-3">
-                {/* Type indicator */}
-                <div
-                  className="w-1 h-12 rounded-full mt-1"
-                  style={{ backgroundColor: getTypeColor(task.type) }}
-                />
-                <div className="flex-1 min-w-0">
-                  <h3
-                    className="font-bold text-lg truncate"
-                    style={{ color: 'var(--text-primary)' }}
-                  >
-                    {task.title}
-                  </h3>
-                  <div
-                    className="text-sm mt-0.5 flex items-center gap-2"
-                    style={{ color: 'var(--text-muted)' }}
-                  >
-                    <span>{task.duration} min</span>
-                    <span>•</span>
-                    <span className="capitalize">{task.type}</span>
-                    {task.status === 'completed' && (
-                      <>
-                        <span>•</span>
-                        <span className="text-emerald-400">Completed</span>
-                      </>
-                    )}
-                  </div>
-                </div>
-                {/* Close button */}
-                <button
-                  onClick={onClose}
-                  className="p-2 rounded-full transition-colors"
-                  style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}
+              <div className="flex-1 min-w-0">
+                <h3
+                  className="font-bold text-lg truncate"
+                  style={{ color: 'var(--text-primary)' }}
                 >
-                  <X size={18} style={{ color: 'var(--text-muted)' }} />
-                </button>
+                  {task.title}
+                </h3>
+                <div
+                  className="text-sm mt-0.5 flex items-center gap-2"
+                  style={{ color: 'var(--text-muted)' }}
+                >
+                  <span>{task.duration} min</span>
+                  <span>•</span>
+                  <span className="capitalize">{task.type}</span>
+                  {task.status === 'completed' && (
+                    <>
+                      <span>•</span>
+                      <span className="text-emerald-400">Completed</span>
+                    </>
+                  )}
+                </div>
               </div>
+              {/* Close button */}
+              <button
+                onClick={onClose}
+                className="p-2 rounded-full transition-colors"
+                style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}
+              >
+                <X size={18} style={{ color: 'var(--text-muted)' }} />
+              </button>
             </div>
+          </div>
 
-            {/* Actions */}
-            <div className="p-4 space-y-2">
-              {/* Complete / Uncomplete */}
-              <ActionButton
-                icon={<CheckCircle2 size={20} />}
-                label={task.status === 'completed' ? 'Mark Incomplete' : 'Mark Complete'}
-                sublabel={task.status === 'completed' ? 'Undo completion' : 'Done with this task'}
-                variant="success"
-                onClick={() => onAction('complete', task)}
-              />
+          {/* Actions */}
+          <div className="p-4 space-y-2">
+            {/* Complete / Uncomplete */}
+            <ActionButton
+              icon={<CheckCircle2 size={20} />}
+              label={task.status === 'completed' ? 'Mark Incomplete' : 'Mark Complete'}
+              sublabel={task.status === 'completed' ? 'Undo completion' : 'Done with this task'}
+              variant="success"
+              onClick={() => onAction('complete', task)}
+            />
 
-              {/* Move to Tomorrow */}
-              <ActionButton
-                icon={<ArrowRight size={20} />}
-                label="Move to Tomorrow"
-                sublabel="Reschedule for next day"
-                onClick={() => onAction('move-tomorrow', task)}
-              />
+            {/* Move to Tomorrow */}
+            <ActionButton
+              icon={<ArrowRight size={20} />}
+              label="Move to Tomorrow"
+              sublabel="Reschedule for next day"
+              onClick={() => onAction('move-tomorrow', task)}
+            />
 
-              {/* Move to Today */}
-              <ActionButton
-                icon={<CalendarCheck size={20} />}
-                label="Move to Today"
-                sublabel="Schedule for today"
-                onClick={() => onAction('move-yesterday', task)}
-              />
+            {/* Move to Today */}
+            <ActionButton
+              icon={<CalendarCheck size={20} />}
+              label="Move to Today"
+              sublabel="Schedule for today"
+              onClick={() => onAction('move-yesterday', task)}
+            />
 
-              {/* Reschedule - opens date picker */}
-              <ActionButton
-                icon={<Calendar size={20} />}
-                label="Move Task"
-                sublabel="Pick a different date"
-                onClick={handleRescheduleClick}
-              />
+            {/* Reschedule - opens date picker */}
+            <ActionButton
+              icon={<Calendar size={20} />}
+              label="Move Task"
+              sublabel="Pick a different date"
+              onClick={handleRescheduleClick}
+            />
 
-              {/* Set Time - opens time picker */}
-              <ActionButton
-                icon={<Clock size={20} />}
-                label={task.scheduledTime ? `Time: ${task.scheduledTime}` : 'Set Time'}
-                sublabel={task.scheduledTime ? 'Change or remove time' : 'Add to timeline view'}
-                onClick={handleTimeClick}
-              />
+            {/* Set Time - opens time picker */}
+            <ActionButton
+              icon={<Clock size={20} />}
+              label={task.scheduledTime ? `Time: ${task.scheduledTime}` : 'Set Time'}
+              sublabel={task.scheduledTime ? 'Change or remove time' : 'Add to timeline view'}
+              onClick={handleTimeClick}
+            />
 
-              {/* Delete */}
-              <ActionButton
-                icon={<Trash2 size={20} />}
-                label="Delete Task"
-                sublabel="Remove permanently"
-                variant="danger"
-                onClick={() => onAction('delete', task)}
-              />
-            </div>
+            {/* Delete */}
+            <ActionButton
+              icon={<Trash2 size={20} />}
+              label="Delete Task"
+              sublabel="Remove permanently"
+              variant="danger"
+              onClick={() => onAction('delete', task)}
+            />
+          </div>
 
-            {/* Safe area spacer for iOS */}
-            <div className="h-8" />
-          </motion.div>
-        </>
-      )}
+          {/* Safe area spacer for iOS */}
+          <div className="h-8" />
+        </motion.div>
+      ]}
+
 
       {/* Date Picker Modal */}
       <MobileDatePicker
+        key="date-picker-modal"
         isOpen={showDatePicker}
         initialDate={capturedTask?.dueDate ? new Date(capturedTask.dueDate) : (task?.dueDate ? new Date(task.dueDate) : new Date())}
         onConfirm={handleDateConfirm}
@@ -373,8 +373,8 @@ export const MobileActionSheet: React.FC<MobileActionSheetProps> = ({
         }}
       />
 
-      {/* Time Picker Modal */}
       <MobileTimePicker
+        key="time-picker-modal"
         isOpen={showTimePicker}
         initialTime={capturedTask?.scheduledTime || task?.scheduledTime}
         onConfirm={handleTimeConfirm}
@@ -384,6 +384,7 @@ export const MobileActionSheet: React.FC<MobileActionSheetProps> = ({
         }}
         onClear={task?.scheduledTime ? handleTimeClear : undefined}
       />
+
     </AnimatePresence>
   );
 };

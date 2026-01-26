@@ -12,6 +12,7 @@ interface UseEntryRoutingProps {
     isVaultSetup: boolean;
     isUnlocked: boolean;
     isReturningUser?: boolean; // From local DB check
+    syncEnabled?: boolean; // Whether user wants to sync
 }
 
 export function useEntryRouting({
@@ -19,7 +20,8 @@ export function useEntryRouting({
     user,
     isVaultSetup,
     isUnlocked,
-    isReturningUser = false
+    isReturningUser = false,
+    syncEnabled = true
 }: UseEntryRoutingProps) {
     // Local state for the onboarding flag
     const [hasSeenFeatureOverview, setHasSeenFeatureOverview] = useState(() => {
@@ -46,12 +48,19 @@ export function useEntryRouting({
         // Priority 1: Unauthenticated Flow
         if (!user) {
             // New user = Feature Overview
-            // Returning user (seen overview) = Login
             if (!hasSeenFeatureOverview) {
                 setCurrentRoute('feature-overview');
-            } else {
-                setCurrentRoute('login');
+                return;
             }
+
+            // If sync is explicitly disabled (Continue as Guest), go to app
+            if (syncEnabled === false) {
+                setCurrentRoute('app');
+                return;
+            }
+
+            // Otherwise, show login
+            setCurrentRoute('login');
             return;
         }
 
@@ -62,7 +71,7 @@ export function useEntryRouting({
         } else {
             setCurrentRoute('app');
         }
-    }, [isAuthReady, user, hasSeenFeatureOverview, isVaultSetup, isUnlocked]);
+    }, [isAuthReady, user, hasSeenFeatureOverview, isVaultSetup, isUnlocked, syncEnabled]);
 
     // Action to transition state when user completes onboarding
     const markFeatureOverviewSeen = () => {

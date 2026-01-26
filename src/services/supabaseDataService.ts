@@ -58,7 +58,7 @@ const decryptField = async (value: string | null, context?: string): Promise<str
         const encrypted = JSON.parse(encryptedJson);
         return await crypto.decryptData(encrypted, context);
     } catch (error) {
-        logger.error('Failed to decrypt field:', error);
+        logger.error(`Failed to decrypt field ${context ? `(${context})` : ''}:`, error);
         return '[Decryption failed]';
     }
 };

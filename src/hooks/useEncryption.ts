@@ -12,7 +12,6 @@ const SESSION_DURATION_MS = 5 * 60 * 1000; // 5 minutes
 interface UseEncryptionResult {
     isVaultSetup: boolean; // Has user ever set up encryption?
     isUnlocked: boolean; // Is vault currently unlocked?
-    isUnlocked: boolean; // Is vault currently unlocked?
     isLoading: boolean; // Is an operation in progress?
     isSyncing: boolean; // Is checking remote vault?
     error: string | null;
@@ -36,18 +35,14 @@ export function useEncryption(userId?: string): UseEncryptionResult {
 
     const [isVaultSetup, setIsVaultSetup] = useState(() => {
         // Synchronously check if vault exists to prevent initial render race conditions
-        // If salt exists, vault is set up
         const salt = localStorage.getItem(VAULT_SALT_KEY);
-        return !!salt;
+        const initialized = localStorage.getItem(VAULT_INITIALIZED_KEY);
+        return !!salt && initialized === 'true';
     });
 
     const [isUnlocked, setIsUnlocked] = useState(() => crypto.getIsUnlocked());
 
-<<<<<<< HEAD
-    const [isLoading, setIsLoading] = useState(false);
-    const [isSyncing, setIsSyncing] = useState(false);
-=======
-    // Optimistic loading state if we have a session to restore
+    // Initial loading state if we have a session to restore
     const [isLoading, setIsLoading] = useState(() => {
         const storedPass = sessionStorage.getItem(SESSION_PASSPHRASE_KEY);
         const expiryStr = sessionStorage.getItem(SESSION_EXPIRY_KEY);
@@ -58,7 +53,7 @@ export function useEncryption(userId?: string): UseEncryptionResult {
         return false;
     });
 
->>>>>>> d688b1bf6644106d2449d2bfc16b0940eba2785e
+    const [isSyncing, setIsSyncing] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     // Initial check effect
@@ -67,15 +62,6 @@ export function useEncryption(userId?: string): UseEncryptionResult {
         const initialized = localStorage.getItem(VAULT_INITIALIZED_KEY);
         const setup = !!salt && initialized === 'true';
         setIsVaultSetup(setup);
-<<<<<<< HEAD
-        setIsUnlocked(crypto.getIsUnlocked());
-
-        // Auto-sync if user is logged in
-        if (userId) {
-            syncVaultWithAccount(userId);
-        }
-    }, [userId]);
-=======
 
         // Check session storage for auto-unlock
         if (setup && !crypto.getIsUnlocked()) {
@@ -110,8 +96,12 @@ export function useEncryption(userId?: string): UseEncryptionResult {
             setIsUnlocked(crypto.getIsUnlocked());
             setIsLoading(false);
         }
-    }, []);
->>>>>>> d688b1bf6644106d2449d2bfc16b0940eba2785e
+
+        // Auto-sync if user is logged in
+        if (userId) {
+            syncVaultWithAccount(userId);
+        }
+    }, [userId]);
 
     /**
      * Set up vault for first time with new passphrase
@@ -135,16 +125,14 @@ export function useEncryption(userId?: string): UseEncryptionResult {
             // Enable encryption mode in StorageService
             storage.enableEncryption();
 
-<<<<<<< HEAD
+            // Set session
+            sessionStorage.setItem(SESSION_PASSPHRASE_KEY, passphrase);
+            sessionStorage.setItem(SESSION_EXPIRY_KEY, (Date.now() + SESSION_DURATION_MS).toString());
+
             // Sync to Account if logged in
             if (userId) {
                 await SupabaseDataService.upsertVaultMetadata(userId, salt);
             }
-=======
-            // Set session
-            sessionStorage.setItem(SESSION_PASSPHRASE_KEY, passphrase);
-            sessionStorage.setItem(SESSION_EXPIRY_KEY, (Date.now() + SESSION_DURATION_MS).toString());
->>>>>>> d688b1bf6644106d2449d2bfc16b0940eba2785e
 
             setIsVaultSetup(true);
             setIsUnlocked(true);
@@ -236,6 +224,48 @@ export function useEncryption(userId?: string): UseEncryptionResult {
     }, []);
 
     /**
+     * Restore vault configuration from existing encrypted data
+     * Used when local salt is missing but data is present (e.g. fresh syncing to new device)
+     */
+    const restoreVaultFromData = useCallback(async (passphrase: string, encryptedDataString: string): Promise<boolean> => {
+        setIsLoading(true);
+        setError(null);
+
+        try {
+            // 1. Extract salt from the data payload
+            const saltStr = crypto.extractSaltFromPayload(encryptedDataString);
+            if (!saltStr) {
+                throw new Error('Could not find encryption configuration in the provided data');
+            }
+
+            // 2. Attempt to unlock with this salt and passphrase
+            // This will throw if the passphrase is wrong (verification fails)
+            await crypto.unlock(passphrase, saltStr);
+
+            // 3. If successful, persist this salt as our local configuration
+            localStorage.setItem(VAULT_SALT_KEY, saltStr);
+            localStorage.setItem(VAULT_INITIALIZED_KEY, 'true');
+
+            // Enable encryption mode in StorageService
+            storage.enableEncryption();
+
+            // Set session
+            sessionStorage.setItem(SESSION_PASSPHRASE_KEY, passphrase);
+            sessionStorage.setItem(SESSION_EXPIRY_KEY, (Date.now() + SESSION_DURATION_MS).toString());
+
+            setIsVaultSetup(true);
+            setIsUnlocked(true);
+            return true;
+        } catch (err) {
+            console.error('Vault restoration failed:', err);
+            setError('Failed to restore keys: ' + (err instanceof Error ? err.message : 'Invalid passphrase or corrupted data'));
+            return false;
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
+    /**
      * Lock vault - clear key from memory
      */
     const lock = useCallback(() => {
@@ -290,59 +320,7 @@ export function useEncryption(userId?: string): UseEncryptionResult {
         return crypto.decryptJSON<T>(payload);
     }, []);
 
-<<<<<<< HEAD
     return React.useMemo(() => ({
-=======
-    /**
-     * Restore vault configuration from existing encrypted data
-     * Used when local salt is missing but data is present (e.g. fresh syncing to new device)
-     */
-    const restoreVaultFromData = useCallback(async (passphrase: string, encryptedDataString: string): Promise<boolean> => {
-        setIsLoading(true);
-        setError(null);
-
-        try {
-            // 1. Extract salt from the data payload
-            const saltStr = crypto.extractSaltFromPayload(encryptedDataString);
-            if (!saltStr) {
-                throw new Error('Could not find encryption configuration in the provided data');
-            }
-
-            // 2. Attempt to unlock with this salt and passphrase
-            // This will throw if the passphrase is wrong (verification fails)
-            await crypto.unlock(passphrase, saltStr);
-
-            // 3. If successful, persist this salt as our local configuration
-            localStorage.setItem(VAULT_SALT_KEY, saltStr);
-            localStorage.setItem(VAULT_INITIALIZED_KEY, 'true');
-
-            // Enable encryption mode in StorageService
-            storage.enableEncryption();
-
-            // 4. Sync restored metadata to account to prevent future issues
-            // Note: userId is not available in hook scope, but App calls this, and App has userId.
-            // Wait, syncVaultWithAccount needs userId. 
-            // We can rely on App to sync metadata (it does upsertVaultMetadata).
-            // But we should ensure local state is consistent.
-
-            // Set session
-            sessionStorage.setItem(SESSION_PASSPHRASE_KEY, passphrase);
-            sessionStorage.setItem(SESSION_EXPIRY_KEY, (Date.now() + SESSION_DURATION_MS).toString());
-
-            setIsVaultSetup(true);
-            setIsUnlocked(true);
-            return true;
-        } catch (err) {
-            console.error('Vault restoration failed:', err);
-            setError('Failed to restore keys: ' + (err instanceof Error ? err.message : 'Invalid passphrase or corrupted data'));
-            return false;
-        } finally {
-            setIsLoading(false);
-        }
-    }, []);
-
-    return {
->>>>>>> d688b1bf6644106d2449d2bfc16b0940eba2785e
         isVaultSetup,
         isUnlocked,
         isLoading,
@@ -355,8 +333,8 @@ export function useEncryption(userId?: string): UseEncryptionResult {
         syncVaultWithAccount,
         encryptData,
         decryptData,
-<<<<<<< HEAD
-        decryptJSON
+        decryptJSON,
+        restoreVaultFromData
     }), [
         isVaultSetup,
         isUnlocked,
@@ -370,11 +348,7 @@ export function useEncryption(userId?: string): UseEncryptionResult {
         syncVaultWithAccount,
         encryptData,
         decryptData,
-        decryptJSON
-    ]);
-=======
         decryptJSON,
         restoreVaultFromData
-    };
->>>>>>> d688b1bf6644106d2449d2bfc16b0940eba2785e
+    ]);
 }
