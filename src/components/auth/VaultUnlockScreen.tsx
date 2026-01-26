@@ -10,6 +10,7 @@ interface VaultUnlockScreenProps {
     onUnlock: (passphrase: string) => Promise<boolean>;
     onReset: () => void;
     onSkip?: () => void; // Allow skipping encryption (local-only mode)
+    isRestoreMode?: boolean;
 }
 
 export const VaultUnlockScreen: React.FC<VaultUnlockScreenProps> = React.memo(({
@@ -19,7 +20,8 @@ export const VaultUnlockScreen: React.FC<VaultUnlockScreenProps> = React.memo(({
     onSetup,
     onUnlock,
     onReset,
-    onSkip
+    onSkip,
+    isRestoreMode = false
 }) => {
     const [passphrase, setPassphrase] = useState('');
     const [confirmPassphrase, setConfirmPassphrase] = useState('');
@@ -31,7 +33,10 @@ export const VaultUnlockScreen: React.FC<VaultUnlockScreenProps> = React.memo(({
         e.preventDefault();
         setLocalError(null);
 
-        if (!isVaultSetup) {
+        if (isRestoreMode) {
+            // Restore mode - attempt to unlock with provided passphrase using onSetup (which handles restore)
+            await onSetup(passphrase);
+        } else if (!isVaultSetup) {
             // Setup mode - validate passphrase
             if (passphrase.length < 8) {
                 setLocalError('Passphrase must be at least 8 characters');
@@ -128,180 +133,217 @@ export const VaultUnlockScreen: React.FC<VaultUnlockScreenProps> = React.memo(({
                         exit={{ opacity: 0, scale: 0.95 }}
                         transition={{ duration: 0.5 }}
                     >
-                        <motion.div
-                            className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl p-10 space-y-8"
-                            initial={{ boxShadow: "0 0 0 rgba(6, 182, 212, 0)" }}
-                            animate={{ boxShadow: "0 0 60px rgba(6, 182, 212, 0.1)" }}
-                            transition={{ duration: 1, delay: 0.3 }}
-                        >
-                            {/* Header */}
+                        {isLoading ? (
                             <motion.div
-                                className="flex items-center gap-3"
-                                initial={{ opacity: 0, x: -20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: 0.1 }}
-                            >
-                                <div className="p-3 rounded-2xl bg-cyan-500/15 border border-cyan-400/30">
-                                    {isVaultSetup ? (
-                                        <Lock className="text-cyan-300" size={26} />
-                                    ) : (
-                                        <ShieldCheck className="text-cyan-300" size={26} />
-                                    )}
-                                </div>
-                                <div>
-                                    <p className="uppercase tracking-[0.2em] text-xs text-white/60 font-semibold">
-                                        {isVaultSetup ? 'Encrypted Vault' : 'End-to-End Encryption'}
-                                    </p>
-                                    <h2 className="text-2xl font-display font-bold text-white leading-tight">
-                                        {isVaultSetup ? 'Unlock Your Data' : 'Secure Your Data'}
-                                    </h2>
-                                </div>
-                            </motion.div>
-
-                            <motion.p
-                                className="text-white/70 leading-relaxed"
+                                className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl p-10 flex flex-col items-center justify-center min-h-[400px] space-y-6"
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
-                                transition={{ delay: 0.2 }}
                             >
-                                {isVaultSetup ? (
-                                    <>Enter your vault passphrase to decrypt and access your data.</>
-                                ) : (
-                                    <>
-                                        Create a passphrase to encrypt your data.
-                                        <span className="text-amber-300"> This passphrase cannot be recovered if forgotten.</span>
-                                    </>
-                                )}
-                            </motion.p>
-
-                            {/* Form */}
-                            <motion.form
-                                onSubmit={handleSubmit}
-                                className="space-y-4"
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.3 }}
-                            >
-                                {/* Passphrase Input */}
-                                <div>
-                                    <label className="block text-sm font-semibold text-white/70 mb-2">
-                                        {isVaultSetup ? 'Passphrase' : 'Create Passphrase'}
-                                    </label>
-                                    {/* Hidden username field for accessibility/browser autofill heuristics */}
-                                    <input type="text" name="username" autoComplete="username" style={{ display: 'none' }} />
-                                    <div className="flex items-center gap-2 px-4 py-3 rounded-2xl border border-white/10 bg-white/5 focus-within:border-cyan-400/60 focus-within:bg-white/10 transition-colors">
-                                        <KeyRound size={18} className="text-white/60" />
-                                        <input
-                                            type={showPassphrase ? 'text' : 'password'}
-                                            value={passphrase}
-                                            onChange={(e) => setPassphrase(e.target.value)}
-                                            placeholder="Enter your passphrase"
-                                            className="bg-transparent flex-1 outline-none text-white placeholder:text-white/40"
-                                            required
-                                            minLength={8}
-                                            autoFocus
-                                            autoComplete="new-password"
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowPassphrase(!showPassphrase)}
-                                            className="text-white/40 hover:text-white/70 transition-colors"
-                                        >
-                                            {showPassphrase ? <EyeOff size={18} /> : <Eye size={18} />}
-                                        </button>
-                                    </div>
+                                <motion.div
+                                    className="w-16 h-16 border-4 border-cyan-500/30 border-t-cyan-400 rounded-full"
+                                    animate={{ rotate: 360 }}
+                                    transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                                />
+                                <div className="text-center space-y-2">
+                                    <h3 className="text-xl font-bold text-white">Unlock in progress...</h3>
+                                    <p className="text-white/60">Verifying session...</p>
                                 </div>
+                            </motion.div>
+                        ) : (
+                            <motion.div
+                                className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl p-10 space-y-8"
+                                initial={{ boxShadow: "0 0 0 rgba(6, 182, 212, 0)" }}
+                                animate={{ boxShadow: "0 0 60px rgba(6, 182, 212, 0.1)" }}
+                                transition={{ duration: 1, delay: 0.3 }}
+                            >
+                                {/* Header */}
+                                <motion.div
+                                    className="flex items-center gap-3"
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.1 }}
+                                >
+                                    <div className="p-3 rounded-2xl bg-cyan-500/15 border border-cyan-400/30">
+                                        {isVaultSetup ? (
+                                            <Lock className="text-cyan-300" size={26} />
+                                        ) : (
+                                            <ShieldCheck className="text-cyan-300" size={26} />
+                                        )}
+                                    </div>
+                                    <div>
+                                        <p className="uppercase tracking-[0.2em] text-xs text-white/60 font-semibold">
+                                            {isRestoreMode ? 'Vault Recovery' : (isVaultSetup ? 'Encrypted Vault' : 'End-to-End Encryption')}
+                                        </p>
+                                        <h2 className="text-2xl font-display font-bold text-white leading-tight">
+                                            {isRestoreMode ? 'Restore Access' : (isVaultSetup ? 'Unlock Your Data' : 'Secure Your Data')}
+                                        </h2>
+                                    </div>
+                                </motion.div>
 
-                                {/* Confirm Passphrase (setup only) */}
-                                {!isVaultSetup && (
+                                <motion.p
+                                    className="text-white/70 leading-relaxed"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ delay: 0.2 }}
+                                >
+                                    {isRestoreMode ? (
+                                        <>
+                                            This device is missing its encryption keys. Enter your passphrase to restore them from your encrypted data.
+                                        </>
+                                    ) : isVaultSetup ? (
+                                        <>Enter your vault passphrase to decrypt and access your data.</>
+                                    ) : (
+                                        <>
+                                            Create a passphrase to encrypt your data.
+                                            <span className="text-amber-300"> This passphrase cannot be recovered if forgotten.</span>
+                                        </>
+                                    )}
+                                </motion.p>
+
+                                {/* Form */}
+                                <motion.form
+                                    onSubmit={handleSubmit}
+                                    className="space-y-4"
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.3 }}
+                                >
+                                    {/* Passphrase Input */}
                                     <div>
                                         <label className="block text-sm font-semibold text-white/70 mb-2">
-                                            Confirm Passphrase
+                                            {isVaultSetup || isRestoreMode ? 'Passphrase' : 'Create Passphrase'}
                                         </label>
+                                        {/* Hidden username field for accessibility/browser autofill heuristics */}
+                                        <input type="text" name="username" autoComplete="username" style={{ display: 'none' }} />
                                         <div className="flex items-center gap-2 px-4 py-3 rounded-2xl border border-white/10 bg-white/5 focus-within:border-cyan-400/60 focus-within:bg-white/10 transition-colors">
                                             <KeyRound size={18} className="text-white/60" />
                                             <input
                                                 type={showPassphrase ? 'text' : 'password'}
-                                                value={confirmPassphrase}
-                                                onChange={(e) => setConfirmPassphrase(e.target.value)}
-                                                placeholder="Confirm your passphrase"
+                                                value={passphrase}
+                                                onChange={(e) => setPassphrase(e.target.value)}
+                                                placeholder="Enter your passphrase"
                                                 className="bg-transparent flex-1 outline-none text-white placeholder:text-white/40"
                                                 required
                                                 minLength={8}
+                                                autoFocus
+                                                autoComplete="new-password"
                                             />
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowPassphrase(!showPassphrase)}
+                                                className="text-white/40 hover:text-white/70 transition-colors"
+                                            >
+                                                {showPassphrase ? <EyeOff size={18} /> : <Eye size={18} />}
+                                            </button>
                                         </div>
                                     </div>
-                                )}
 
-                                {/* Submit Button */}
-                                <button
-                                    type="submit"
-                                    disabled={isLoading}
-                                    className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl font-semibold bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/40 hover:bg-cyan-400 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-                                >
-                                    {isLoading ? (
-                                        <>
-                                            <motion.div
-                                                className="w-5 h-5 border-2 border-slate-950/30 border-t-slate-950 rounded-full"
-                                                animate={{ rotate: 360 }}
-                                                transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                                            />
-                                            {isVaultSetup ? 'Unlocking...' : 'Setting up...'}
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Unlock size={18} />
-                                            {isVaultSetup ? 'Unlock Vault' : 'Enable Encryption'}
-                                        </>
+                                    {/* Confirm Passphrase (setup only) */}
+                                    {!isVaultSetup && !isRestoreMode && (
+                                        <div>
+                                            <label className="block text-sm font-semibold text-white/70 mb-2">
+                                                Confirm Passphrase
+                                            </label>
+                                            <div className="flex items-center gap-2 px-4 py-3 rounded-2xl border border-white/10 bg-white/5 focus-within:border-cyan-400/60 focus-within:bg-white/10 transition-colors">
+                                                <KeyRound size={18} className="text-white/60" />
+                                                <input
+                                                    type={showPassphrase ? 'text' : 'password'}
+                                                    value={confirmPassphrase}
+                                                    onChange={(e) => setConfirmPassphrase(e.target.value)}
+                                                    placeholder="Confirm your passphrase"
+                                                    className="bg-transparent flex-1 outline-none text-white placeholder:text-white/40"
+                                                    required
+                                                    minLength={8}
+                                                />
+                                            </div>
+                                        </div>
                                     )}
-                                </button>
-                            </motion.form>
 
-                            {/* Error Message */}
-                            <AnimatePresence>
-                                {displayError && (
-                                    <motion.div
-                                        initial={{ opacity: 0, height: 0 }}
-                                        animate={{ opacity: 1, height: 'auto' }}
-                                        exit={{ opacity: 0, height: 0 }}
-                                        className="text-sm text-rose-300 font-semibold bg-rose-500/10 border border-rose-500/30 rounded-2xl p-3"
-                                    >
-                                        {displayError}
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-
-                            {/* Footer Actions */}
-                            <motion.div
-                                className="pt-4 border-t border-white/10 space-y-3"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ delay: 0.5 }}
-                            >
-                                {isVaultSetup && (
+                                    {/* Submit Button */}
                                     <button
-                                        type="button"
-                                        onClick={() => setShowResetConfirm(true)}
-                                        className="w-full px-5 py-2 rounded-xl text-rose-400/80 text-sm hover:text-rose-300 hover:bg-rose-500/10 transition-colors"
+                                        type="submit"
+                                        disabled={isLoading}
+                                        className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl font-semibold bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/40 hover:bg-cyan-400 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                                     >
-                                        Forgot passphrase? Reset vault
+                                        {isLoading ? (
+                                            <>
+                                                <motion.div
+                                                    className="w-5 h-5 border-2 border-slate-950/30 border-t-slate-950 rounded-full"
+                                                    animate={{ rotate: 360 }}
+                                                    transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                                                />
+                                                {isRestoreMode ? 'Restoring...' : (isVaultSetup ? 'Decrypting...' : 'Encrypting...')}
+                                            </>
+                                        ) : (
+                                            <>
+                                                {isRestoreMode ? (
+                                                    <>
+                                                        <Unlock size={20} />
+                                                        Restore Vault
+                                                    </>
+                                                ) : isVaultSetup ? (
+                                                    <>
+                                                        <Unlock size={20} />
+                                                        Unlock Vault
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Lock size={20} />
+                                                        Enable Encryption
+                                                    </>
+                                                )}
+                                            </>
+                                        )}
                                     </button>
-                                )}
+                                </motion.form>
 
-                                {onSkip && (
-                                    <button
-                                        type="button"
-                                        onClick={onSkip}
-                                        className="w-full px-5 py-2 rounded-xl text-white/50 text-sm hover:text-white/70 transition-colors"
-                                    >
-                                        Skip encryption (not recommended)
-                                    </button>
-                                )}
+                                {/* Error Message */}
+                                <AnimatePresence>
+                                    {displayError && (
+                                        <motion.div
+                                            initial={{ opacity: 0, height: 0 }}
+                                            animate={{ opacity: 1, height: 'auto' }}
+                                            exit={{ opacity: 0, height: 0 }}
+                                            className="text-sm text-rose-300 font-semibold bg-rose-500/10 border border-rose-500/30 rounded-2xl p-3"
+                                        >
+                                            {displayError}
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+
+                                {/* Footer Actions */}
+                                <motion.div
+                                    className="pt-4 border-t border-white/10 space-y-3"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ delay: 0.5 }}
+                                >
+                                    {isVaultSetup && (
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowResetConfirm(true)}
+                                            className="w-full px-5 py-2 rounded-xl text-rose-400/80 text-sm hover:text-rose-300 hover:bg-rose-500/10 transition-colors"
+                                        >
+                                            Forgot passphrase? Reset vault
+                                        </button>
+                                    )}
+
+                                    {onSkip && (
+                                        <button
+                                            type="button"
+                                            onClick={onSkip}
+                                            className="w-full px-5 py-2 rounded-xl text-white/50 text-sm hover:text-white/70 transition-colors"
+                                        >
+                                            Skip encryption (not recommended)
+                                        </button>
+                                    )}
+                                </motion.div>
                             </motion.div>
-                        </motion.div>
+                        )}
                     </motion.div>
-                )}
-            </AnimatePresence>
-        </motion.div>
+                )
+                }
+            </AnimatePresence >
+        </motion.div >
     );
 });

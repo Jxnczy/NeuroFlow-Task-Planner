@@ -288,4 +288,19 @@ export class CryptoService {
         const jsonString = await this.decryptData(payload);
         return JSON.parse(jsonString) as T;
     }
+
+    /**
+     * Extract salt from an encrypted payload string (pre-decryption)
+     * Used for restoring vault from data when local config is missing
+     */
+    extractSaltFromPayload(encryptedString: string): string | null {
+        try {
+            // Remove prefix if present (handled by caller usually, but safe to check)
+            const jsonStr = encryptedString.startsWith('ENC:') ? encryptedString.substring(4) : encryptedString;
+            const payload = JSON.parse(jsonStr) as EncryptedPayload;
+            return payload.salt || null;
+        } catch {
+            return null;
+        }
+    }
 }
