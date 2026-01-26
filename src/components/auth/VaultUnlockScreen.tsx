@@ -64,12 +64,14 @@ export const VaultUnlockScreen: React.FC<VaultUnlockScreenProps> = React.memo(({
 
     return (
         <motion.div
-            className="fixed inset-0 flex items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 overflow-hidden z-50"
+            className="fixed inset-0 flex items-center justify-center bg-[#12141a] overflow-hidden z-50"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
         >
             {/* Animated background */}
+            {/* Animated background - REMOVED for flat dark theme */}
+            {/*
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 0.3 }}
@@ -82,6 +84,7 @@ export const VaultUnlockScreen: React.FC<VaultUnlockScreenProps> = React.memo(({
                 transition={{ duration: 1.5, delay: 0.3 }}
                 className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,#22d3ee,transparent_35%)]"
             />
+            */}
 
             <AnimatePresence mode="wait">
                 {showResetConfirm ? (

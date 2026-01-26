@@ -19,6 +19,7 @@ interface WeekMatrixViewProps {
     onDeleteTask?: (taskId: string) => void;
     onToggleTaskComplete: (taskId: string) => void;
     onTaskDrop?: (sourceId: string, targetId: string) => void;
+    onSelectTask?: (taskId: string) => void;
 }
 
 export const WeekMatrixView: React.FC<WeekMatrixViewProps> = ({
@@ -34,7 +35,8 @@ export const WeekMatrixView: React.FC<WeekMatrixViewProps> = ({
     onUpdateTask,
     onDeleteTask,
     onToggleTaskComplete,
-    onTaskDrop
+    onTaskDrop,
+    onSelectTask
 }) => {
     const [hoveredIcon, setHoveredIcon] = useState<GridRow | null>(null);
     const ROW_LABELS: GridRow[] = ['GOAL', 'FOCUS', 'WORK', 'LEISURE', 'CHORES'];
@@ -143,6 +145,7 @@ export const WeekMatrixView: React.FC<WeekMatrixViewProps> = ({
                                         viewMode={viewMode}
                                         isPastDay={isPastDay}
                                         isFirstColumn={i === 0}
+                                        onSelectTask={onSelectTask}
                                     />
                                 );
                             })}

@@ -26,6 +26,7 @@ interface MobilePlannerProps {
   onWeekChange?: (direction: 'prev' | 'next') => void;
   /** Opens the global sidebar (drawer on mobile) */
   onOpenSidebar?: () => void;
+  onSelectTask?: (taskId: string) => void;
 }
 
 // ============================================================================
@@ -48,7 +49,8 @@ export const MobilePlanner: React.FC<MobilePlannerProps> = ({
   dayViewMode,
   onDayViewModeChange,
   onWeekChange,
-  onOpenSidebar
+  onOpenSidebar,
+  onSelectTask
 }) => {
   // Get data and actions from the controller hook
   const {
@@ -245,6 +247,7 @@ export const MobilePlanner: React.FC<MobilePlannerProps> = ({
               onUpdateTask={actions.onUpdateTask}
               onOpenActionSheet={setActionSheetTask}
               isMobile={true}
+              onSelectTask={onSelectTask}
             />
           ) : (
             <MobileDayView
@@ -258,6 +261,7 @@ export const MobilePlanner: React.FC<MobilePlannerProps> = ({
               onToggleComplete={actions.onToggleTaskComplete}
               onUpdateTask={actions.onUpdateTask}
               onDeleteTask={actions.onDeleteTask}
+              onSelectTask={onSelectTask}
             />
           )}
         </div>

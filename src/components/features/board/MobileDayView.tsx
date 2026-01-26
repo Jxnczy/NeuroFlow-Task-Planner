@@ -31,6 +31,7 @@ interface MobileDayViewProps {
   onUpdateTask: (taskId: string, updates: Partial<Task>) => void;
   /** Callback to delete task */
   onDeleteTask: (taskId: string) => void;
+  onSelectTask?: (taskId: string) => void;
 }
 
 interface MobileTaskCardProps {
@@ -39,6 +40,7 @@ interface MobileTaskCardProps {
   viewMode: 'show' | 'fade' | 'hide';
   onToggleComplete: (taskId: string) => void;
   onLongPress: (task: Task) => void;
+  onSelectTask?: (taskId: string) => void;
 }
 
 // ============================================================================
@@ -157,7 +159,11 @@ const MobileTaskCard: React.FC<MobileTaskCardProps> = React.memo(({
       return;
     }
     if (!didSwipe.current) {
-      onLongPress(task); // Opens action sheet
+      if (onSelectTask) {
+        onSelectTask(task.id);
+      } else {
+        onLongPress(task);
+      }
     }
     didSwipe.current = false;
   }, [task, onLongPress]);
@@ -320,6 +326,7 @@ interface RowSectionProps {
   viewMode: 'show' | 'fade' | 'hide';
   onToggleComplete: (taskId: string) => void;
   onLongPress: (task: Task) => void;
+  onSelectTask?: (taskId: string) => void;
 }
 
 const RowSection: React.FC<RowSectionProps> = React.memo(({
@@ -328,7 +335,8 @@ const RowSection: React.FC<RowSectionProps> = React.memo(({
   isPastDay,
   viewMode,
   onToggleComplete,
-  onLongPress
+  onLongPress,
+  onSelectTask
 }) => {
   const config = ROW_CONFIG[row];
   const Icon = config.icon;
@@ -371,6 +379,7 @@ const RowSection: React.FC<RowSectionProps> = React.memo(({
               viewMode={viewMode}
               onToggleComplete={onToggleComplete}
               onLongPress={onLongPress}
+              onSelectTask={onSelectTask}
             />
           </motion.div>
         ))}
@@ -402,7 +411,8 @@ export const MobileDayView: React.FC<MobileDayViewProps> = ({
   onPrevDay,
   onToggleComplete,
   onUpdateTask,
-  onDeleteTask
+  onDeleteTask,
+  onSelectTask
 }) => {
   const [actionSheetTask, setActionSheetTask] = useState<Task | null>(null);
 
@@ -541,6 +551,7 @@ export const MobileDayView: React.FC<MobileDayViewProps> = ({
                     viewMode={viewMode}
                     onToggleComplete={onToggleComplete}
                     onLongPress={handleLongPress}
+                    onSelectTask={onSelectTask}
                   />
                 ))}
 
@@ -577,6 +588,7 @@ export const MobileDayView: React.FC<MobileDayViewProps> = ({
                             viewMode={viewMode}
                             onToggleComplete={onToggleComplete}
                             onLongPress={handleLongPress}
+                            onSelectTask={onSelectTask}
                           />
                         </motion.div>
                       ))}

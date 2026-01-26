@@ -20,6 +20,7 @@ interface WeekStackedViewProps {
     onDeleteTask?: (taskId: string) => void;
     onToggleTaskComplete: (taskId: string) => void;
     onTaskDrop?: (sourceId: string, targetId: string) => void;
+    onSelectTask?: (taskId: string) => void;
 }
 
 export const WeekStackedView: React.FC<WeekStackedViewProps> = ({
@@ -35,7 +36,8 @@ export const WeekStackedView: React.FC<WeekStackedViewProps> = ({
     onUpdateTask,
     onDeleteTask,
     onToggleTaskComplete,
-    onTaskDrop
+    onTaskDrop,
+    onSelectTask
 }) => {
     return (
         <motion.div
@@ -146,6 +148,7 @@ export const WeekStackedView: React.FC<WeekStackedViewProps> = ({
                                                     onDeleteTask={onDeleteTask}
                                                     onToggleComplete={onToggleTaskComplete}
                                                     viewMode={viewMode}
+                                                    onSelectTask={onSelectTask}
                                                 />
                                             </motion.div>
                                         ))}

@@ -46,7 +46,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
         toggleTaskComplete,
         handleDragStart,
         handleDragEnd,
+
         handleDropOnSidebar,
+        setSelectedTaskId,
     } = useTaskContext();
     const [sheetTask, setSheetTask] = useState<Task | null>(null);
     const [freezing, setFreezing] = useState(false);
@@ -155,9 +157,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
     };
 
     // Defensive check for tasks
-    const safeTasks = Array.isArray(tasks) ? tasks : [];
-    const visibleTasks = safeTasks.filter(t => !t.isFrozen);
-    const iceboxTasks = safeTasks.filter(t => t.isFrozen); // kept variable if needed later
+    // Filter out subtasks (tasks with parent_id)
+    const mainTasks = tasks.filter(t => !t.parent_id);
+
+    const highPriorityTasks = mainTasks.filter(t => t.type === 'high');
+    const mediumPriorityTasks = mainTasks.filter(t => t.type === 'medium');
+    const lowPriorityTasks = mainTasks.filter(t => t.type === 'low');
+    const leisureTasks = mainTasks.filter(t => t.type === 'leisure');
+    const backlogTasks = mainTasks.filter(t => t.type === 'backlog');
+    const choresTasks = mainTasks.filter(t => t.type === 'chores');
     const dragEnabled = !isMobile;
 
     const handleSheetAction = (action: ActionSheetAction, task: Task) => {
@@ -275,6 +283,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         isMobile={isMobile}
                         onCloseSidebar={isMobile ? onClose : undefined}
                         onLongPressTask={isMobile ? setSheetTask : undefined}
+                        onSelectTask={setSelectedTaskId}
                     />
                 </div>
             </div>

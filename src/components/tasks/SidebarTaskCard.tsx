@@ -17,6 +17,7 @@ interface SidebarTaskCardProps {
     isMobile?: boolean;
     onCloseSidebar?: () => void;
     onLongPress?: (task: Task) => void;
+    onSelectTask?: (taskId: string) => void;
 }
 
 export const SidebarTaskCard = React.memo<SidebarTaskCardProps>(({
@@ -29,7 +30,8 @@ export const SidebarTaskCard = React.memo<SidebarTaskCardProps>(({
     onScheduleTask,
     isMobile,
     onCloseSidebar,
-    onLongPress
+    onLongPress,
+    onSelectTask
 }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [editedTitle, setEditedTitle] = useState(task.title);
@@ -76,11 +78,43 @@ export const SidebarTaskCard = React.memo<SidebarTaskCardProps>(({
         scheduleForDate(parsed);
     };
 
+    const clickTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+
     const handleDoubleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
+        if (clickTimeoutRef.current) {
+            clearTimeout(clickTimeoutRef.current);
+            clickTimeoutRef.current = null;
+        }
         setIsEditing(true);
         setEditedTitle(task.title);
         setEditedDuration(task.duration.toString());
+    };
+
+    const handleClick = (e: React.MouseEvent) => {
+        // Don't trigger if tapping on a button or in edit mode
+        const target = e.target as HTMLElement;
+        if (target.closest('button') || isEditing) {
+            return;
+        }
+
+        if (isMobileView) {
+            // Mobile logic: tap specific
+            handleTap(e);
+            return;
+        }
+
+        // Desktop logic: delayed click
+        if (clickTimeoutRef.current) {
+            clearTimeout(clickTimeoutRef.current);
+            clickTimeoutRef.current = null;
+            return; // Double click will fire
+        }
+
+        clickTimeoutRef.current = setTimeout(() => {
+            if (onSelectTask) onSelectTask(task.id);
+            clickTimeoutRef.current = null;
+        }, 250);
     };
 
     const handleAcceptChanges = () => {
@@ -245,7 +279,7 @@ export const SidebarTaskCard = React.memo<SidebarTaskCardProps>(({
                     : `bg-[var(--bg-secondary)] border-[var(--border-light)] ${TASK_CARD_BORDER_COLORS[task.type]} border-l-[3px]`
                 }
             `}
-            onClick={handleTap}
+            onClick={handleClick}
         >
             <div className="flex items-center gap-2.5">
                 <h3

@@ -36,7 +36,9 @@ import { VaultUnlockScreen } from './components/auth/VaultUnlockScreen';
 import { useEncryption } from './hooks/useEncryption';
 import { CryptoService } from './services/CryptoService';
 import { LoadingScreen } from './components/ui/LoadingScreen';
+
 import { useEntryRouting } from './hooks/useEntryRouting';
+import { TaskDetailView } from './components/tasks/TaskDetailView';
 
 // Lazy load components
 const AnalyticsDashboard = React.lazy(() => import('./components/features/dashboard/AnalyticsDashboard').then(module => ({ default: module.AnalyticsDashboard })));
@@ -533,6 +535,7 @@ const AppContent = ({
                                         onDayViewModeChange={handleDayViewModeChange}
                                         onWeekChange={handleWeekChange}
                                         onOpenSidebar={() => setIsSidebarOpen(true)}
+                                        onSelectTask={taskManager.setSelectedTaskId}
                                     />
                                 ) : (
                                     <WeekView
@@ -542,6 +545,7 @@ const AppContent = ({
                                         viewMode={viewMode}
                                         dayViewMode={dayViewMode}
                                         onDayViewModeChange={handleDayViewModeChange}
+                                        onSelectTask={taskManager.setSelectedTaskId}
                                     />
                                 )}
                             </motion.div>
@@ -687,6 +691,16 @@ const AppContent = ({
                 isOpen={showShortcutsHelp}
                 onClose={() => setShowShortcutsHelp(false)}
             />
+
+            {/* Global Task Detail View */}
+            <AnimatePresence>
+                {taskManager.selectedTaskId && (
+                    <TaskDetailView
+                        taskId={taskManager.selectedTaskId}
+                        onClose={() => taskManager.setSelectedTaskId(null)}
+                    />
+                )}
+            </AnimatePresence>
         </>
     );
 };

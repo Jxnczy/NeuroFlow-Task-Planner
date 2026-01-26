@@ -6,7 +6,8 @@ export type TaskStatus = 'unscheduled' | 'scheduled' | 'completed' | 'reschedule
 export interface Task {
   id: string;
   title: string;
-  description?: string; // Optional multi-line details
+  description?: string; // Optional multi-line details (deprecated in favor of notes?)
+  notes?: string; // Rich text / Markdown notes for the task
   duration: number; // minutes
   type: TaskType;
   status: TaskStatus;
@@ -18,6 +19,7 @@ export interface Task {
   createdAt: number;
   isFrozen?: boolean;
   sortOrder?: number;
+  parent_id?: string | null; // For subtasks
   completedAt?: number; // millisecond timestamp
 }
 

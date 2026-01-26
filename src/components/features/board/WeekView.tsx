@@ -24,6 +24,7 @@ interface WeekViewProps {
   dayViewMode: 'list' | 'timeline';
   /** Callback when day view mode changes */
   onDayViewModeChange: (mode: 'list' | 'timeline') => void;
+  onSelectTask?: (taskId: string) => void;
 }
 
 // ============================================================================
@@ -176,7 +177,9 @@ export const WeekView: React.FC<WeekViewProps> = React.memo(({
   isStacked,
   viewMode,
   dayViewMode,
-  onDayViewModeChange
+
+  onDayViewModeChange,
+  onSelectTask
 }) => {
   // Get all data and actions from the controller hook
   const {
@@ -262,6 +265,7 @@ export const WeekView: React.FC<WeekViewProps> = React.memo(({
                 viewMode={viewMode}
                 onToggleComplete={onToggleTaskComplete}
                 onUpdateTask={onUpdateTask}
+                onSelectTask={onSelectTask}
               />
             </motion.div>
           ) : isStacked ? (
@@ -279,6 +283,7 @@ export const WeekView: React.FC<WeekViewProps> = React.memo(({
               onDeleteTask={onDeleteTask}
               onToggleTaskComplete={onToggleTaskComplete}
               onTaskDrop={onReorderTasks}
+              onSelectTask={onSelectTask}
             />
           ) : (
             <WeekMatrixView
@@ -295,6 +300,7 @@ export const WeekView: React.FC<WeekViewProps> = React.memo(({
               onDeleteTask={onDeleteTask}
               onToggleTaskComplete={onToggleTaskComplete}
               onTaskDrop={onReorderTasks}
+              onSelectTask={onSelectTask}
             />
           )}
         </AnimatePresence>

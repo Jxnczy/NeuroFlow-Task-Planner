@@ -9,7 +9,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NeuroFlow">
-    <meta name="theme-color" content="#09090b" />
+    <meta name="theme-color" content="#12141a" />
     <title>NeuroFlow OS</title>
     <link rel="icon" type="image/png" href="favicon.png" />
     <meta http-equiv="Content-Security-Policy"
@@ -21,10 +21,10 @@
     <style>
         /* Critical CSS for immediate dark theme to prevent white flash */
         :root {
-            --bg-primary: #161b2e;
+            --bg-primary: #12141a;
             --bg-secondary: #1a1f35;
             --bg-tertiary: #1e2338;
-            --bg-glow: rgba(56, 189, 248, 0.15);
+            --bg-glow: rgba(56, 189, 248, 0.05);
             --text-primary: #e2e8f0;
             --text-secondary: #94a3b8;
             --text-muted: #64748b;
@@ -43,6 +43,7 @@
 
         html,
         body {
+            background-color: #12141a;
             color: #e4e4e7;
             margin: 0;
             padding: 0;
@@ -70,11 +71,12 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            background: linear-gradient(135deg, #020617 0%, #0f172a 50%, #020617 100%);
+            background-color: #12141a;
             z-index: 9999;
             transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1), visibility 1.5s;
         }
 
+        /* 
         #app-loader::before {
             content: '';
             position: absolute;
@@ -87,7 +89,8 @@
             position: absolute;
             inset: 0;
             background: radial-gradient(circle at bottom right, rgba(34, 211, 238, 0.3), transparent 35%);
-        }
+        } 
+        */
 
         .loader-content {
             position: relative;

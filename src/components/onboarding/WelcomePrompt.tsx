@@ -78,9 +78,7 @@ export const WelcomePrompt: React.FC<WelcomePromptProps> = ({ onAccept, onDeclin
                             transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
                             className="relative w-[90%] max-w-md rounded-2xl overflow-hidden"
                             style={{
-                                background: 'linear-gradient(145deg, rgba(35, 35, 42, 0.98) 0%, rgba(25, 25, 32, 0.98) 100%)',
-                                backdropFilter: 'blur(60px) saturate(200%)',
-                                WebkitBackdropFilter: 'blur(60px) saturate(200%)',
+                                background: '#12141a',
                                 border: '1px solid rgba(255, 255, 255, 0.08)',
                                 boxShadow: `
                                     0 32px 64px -12px rgba(0, 0, 0, 0.6),
@@ -161,9 +159,7 @@ export const WelcomePrompt: React.FC<WelcomePromptProps> = ({ onAccept, onDeclin
                             transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
                             className="relative w-[90%] max-w-md rounded-2xl overflow-hidden"
                             style={{
-                                background: 'linear-gradient(145deg, rgba(35, 35, 42, 0.98) 0%, rgba(25, 25, 32, 0.98) 100%)',
-                                backdropFilter: 'blur(60px) saturate(200%)',
-                                WebkitBackdropFilter: 'blur(60px) saturate(200%)',
+                                background: '#12141a',
                                 border: '1px solid rgba(255, 255, 255, 0.08)',
                                 boxShadow: `
                                     0 32px 64px -12px rgba(0, 0, 0, 0.6),

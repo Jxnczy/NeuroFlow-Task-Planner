@@ -18,6 +18,7 @@ interface DayTimelineViewProps {
     onOpenActionSheet?: (task: Task) => void;
     onUpdateTask: (taskId: string, updates: Partial<Task>) => void;
     isMobile?: boolean; // When true, show only selected day
+    onSelectTask?: (taskId: string) => void;
 }
 
 interface TimeSlot {
@@ -105,7 +106,8 @@ const DayTimelineView: React.FC<DayTimelineViewProps> = ({
     onToggleComplete,
     onUpdateTask,
     onOpenActionSheet,
-    isMobile = false
+    isMobile = false,
+    onSelectTask
 }) => {
     const { handleDragStart } = useTaskContext();
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -334,8 +336,9 @@ const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                                             height={height}
                                             viewMode={viewMode}
                                             onToggleComplete={onToggleComplete}
-                                            onTap={(t) => onOpenActionSheet?.(t)}
+                                            onTap={(task) => onOpenActionSheet?.(task)}
                                             onDragStart={handleDragStart}
+                                            onSelectTask={onSelectTask}
                                         />
                                     ))}
                                 </AnimatePresence>

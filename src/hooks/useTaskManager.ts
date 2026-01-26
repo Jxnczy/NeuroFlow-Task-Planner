@@ -113,8 +113,8 @@ export function useTaskManager(initialTasks: Task[], userId?: string, supabaseEn
 
 
     // Expose stable API
-    const addTask = useCallback((title: string, duration: number, type: TaskType) => {
-        const newTask = manager.addTask(title, duration, type, generateId());
+    const addTask = useCallback((title: string, duration: number, type: TaskType, notes?: string) => {
+        const newTask = manager.addTask(title, duration, type, generateId(), notes);
         persistTasks([newTask]);
         return newTask;
     }, [manager, persistTasks]);

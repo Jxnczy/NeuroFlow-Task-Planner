@@ -14,6 +14,7 @@ interface BoardTaskCardProps {
     onDeleteTask?: (taskId: string) => void;
     isOverdue?: boolean;
     viewMode?: 'show' | 'fade' | 'hide';
+    onSelectTask?: (taskId: string) => void;
 }
 
 export const BoardTaskCard = React.memo<BoardTaskCardProps>(({
@@ -23,8 +24,10 @@ export const BoardTaskCard = React.memo<BoardTaskCardProps>(({
     onToggleComplete,
     onUpdateTask,
     onDeleteTask,
+
     isOverdue,
-    viewMode = 'show'
+    viewMode = 'show',
+    onSelectTask
 }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [editedTitle, setEditedTitle] = useState(task.title);
@@ -33,11 +36,38 @@ export const BoardTaskCard = React.memo<BoardTaskCardProps>(({
 
     const isCompleted = task.status === 'completed';
 
+
+    const clickTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+
     const handleDoubleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
+        if (clickTimeoutRef.current) {
+            clearTimeout(clickTimeoutRef.current);
+            clickTimeoutRef.current = null;
+        }
         setIsEditing(true);
         setEditedTitle(task.title);
         setEditedDuration(task.duration.toString());
+    };
+
+    const handleClick = (e: React.MouseEvent) => {
+        // Don't trigger if tapping on a button or in edit mode
+        const target = e.target as HTMLElement;
+        if (target.closest('button') || isEditing) {
+            return;
+        }
+
+        // Desktop logic: delayed click
+        if (clickTimeoutRef.current) {
+            clearTimeout(clickTimeoutRef.current);
+            clickTimeoutRef.current = null;
+            return; // Double click will fire
+        }
+
+        clickTimeoutRef.current = setTimeout(() => {
+            if (onSelectTask) onSelectTask(task.id);
+            clickTimeoutRef.current = null;
+        }, 250);
     };
 
     const handleAcceptChanges = () => {
@@ -172,6 +202,7 @@ export const BoardTaskCard = React.memo<BoardTaskCardProps>(({
             draggable={!isEditing}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
+            onClick={handleClick}
             onDoubleClick={handleDoubleClick}
             style={{
                 userSelect: 'none',

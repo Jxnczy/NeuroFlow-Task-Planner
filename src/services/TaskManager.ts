@@ -28,12 +28,13 @@ export class TaskManager {
         return [...this.tasks];
     }
 
-    addTask(title: string, duration: number, type: TaskType, id?: string): Task {
+    addTask(title: string, duration: number, type: TaskType, id?: string, notes?: string, parent_id?: string): Task {
         const newTask: Task = {
             id: id || generateId(),
             title,
             duration,
             type,
+            notes,
             status: 'unscheduled',
             dueDate: null,
             deadline: null,
@@ -41,6 +42,7 @@ export class TaskManager {
             eisenhowerQuad: null,
             createdAt: Date.now(),
             sortOrder: this.tasks.length,
+            parent_id: parent_id || null,
         };
         this.tasks = [...this.tasks, newTask];
         this.notify();

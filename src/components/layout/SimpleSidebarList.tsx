@@ -21,6 +21,7 @@ interface SimpleSidebarListProps {
     isMobile: boolean;
     onCloseSidebar?: () => void;
     onLongPressTask?: (task: Task) => void;
+    onSelectTask?: (taskId: string) => void;
 }
 
 export const SimpleSidebarList: React.FC<SimpleSidebarListProps> = ({
@@ -39,7 +40,8 @@ export const SimpleSidebarList: React.FC<SimpleSidebarListProps> = ({
     onScheduleTask,
     isMobile,
     onCloseSidebar,
-    onLongPressTask
+    onLongPressTask,
+    onSelectTask
 }) => {
     return (
         <div className="flex-1 min-h-0 h-full overflow-y-auto scrollbar-hide">
@@ -104,6 +106,7 @@ export const SimpleSidebarList: React.FC<SimpleSidebarListProps> = ({
                                         isMobile={isMobile}
                                         onCloseSidebar={onCloseSidebar}
                                         onLongPress={onLongPressTask}
+                                        onSelectTask={onSelectTask}
                                     />
                                 ))}
                             </div>

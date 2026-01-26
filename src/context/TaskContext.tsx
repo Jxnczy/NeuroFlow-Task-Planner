@@ -6,7 +6,7 @@ import { mapTaskFromDb, DbTaskRow } from '../services/supabaseDataService';
 
 interface TaskContextType {
     tasks: Task[];
-    addTask: (title: string, duration: number, type: TaskType) => Task;
+    addTask: (title: string, duration: number, type: TaskType, id?: string, notes?: string, parent_id?: string) => Task;
     updateTask: (taskId: string, updates: Partial<Task>) => void;
     scheduleTask: (taskId: string, date: Date, row?: GridRow | null, type?: TaskType) => void;
     deleteTask: (taskId: string) => void;
@@ -23,6 +23,8 @@ interface TaskContextType {
     isLoading: boolean;
     refreshTasks: () => void;
     deleteAllTasks: () => void;
+    selectedTaskId: string | null;
+    setSelectedTaskId: (taskId: string | null) => void;
 }
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
@@ -55,8 +57,11 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children, initialTas
         removeRemoteTask,
         isLoading,
         refreshTasks,
+
         deleteAllTasks
     } = useTaskManager(initialTasks, userId, supabaseEnabled);
+
+    const [selectedTaskId, setSelectedTaskId] = React.useState<string | null>(null);
 
     useEffect(() => {
         if (!userId || !supabaseEnabled || !supabaseAvailable || !supabase) return;
@@ -122,7 +127,9 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children, initialTas
             resetStats,
             isLoading,
             refreshTasks,
-            deleteAllTasks
+            deleteAllTasks,
+            selectedTaskId,
+            setSelectedTaskId
         }}>
             {children}
         </TaskContext.Provider>

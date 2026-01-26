@@ -63,12 +63,14 @@ export const AuthOverlay: React.FC<AuthOverlayProps> = ({
 
     return (
         <motion.div
-            className="fixed inset-0 flex items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 overflow-hidden z-50"
+            className="fixed inset-0 flex items-center justify-center bg-[#12141a] overflow-hidden z-50"
             initial={{ opacity: 1 }}
             animate={{ opacity: isExiting ? 0 : 1, scale: isExiting ? 1.05 : 1 }}
             transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
         >
             {/* Animated background gradients */}
+            {/* Animated background gradients - REMOVED for flat dark theme */}
+            {/* 
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 0.4 }}
@@ -81,6 +83,7 @@ export const AuthOverlay: React.FC<AuthOverlayProps> = ({
                 transition={{ duration: 1.5, delay: 0.3 }}
                 className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,#22d3ee,transparent_35%)]"
             />
+            */}
 
             <AnimatePresence mode="wait">
                 {showSplash ? (

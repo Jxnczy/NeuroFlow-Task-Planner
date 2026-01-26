@@ -21,6 +21,7 @@ interface GridCellProps {
     viewMode: 'show' | 'fade' | 'hide';
     isPastDay?: boolean;
     isFirstColumn?: boolean;
+    onSelectTask?: (taskId: string) => void;
 }
 
 export const GridCell = React.memo<GridCellProps>(({
@@ -39,7 +40,8 @@ export const GridCell = React.memo<GridCellProps>(({
 
     viewMode,
     isPastDay,
-    isFirstColumn
+    isFirstColumn,
+    onSelectTask
 }) => {
     const [isDragOver, setIsDragOver] = useState(false);
     const dayStr = useMemo(() => formatDate(day), [day]);
@@ -142,6 +144,7 @@ export const GridCell = React.memo<GridCellProps>(({
                             onToggleComplete={onToggleComplete}
                             isOverdue={isPastDay && task.status !== 'completed'}
                             viewMode={viewMode}
+                            onSelectTask={onSelectTask}
                         />
                     </motion.div>
                 ))}

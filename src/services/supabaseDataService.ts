@@ -79,6 +79,8 @@ export interface DbTaskRow {
     status?: string | null;
     eisenhower_quad?: string | null;
     sort_order?: number | null;
+    notes?: string | null;
+    parent_id?: string | null;
 }
 
 export interface DbHabitRow {
@@ -143,7 +145,9 @@ export const mapTaskFromDb = async (row: DbTaskRow): Promise<Task> => {
         createdAt: row.created_at ? new Date(row.created_at).getTime() : Date.now(),
         isFrozen: row.is_frozen ?? false,
         sortOrder: row.sort_order ?? 0,
-        completedAt: row.completed_at ? new Date(row.completed_at).getTime() : undefined
+        completedAt: row.completed_at ? new Date(row.completed_at).getTime() : undefined,
+        notes: await decryptField(row.notes || null, row.id),
+        parent_id: row.parent_id ?? null
     };
 };
 
@@ -166,6 +170,8 @@ const mapTaskToDb = async (task: Task, userId: string): Promise<Omit<DbTaskRow, 
         is_completed: task.status === 'completed',
         is_frozen: task.isFrozen ?? false,
         sort_order: task.sortOrder ?? 0,
+        notes: await encryptField(task.notes || '', id),
+        parent_id: task.parent_id ?? null,
         created_at: new Date(task.createdAt || Date.now()).toISOString(),
         completed_at: task.completedAt ? new Date(task.completedAt).toISOString() : (task.status === 'completed' ? new Date().toISOString() : null)
     };

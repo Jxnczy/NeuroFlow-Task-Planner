@@ -13,6 +13,7 @@ interface TimelineBlockProps {
     onToggleComplete: (taskId: string) => void;
     onTap: (task: Task) => void;
     onDragStart: (e: React.DragEvent, taskId: string) => void;
+    onSelectTask?: (taskId: string) => void;
 }
 
 const MIN_BLOCK_HEIGHT = 24;
@@ -43,7 +44,8 @@ export const TimelineBlock = React.memo<TimelineBlockProps>(({
     viewMode,
     onToggleComplete,
     onTap,
-    onDragStart
+    onDragStart,
+    onSelectTask
 }) => {
     const isCompleted = task.status === 'completed';
     const isFaded = isCompleted && viewMode === 'fade';
@@ -78,6 +80,11 @@ export const TimelineBlock = React.memo<TimelineBlockProps>(({
             }}
             onDragStart={(e: any) => onDragStart(e, task.id)}
             draggable
+            onClick={(e) => {
+                // Prevent bubbling if needed, though usually fine
+                // e.stopPropagation(); 
+                onSelectTask?.(task.id);
+            }}
         >
             <div className="flex items-center h-full px-3 gap-2">
                 {/* Checkbox */}
