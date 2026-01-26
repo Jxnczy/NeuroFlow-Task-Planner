@@ -333,8 +333,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className="h-full flex flex-col border-r relative z-20 overflow-hidden"
             style={{
-                backgroundColor: 'var(--bg-secondary)',
-                borderColor: 'var(--border-medium)'
+                backgroundColor: 'var(--bg-glass)',
+                borderColor: 'var(--border-light)',
+                backdropFilter: 'blur(25px)',
+                WebkitBackdropFilter: 'blur(25px)'
             }}
             onDragOver={(e) => e.preventDefault()}
             onDrop={handleSidebarDrop}

@@ -191,8 +191,8 @@ export const BoardTaskCard = React.memo<BoardTaskCardProps>(({
                 ${isOverdue && !isCompleted
                     ? 'border-red-500/50 shadow-[0_0_10px_rgba(239,68,68,0.15)]'
                     : isCompleted
-                        ? 'bg-emerald-900/20 border-emerald-500/20'
-                        : `bg-white/[0.04] border-white/[0.08] ${TASK_CARD_BORDER_COLORS[task.type]} border-l-[3px]`
+                        ? 'bg-emerald-900/5 border-emerald-500/20'
+                        : `bg-[var(--bg-secondary)] border-[var(--border-light)] ${TASK_CARD_BORDER_COLORS[task.type]} border-l-[3px] shadow-sm`
                 }
             `}
         >

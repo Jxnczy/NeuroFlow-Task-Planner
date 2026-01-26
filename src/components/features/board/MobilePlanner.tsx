@@ -155,7 +155,15 @@ export const MobilePlanner: React.FC<MobilePlannerProps> = ({
       className="flex flex-col h-[100dvh] w-full overflow-hidden fixed inset-0"
     >
       {/* Sticky Header + Week Strip */}
-      <div className="flex-none z-20 backdrop-blur-md border-b border-white/5">
+      <div
+        className="flex-none z-20 transition-colors duration-300 border-b"
+        style={{
+          backgroundColor: 'var(--bg-glass)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          borderColor: 'var(--border-light)'
+        }}
+      >
         <div className="px-4 pt-4 pb-2">
           <div className="flex items-center gap-3">
             <button

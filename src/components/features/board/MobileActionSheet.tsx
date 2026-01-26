@@ -79,8 +79,8 @@ const ActionButton: React.FC<ActionButtonProps> = ({
 }) => {
   const colorStyles = {
     default: {
-      bg: 'rgba(255,255,255,0.05)',
-      bgHover: 'rgba(255,255,255,0.08)',
+      bg: 'var(--bg-surface-subtle)',
+      bgHover: 'var(--bg-surface-strong)',
       text: 'var(--text-primary)',
       icon: 'var(--text-secondary)'
     },
@@ -110,7 +110,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
     >
       <div
         className="w-10 h-10 rounded-full flex items-center justify-center"
-        style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}
+        style={{ backgroundColor: 'var(--bg-surface-subtle)' }}
       >
         <span style={{ color: colors.icon }}>{icon}</span>
       </div>

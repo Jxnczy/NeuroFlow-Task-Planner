@@ -42,133 +42,79 @@ export interface Theme {
 
 export const themes: Theme[] = [
   {
-    id: 'northern-lights',
-    name: 'Northern Lights',
-    description: 'Aurora borealis inspired blues & purples',
-    colors: {
-      bgPrimary: '#0d1117',
-      bgSecondary: '#161b22',
-      bgTertiary: '#21262d',
-      bgGlow: 'rgba(88, 166, 255, 0.12)',
-      bgSurfaceSubtle: 'rgba(255, 255, 255, 0.03)',
-      bgSurfaceStrong: 'rgba(255, 255, 255, 0.08)',
-      bgGlass: 'rgba(22, 27, 46, 0.6)',
-      textPrimary: 'rgba(255, 255, 255, 0.87)',
-      textSecondary: 'rgba(255, 255, 255, 0.60)',
-      textMuted: 'rgba(255, 255, 255, 0.38)',
-      accent: 'hsl(220, 70%, 55%)',
-      accentGlow: 'rgba(88, 166, 255, 0.5)',
-      accentMuted: 'rgba(88, 166, 255, 0.1)',
-      borderLight: 'rgba(255, 255, 255, 0.05)',
-      borderMedium: 'rgba(255, 255, 255, 0.1)',
-      borderSubtle: 'transparent', // Only visible in light theme
-      success: '#3fb950',
-      warning: '#d29922',
-      error: '#f85149',
-    },
-    fonts: {
-      sans: "'Inter', 'Manrope', sans-serif",
-      display: "'Inter', 'Manrope', sans-serif",
-      mono: "'Manrope', monospace",
-    },
-  },
-  {
     id: 'neuroflow',
-    name: 'NeuroFlow',
-    description: 'Default dark navy with cyan accents',
+    name: 'Dark Mode',
+    description: 'The ultimate dark experience. Deep contrasts, refined functionality.',
     colors: {
-      bgPrimary: '#121212',
-      bgSecondary: '#1C1C1E',
-      bgTertiary: '#242428',
-      bgGlow: 'rgba(56, 189, 248, 0.15)',
-      bgSurfaceSubtle: 'rgba(255, 255, 255, 0.03)',
-      bgSurfaceStrong: 'rgba(255, 255, 255, 0.08)',
-      bgGlass: 'rgba(28, 28, 30, 0.7)',
-      textPrimary: 'rgba(255, 255, 255, 0.87)',
-      textSecondary: 'rgba(255, 255, 255, 0.60)',
-      textMuted: 'rgba(255, 255, 255, 0.38)',
-      accent: 'hsl(185, 70%, 55%)',
-      accentGlow: 'rgba(6, 182, 212, 0.5)',
-      accentMuted: 'rgba(6, 182, 212, 0.1)',
-      borderLight: 'rgba(255, 255, 255, 0.05)',
-      borderMedium: 'rgba(255, 255, 255, 0.1)',
-      borderSubtle: 'transparent', // Only visible in light theme
-      success: '#10b981',
-      warning: '#f59e0b',
-      error: '#ef4444',
+      bgPrimary: '#000000', // Pure OLED Black
+      bgSecondary: '#1C1C1E', // Apple Card Dark Gray
+      bgTertiary: '#2C2C2E', // Lighter Gray for hover
+      bgGlow: 'rgba(56, 189, 248, 0.05)', // Very subtle cyan glow
+      bgSurfaceSubtle: 'rgba(255, 255, 255, 0.05)',
+      bgSurfaceStrong: 'rgba(255, 255, 255, 0.1)',
+      bgGlass: 'rgba(28, 28, 30, 0.75)', // Glassy dark surface
+
+      textPrimary: '#FFFFFF',
+      textSecondary: '#EBEBF5', // Apple iOS Secondary
+      textMuted: '#98989D', // Apple iOS Tertiary
+
+      accent: 'hsl(195, 85%, 55%)', // NeuroFlow Cyan (Refined)
+      accentGlow: 'rgba(6, 182, 212, 0.4)',
+      accentMuted: 'rgba(6, 182, 212, 0.15)',
+
+      borderLight: 'rgba(255, 255, 255, 0.12)',
+      borderMedium: 'rgba(255, 255, 255, 0.18)',
+      borderSubtle: 'rgba(255, 255, 255, 0.06)',
+
+      success: '#32D74B', // Apple Green Dark
+      warning: '#FF9F0A', // Apple Orange Dark
+      error: '#FF453A', // Apple Red Dark
     },
     fonts: {
-      sans: "'Inter', 'Manrope', sans-serif",
-      display: "'Inter', 'Manrope', sans-serif",
-      mono: "'Manrope', monospace",
-    },
-  },
-  {
-    id: 'minimal-dark',
-    name: 'Minimal Dark',
-    description: 'Eye-friendly dark with subtle accents',
-    colors: {
-      bgPrimary: '#0a0a0f',
-      bgSecondary: '#121218',
-      bgTertiary: '#1a1a24',
-      bgGlow: 'rgba(255, 255, 255, 0.02)',
-      bgSurfaceSubtle: 'rgba(255, 255, 255, 0.02)',
-      bgSurfaceStrong: 'rgba(255, 255, 255, 0.06)',
-      bgGlass: 'rgba(18, 18, 24, 0.7)',
-      textPrimary: 'rgba(255, 255, 255, 0.87)',
-      textSecondary: 'rgba(255, 255, 255, 0.60)',
-      textMuted: 'rgba(255, 255, 255, 0.38)',
-      accent: 'hsl(185, 70%, 55%)',
-      accentGlow: 'rgba(82, 167, 255, 0.3)',
-      accentMuted: 'rgba(82, 167, 255, 0.08)',
-      borderLight: 'rgba(255, 255, 255, 0.04)',
-      borderMedium: 'rgba(255, 255, 255, 0.08)',
-      borderSubtle: 'transparent', // Only visible in light theme
-      success: '#10b981',
-      warning: '#f59e0b',
-      error: '#ef4444',
-    },
-    fonts: {
-      sans: "'Inter', 'Manrope', sans-serif",
-      display: "'Inter', 'Manrope', sans-serif",
-      mono: "'Manrope', monospace",
+      sans: "'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif",
+      display: "'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif",
+      mono: "'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace",
     },
   },
   {
     id: 'daylight',
     name: 'Light Mode',
-    description: 'Clean, readable light theme with semantic tokens',
+    description: 'Clean, modern, Apple-inspired aesthetic',
     isLight: true,
     colors: {
-      // Canvas & Surfaces (v2 semantic tokens)
-      bgPrimary: '#F6F7F9', // --bg (app canvas)
-      bgSecondary: '#FFFFFF', // --panel (surfaces)
-      bgTertiary: '#F2F4F7', // --surface-alt (hover/alt)
-      bgGlow: 'transparent', // No glow in v2
-      bgSurfaceSubtle: 'rgba(0, 0, 0, 0.02)',
-      bgSurfaceStrong: 'rgba(0, 0, 0, 0.05)',
-      bgGlass: '#FFFFFF', // Solid, no blur
-      // Typography (High Contrast >= 4.5:1)
-      textPrimary: '#101828', // --text
-      textSecondary: '#475467', // --text-muted
-      textMuted: '#667085', // --text-subtle
-      // Accent
-      accent: '#2563EB', // --primary (brand blue)
-      accentGlow: 'rgba(37, 99, 235, 0.2)',
-      accentMuted: 'rgba(37, 99, 235, 0.1)',
-      // Borders (Visible structure)
-      borderLight: '#E4E7EC', // --border
-      borderMedium: '#D0D5DD', // --border-strong
-      borderSubtle: '#F2F4F7', // Very subtle
-      // Status
-      success: '#16a34a',
-      warning: '#ea580c',
-      error: '#dc2626',
+      // Canvas & Surfaces (Apple Style: #F5F5F7 bg, #FFFFFF cards)
+      bgPrimary: '#F5F5F7', // System Gray 6 (Base background)
+      bgSecondary: '#FFFFFF', // Clean White (Card surfaces)
+      bgTertiary: '#FFFFFF', // Secondary surfaces (also white for clean look)
+      bgGlow: 'transparent',
+      bgSurfaceSubtle: 'rgba(0, 0, 0, 0.02)', // Very faint gray for hover
+      bgSurfaceStrong: 'rgba(0, 0, 0, 0.04)', // Slightly darker for active
+      bgGlass: 'rgba(255, 255, 255, 0.85)', // High opacity glass
+
+      // Typography (High Contrast, Ink-like)
+      textPrimary: '#1D1D1F', // Apple "nearly black"
+      textSecondary: '#86868B', // Apple "medium gray"
+      textMuted: '#A1A1A6', // Apple "light gray"
+
+      // Accent (Refined Blue)
+      accent: '#0071E3', // Apple System Blue
+      accentGlow: 'rgba(0, 113, 227, 0.15)', // Subtle glow
+      accentMuted: 'rgba(0, 113, 227, 0.08)', // Very subtle tint
+
+      // Borders (Hairlines)
+      borderLight: 'rgba(0, 0, 0, 0.04)', // Barely visible separator
+      borderMedium: 'rgba(0, 0, 0, 0.08)', // Structural border
+      borderSubtle: 'rgba(0, 0, 0, 0.02)',
+
+      // Status (Pastel/Vibrant mix)
+      success: '#34C759', // Apple Green
+      warning: '#FF9500', // Apple Orange
+      error: '#FF3B30', // Apple Red
     },
     fonts: {
-      sans: "'Inter', '-apple-system', 'SF Pro Text', system-ui, sans-serif",
-      display: "'Inter', '-apple-system', 'SF Pro Display', system-ui, sans-serif",
-      mono: "'SF Mono', 'Menlo', monospace",
+      sans: "'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif",
+      display: "'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif",
+      mono: "'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace",
     },
   },
 ];

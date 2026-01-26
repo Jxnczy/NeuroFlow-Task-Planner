@@ -113,11 +113,11 @@ export const GridCell = React.memo<GridCellProps>(({
             onDrop={handleDrop}
             className="relative flex-1 w-0 flex flex-col p-1.5 pt-3 gap-1 transition-colors duration-150"
             style={{
-                borderLeft: isToday ? '1px solid rgba(255,255,255,0.05)' : (!isFirstColumn ? '1px solid rgba(255,255,255,0.05)' : 'none'),
-                borderRight: isToday ? '1px solid rgba(255,255,255,0.05)' : (isPastDay ? '1px solid color-mix(in srgb, var(--border-light), transparent 20%)' : '1px solid var(--border-light)'),
+                borderLeft: isToday ? '1px solid var(--border-medium)' : (!isFirstColumn ? '1px solid var(--border-subtle)' : 'none'),
+                borderRight: isToday ? '1px solid var(--border-medium)' : (isPastDay ? '1px solid var(--border-subtle)' : '1px solid var(--border-subtle)'),
                 backgroundColor: isDragOver
                     ? 'var(--accent-muted)'
-                    : (isToday ? 'rgba(255,255,255,0.02)' : 'transparent'),
+                    : (isToday ? 'var(--bg-surface-subtle)' : 'transparent'),
                 // CSS containment for isolated repaints - improves grid performance
                 contain: 'layout style',
             }}
