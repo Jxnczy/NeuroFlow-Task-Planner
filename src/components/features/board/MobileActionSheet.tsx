@@ -235,6 +235,7 @@ export const MobileActionSheet: React.FC<MobileActionSheetProps> = ({
         <>
           {/* Backdrop */}
           <motion.div
+            key="backdrop"
             className="fixed inset-0 bg-black/60 z-50"
             variants={backdropVariants}
             initial="hidden"
@@ -245,6 +246,7 @@ export const MobileActionSheet: React.FC<MobileActionSheetProps> = ({
 
           {/* Sheet */}
           <motion.div
+            key="sheet"
             className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl overflow-hidden"
             style={{ backgroundColor: 'var(--bg-secondary)' }}
             variants={sheetVariants}

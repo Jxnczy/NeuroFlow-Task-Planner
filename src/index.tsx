@@ -2,8 +2,10 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
+import { TimerProvider } from './context/TimerContext';
 
-// Service worker: enable only in production; clean up in dev to keep console quiet
+// Service worker: Disabled to prevent auto-reload loops during updates
+/*
 if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
   if (import.meta.env.PROD) {
     import('virtual:pwa-register').then(({ registerSW }) => {
@@ -14,6 +16,7 @@ if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
     caches?.keys().then((keys) => keys.forEach((k) => caches.delete(k)));
   }
 }
+*/
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -23,6 +26,8 @@ if (!rootElement) {
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
-    <App />
+    <TimerProvider>
+      <App />
+    </TimerProvider>
   </React.StrictMode>
 );

@@ -9,7 +9,10 @@ import { getTaskIdFromDragEvent, setTaskDragData } from '../utils/drag';
 export function useTaskManager(initialTasks: Task[], userId?: string, supabaseEnabled: boolean = true) {
     const managerRef = useRef<TaskManager>();
     const [tasks, setTasks] = useState<Task[]>(initialTasks);
-    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [isLoading, setIsLoading] = useState<boolean>(() => {
+        if (!userId || !supabaseEnabled) return false;
+        return true;
+    });
 
     // Initialize manager once
     if (!managerRef.current) {

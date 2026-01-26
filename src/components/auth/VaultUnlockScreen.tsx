@@ -12,7 +12,7 @@ interface VaultUnlockScreenProps {
     onSkip?: () => void; // Allow skipping encryption (local-only mode)
 }
 
-export const VaultUnlockScreen: React.FC<VaultUnlockScreenProps> = ({
+export const VaultUnlockScreen: React.FC<VaultUnlockScreenProps> = React.memo(({
     isVaultSetup,
     isLoading,
     error,
@@ -304,4 +304,4 @@ export const VaultUnlockScreen: React.FC<VaultUnlockScreenProps> = ({
             </AnimatePresence>
         </motion.div>
     );
-};
+});

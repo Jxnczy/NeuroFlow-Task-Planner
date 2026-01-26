@@ -82,7 +82,7 @@ export const BrainDump: React.FC<BrainDumpProps> = ({ lists, onUpdateList, onAdd
                                     value={list.content}
                                     onChange={(e) => onUpdateList(list.id, e.target.value)}
                                     placeholder="Type anything..."
-                                    className="flex-1 w-full backdrop-blur-md rounded-b-3xl p-6 text-base leading-relaxed resize-none focus:outline-none transition-colors font-sans border-0 text-zinc-100 placeholder:text-zinc-600"
+                                    className="flex-1 w-full backdrop-blur-md rounded-b-3xl p-6 text-base leading-relaxed resize-none focus:outline-none transition-colors font-sans border-0 text-theme-primary placeholder:text-zinc-600"
                                     style={{
                                         backgroundColor: 'color-mix(in srgb, var(--bg-tertiary) 40%, transparent)'
                                     }}

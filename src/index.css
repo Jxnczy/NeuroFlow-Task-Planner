@@ -1,8 +1,26 @@
 @import "tailwindcss";
 
+/* 1. Standard (Upright) - The primary file */
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/Inter/Inter-VariableFont_opsz,wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-display: swap;
+  font-style: normal;
+}
+
+/* 2. Italic - The secondary file */
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/Inter/Inter-Italic-VariableFont_opsz,wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-display: swap;
+  font-style: italic;
+}
+
 @theme {
-  --font-sans: var(--font-sans, 'Lexend', 'Manrope', sans-serif);
-  --font-display: var(--font-display, 'Lexend', 'Manrope', sans-serif);
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-display: 'Inter', -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-mono: var(--font-mono, 'Manrope', monospace);
 
   --color-neon-pink: #f472b6;
@@ -43,6 +61,9 @@
     linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
   color: var(--text-primary);
   font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  /* Critical for premium feel */
+  -moz-osx-font-smoothing: grayscale;
   font-size: 16px;
   line-height: 1.5;
   transition: background-color 0.3s ease, color 0.3s ease;
@@ -367,11 +388,11 @@ textarea,
   /* Major separators */
 
   /* ─── TEXT (High Contrast >= 4.5:1) ─── */
-  --text: #101828;
-  /* Primary text */
-  --text-muted: #475467;
-  /* Labels/descriptions */
-  --text-subtle: #667085;
+  --text: #111111;
+  /* Primary text - Premium Dark */
+  --text-muted: #6B7280;
+  /* Labels/descriptions - Cool Gray */
+  --text-subtle: #9CA3AF;
   /* Meta only */
 
   /* ─── SHADOWS (Clean, no blur) ─── */
@@ -652,4 +673,70 @@ textarea,
 
 [data-theme="light"] .border-white\/\[0\.03\] {
   border-color: var(--border) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   PREMIUM TYPOGRAPHY UTILITIES
+   Strict implementation of the "Expensive" formula
+═══════════════════════════════════════════════════════════════════ */
+
+/* 1. Page Title: Crisp, Tight, Authoritative */
+.type-title {
+  font-family: var(--font-sans);
+  font-size: 2.25rem;
+  /* 36px */
+  font-weight: 600;
+  /* Semi-bold, not Black */
+  line-height: 1.1;
+  /* Very tight */
+  letter-spacing: -0.025em;
+  /* Negative tracking is key for "premium" */
+}
+
+/* 2. Section Header: Structured */
+.type-subtitle {
+  font-family: var(--font-sans);
+  font-size: 1.25rem;
+  /* 20px */
+  font-weight: 500;
+  /* Medium */
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+}
+
+/* 3. Body Text: Breathable, readable */
+.type-body {
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  /* 16px */
+  font-weight: 400;
+  line-height: 1.6;
+  /* Generous leading for readability */
+  letter-spacing: 0;
+  /* Neutral */
+}
+
+/* 4. Secondary/Muted: The "Metadata" look */
+.type-secondary {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  /* 14px */
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  /* Will resolve to theme var or fall back */
+  letter-spacing: 0.01em;
+  /* Slight expansion for small text */
+}
+
+/* 5. UI Labels/Overlines: The "Tech Spec" look */
+.type-label {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  /* 12px */
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  /* Wide tracking for uppercase is mandatory */
+  color: var(--text-secondary);
 }

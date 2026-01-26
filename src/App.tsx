@@ -16,6 +16,7 @@ import { TaskProvider, useTaskContext } from './context/TaskContext';
 import { useHabitManager } from './hooks/useHabitManager';
 import { useBrainDumpManager } from './hooks/useBrainDumpManager';
 import { usePersistence } from './hooks/usePersistence';
+
 import { useIsMobile } from './hooks/useMediaQuery';
 import { useSupabaseAuth } from './hooks/useSupabaseAuth';
 import { SupabaseDataService } from './services/supabaseDataService';
@@ -48,6 +49,66 @@ const LoadingScreen = ({ message }: { message: string }) => (
     </div>
 );
 
+class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean; error: Error | null }> {
+    constructor(props: { children: React.ReactNode }) {
+        super(props);
+        this.state = { hasError: false, error: null };
+    }
+
+    static getDerivedStateFromError(error: any) {
+        // Always catch the error to prevent white screen
+        return { hasError: true, error };
+    }
+
+    componentDidCatch(error: any, errorInfo: any) {
+        console.error("ErrorBoundary caught an error", error, errorInfo);
+        // If it's a chunk error, force reload automatically with cache busting
+        const errorMessage = error?.message || '';
+        if (errorMessage.includes('Loading chunk') ||
+            errorMessage.includes('Importing a module script failed') ||
+            errorMessage.includes('Failed to fetch dynamically imported module') ||
+            error?.name === 'ChunkLoadError') {
+            const currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.set('v', Date.now().toString());
+            window.location.href = currentUrl.toString();
+        }
+    }
+
+    render() {
+        if (this.state.hasError) {
+            // Check if it looks like a chunk error (in case auto-reload didn't trigger yet)
+            const errorMessage = this.state.error?.message || '';
+            const isChunkError = errorMessage.includes('Loading chunk') ||
+                errorMessage.includes('Importing a module script failed') ||
+                errorMessage.includes('Failed to fetch dynamically imported module');
+
+            if (isChunkError) {
+                return <div className="flex items-center justify-center h-full text-white/50">Updating application...</div>;
+            }
+
+            // For other errors, show a helpful message and retry button
+            return (
+                <div className="flex flex-col items-center justify-center h-full text-white/50 p-4 text-center">
+                    <p className="mb-4">Something went wrong in this tab.</p>
+                    <button
+                        onClick={() => {
+                            const currentUrl = new URL(window.location.href);
+                            currentUrl.searchParams.set('v', Date.now().toString());
+                            window.location.href = currentUrl.toString();
+                        }}
+                        className="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-white transition-colors"
+                    >
+                        Reload Application
+                    </button>
+                    <p className="mt-4 text-xs text-slate-600 font-mono">{this.state.error?.toString()}</p>
+                </div>
+            );
+        }
+
+        return this.props.children;
+    }
+}
+
 const AppContent = ({
     userId,
     initialHabitsState,
@@ -60,7 +121,8 @@ const AppContent = ({
     isReturningUser = false,
     onOnboardingComplete,
     onLogout,
-    onEnableEncryption
+    onEnableEncryption,
+    skipSplash = false
 }: {
     userId?: string,
     initialHabitsState: Habit[],
@@ -73,7 +135,8 @@ const AppContent = ({
     isReturningUser?: boolean,
     onOnboardingComplete?: () => void,
     onLogout?: () => void,
-    onEnableEncryption?: () => void
+    onEnableEncryption?: () => void,
+    skipSplash?: boolean
 }) => {
     // --- Context & Hooks ---
     const taskManager = useTaskContext();
@@ -268,9 +331,10 @@ const AppContent = ({
     }, !showSettings && !showQuickAdd && !showCommandPalette);
 
     // --- App Loader Cleanup ---
+    // --- App Loader Cleanup ---
     useEffect(() => {
-        // Skip splash delay for returning logged-in users
-        if (userId) {
+        // Skip splash delay for returning logged-in users OR if explicitly skipped (e.g. from AuthOverlay)
+        if (userId || skipSplash) {
             document.body.classList.add('loaded');
             return;
         }
@@ -278,7 +342,7 @@ const AppContent = ({
             document.body.classList.add('loaded');
         }, 2500); // Show splash for 2.5s for smooth transition (new users only)
         return () => clearTimeout(timer);
-    }, [userId]);
+    }, [userId, skipSplash]);
 
     // --- Handlers ---
     const handleWeekChange = (direction: 'prev' | 'next') => {
@@ -414,6 +478,7 @@ const AppContent = ({
                     isSidebarOpen={isSidebarOpen}
                 />
             )}
+
             <MainLayout
                 sidebar={
                     <Sidebar
@@ -442,109 +507,111 @@ const AppContent = ({
                     />
                 }
             >
-                <AnimatePresence mode="wait">
-                    {activeTab === 'planner' && (
-                        <motion.div
-                            key="planner"
-                            variants={screenTransition}
-                            initial="initial"
-                            animate="animate"
-                            exit="exit"
-                            style={{ height: '100%', display: 'flex', flexDirection: 'column', paddingBottom: isMobile ? 80 : 0 }}
-                        >
-                            {isMobile ? (
-                                <MobilePlanner
-                                    currentDate={currentDate}
-                                    viewMode={viewMode}
-                                    dayViewMode={dayViewMode}
-                                    onDayViewModeChange={handleDayViewModeChange}
-                                    onWeekChange={handleWeekChange}
-                                    onOpenSidebar={() => setIsSidebarOpen(true)}
+                <ErrorBoundary>
+                    <AnimatePresence mode="wait">
+                        {activeTab === 'planner' && (
+                            <motion.div
+                                key="planner"
+                                variants={screenTransition}
+                                initial="initial"
+                                animate="animate"
+                                exit="exit"
+                                style={{ height: '100%', display: 'flex', flexDirection: 'column', paddingBottom: isMobile ? 80 : 0 }}
+                            >
+                                {isMobile ? (
+                                    <MobilePlanner
+                                        currentDate={currentDate}
+                                        viewMode={viewMode}
+                                        dayViewMode={dayViewMode}
+                                        onDayViewModeChange={handleDayViewModeChange}
+                                        onWeekChange={handleWeekChange}
+                                        onOpenSidebar={() => setIsSidebarOpen(true)}
+                                    />
+                                ) : (
+                                    <WeekView
+                                        currentDate={currentDate}
+                                        weekDirection={weekDirection}
+                                        isStacked={isStacked}
+                                        viewMode={viewMode}
+                                        dayViewMode={dayViewMode}
+                                        onDayViewModeChange={handleDayViewModeChange}
+                                    />
+                                )}
+                            </motion.div>
+                        )}
+                        {activeTab === 'focus' && (
+                            <motion.div
+                                key="focus"
+                                variants={screenTransition}
+                                initial="initial"
+                                animate="animate"
+                                exit="exit"
+                                style={{ height: '100%', display: 'flex', flexDirection: 'column', paddingBottom: isMobile ? 80 : 0 }}
+                            >
+                                <FocusMode
+                                    tasks={taskManager.tasks}
+                                    onDragStart={taskManager.handleDragStart}
+                                    onToggleTaskComplete={taskManager.toggleTaskComplete}
+                                    onUpdateTask={taskManager.updateTask}
+                                    showCompleted={viewMode === 'show'}
                                 />
-                            ) : (
-                                <WeekView
-                                    currentDate={currentDate}
-                                    weekDirection={weekDirection}
-                                    isStacked={isStacked}
-                                    viewMode={viewMode}
-                                    dayViewMode={dayViewMode}
-                                    onDayViewModeChange={handleDayViewModeChange}
-                                />
-                            )}
-                        </motion.div>
-                    )}
-                    {activeTab === 'focus' && (
-                        <motion.div
-                            key="focus"
-                            variants={screenTransition}
-                            initial="initial"
-                            animate="animate"
-                            exit="exit"
-                            style={{ height: '100%', display: 'flex', flexDirection: 'column', paddingBottom: isMobile ? 80 : 0 }}
-                        >
-                            <FocusMode
-                                tasks={taskManager.tasks}
-                                onDragStart={taskManager.handleDragStart}
-                                onToggleTaskComplete={taskManager.toggleTaskComplete}
-                                onUpdateTask={taskManager.updateTask}
-                                showCompleted={viewMode === 'show'}
-                            />
-                        </motion.div>
-                    )}
-                    {activeTab === 'habits' && (
-                        <motion.div
-                            key="habits"
-                            variants={screenTransition}
-                            initial="initial"
-                            animate="animate"
-                            exit="exit"
-                            style={{ height: '100%', display: 'flex', flexDirection: 'column', paddingBottom: isMobile ? 80 : 0 }}
-                        >
-                            <Suspense fallback={<div className="flex items-center justify-center h-full text-white/50">Loading habits...</div>}>
-                                <HabitTracker
-                                    habits={habitManager.habits}
-                                    toggleHabit={habitManager.toggleHabit}
-                                    onDeleteHabit={habitManager.deleteHabit}
-                                    onAddHabit={habitManager.addHabit}
-                                />
-                            </Suspense>
-                        </motion.div>
-                    )}
-                    {activeTab === 'braindump' && (
-                        <motion.div
-                            key="braindump"
-                            variants={screenTransition}
-                            initial="initial"
-                            animate="animate"
-                            exit="exit"
-                            style={{ height: '100%', display: 'flex', flexDirection: 'column', paddingBottom: isMobile ? 80 : 0 }}
-                        >
-                            <Suspense fallback={<div className="flex items-center justify-center h-full text-white/50">Loading brain dump...</div>}>
-                                <BrainDump
-                                    lists={brainDumpManager.lists}
-                                    onUpdateList={brainDumpManager.updateList}
-                                    onAddList={brainDumpManager.addList}
-                                    onDeleteList={brainDumpManager.deleteList}
-                                    onUpdateTitle={brainDumpManager.updateTitle}
-                                />
-                            </Suspense>
-                        </motion.div>
-                    )}
-                    {activeTab === 'analytics' && (
-                        <motion.div
-                            key="analytics"
-                            variants={screenTransition}
-                            initial="initial"
-                            animate="animate"
-                            exit="exit"
-                            style={{ height: '100%', display: 'flex', flexDirection: 'column', paddingBottom: isMobile ? 80 : 0 }}
-                        >
-                            <Suspense fallback={<div className="flex items-center justify-center h-full text-white/50">Loading analytics...</div>}>
-                                <AnalyticsDashboard tasks={taskManager.tasks} statsResetAt={statsResetAt} />
-                            </Suspense>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+                            </motion.div>
+                        )}
+                        {activeTab === 'habits' && (
+                            <motion.div
+                                key="habits"
+                                variants={screenTransition}
+                                initial="initial"
+                                animate="animate"
+                                exit="exit"
+                                style={{ height: '100%', display: 'flex', flexDirection: 'column', paddingBottom: isMobile ? 80 : 0 }}
+                            >
+                                <Suspense fallback={<div className="flex items-center justify-center h-full text-white/50">Loading habits...</div>}>
+                                    <HabitTracker
+                                        habits={habitManager.habits}
+                                        toggleHabit={habitManager.toggleHabit}
+                                        onDeleteHabit={habitManager.deleteHabit}
+                                        onAddHabit={habitManager.addHabit}
+                                    />
+                                </Suspense>
+                            </motion.div>
+                        )}
+                        {activeTab === 'braindump' && (
+                            <motion.div
+                                key="braindump"
+                                variants={screenTransition}
+                                initial="initial"
+                                animate="animate"
+                                exit="exit"
+                                style={{ height: '100%', display: 'flex', flexDirection: 'column', paddingBottom: isMobile ? 80 : 0 }}
+                            >
+                                <Suspense fallback={<div className="flex items-center justify-center h-full text-white/50">Loading brain dump...</div>}>
+                                    <BrainDump
+                                        lists={brainDumpManager.lists}
+                                        onUpdateList={brainDumpManager.updateList}
+                                        onAddList={brainDumpManager.addList}
+                                        onDeleteList={brainDumpManager.deleteList}
+                                        onUpdateTitle={brainDumpManager.updateTitle}
+                                    />
+                                </Suspense>
+                            </motion.div>
+                        )}
+                        {activeTab === 'analytics' && (
+                            <motion.div
+                                key="analytics"
+                                variants={screenTransition}
+                                initial="initial"
+                                animate="animate"
+                                exit="exit"
+                                style={{ height: '100%', display: 'flex', flexDirection: 'column', paddingBottom: isMobile ? 80 : 0 }}
+                            >
+                                <Suspense fallback={<div className="flex items-center justify-center h-full text-white/50">Loading analytics...</div>}>
+                                    <AnalyticsDashboard tasks={taskManager.tasks} statsResetAt={statsResetAt} />
+                                </Suspense>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </ErrorBoundary>
             </MainLayout>
 
             {showSettings && (
@@ -626,8 +693,8 @@ const App = () => {
     const [showVaultSetup, setShowVaultSetup] = useState(false);
 
     // Check if we need to show vault unlock (existing encrypted data OR user wants to enable)
-    // Only show if encryption is enabled AND vault is locked AND user hasn't skipped
-    const needsVaultUnlock = (storage.isEncryptionEnabled() && !encryption.isUnlocked && !encryptionSkipped) || showVaultSetup;
+    // Only show if encryption is enabled OR vault is set up (for cross-device sync) AND vault is locked AND user hasn't skipped
+    const needsVaultUnlock = ((storage.isEncryptionEnabled() || encryption.isVaultSetup) && !encryption.isUnlocked && !encryptionSkipped) || showVaultSetup;
     const hasUnencryptedData = storage.hasUnencryptedData();
 
     // Always load plaintext data as fallback
@@ -707,8 +774,13 @@ const App = () => {
     const [useSupabaseSync, setUseSupabaseSync] = useState<boolean>(shouldShowSync);
     const [supabaseHealthy, setSupabaseHealthy] = useState<boolean | null>(null);
     const [authTimeoutReached, setAuthTimeoutReached] = useState(false);
+    const [loadingStartTime] = useState(() => Date.now());
+    const [loadingTimedOut, setLoadingTimedOut] = useState(false);
 
     const { user, isAuthReady, authError, magicLinkSent, signInWithEmail, signInWithOAuth, signOut } = useSupabaseAuth();
+
+
+
     const [initialTasksState, setInitialTasksState] = useState<Task[]>(effectiveLocalData?.tasks || []);
     const [initialHabitsState, setInitialHabitsState] = useState<Habit[]>(effectiveLocalData?.habits?.map(h => ({ ...h, goal: h.goal || 7 })) || []);
     const [initialBrainDumpState, setInitialBrainDumpState] = useState<BrainDumpList[]>(
@@ -827,6 +899,24 @@ const App = () => {
         return () => window.clearTimeout(timer);
     }, [useSupabaseSync]);
 
+    // Loading timeout: Allow user to proceed if loading takes too long (15s)
+    useEffect(() => {
+        if (!useSupabaseSync) {
+            setLoadingTimedOut(false);
+            return;
+        }
+        // Reset timeout state when not loading
+        if (!isDataLoading && !encryption.isSyncing) {
+            setLoadingTimedOut(false);
+            return;
+        }
+        const timer = window.setTimeout(() => {
+            console.error('Loading timeout reached (15s) - forcing past loading screen to prevent hang');
+            setLoadingTimedOut(true);
+        }, 15000);
+        return () => window.clearTimeout(timer);
+    }, [useSupabaseSync, isDataLoading, encryption.isSyncing]);
+
     useEffect(() => {
         if (!useSupabaseSync) return;
         // Keep auth overlay visible instead of silently falling back; errors are shown in the overlay.
@@ -852,6 +942,8 @@ const App = () => {
         // Security: If vault is locked, DO NOT fetch data from Supabase.
         // This prevents loading encrypted data into the initial state.
         if (encryption.isVaultSetup && !encryption.isUnlocked) {
+            // Don't fetch data while vault is locked - vault unlock screen will appear
+            // Ensure loading state is cleared
             setIsDataLoading(false);
             return;
         }
@@ -919,7 +1011,7 @@ const App = () => {
         };
         load();
         return () => { active = false; };
-    }, [user, useSupabaseSync, fallbackToLocal, storage, checkSupabaseHealth, withTimeout]);
+    }, [user?.id, useSupabaseSync, fallbackToLocal, storage, checkSupabaseHealth, withTimeout]);
 
     const handleDataImported = (data: AppData) => {
         const normalized: AppData = {
@@ -1012,25 +1104,30 @@ const App = () => {
 
     // HTML loader handles the splash screen - no React SplashScreen needed
 
+    const handleResetVault = useCallback(() => {
+        encryption.resetVault();
+        storage.clearEncryptedData();
+        setShowVaultSetup(false);
+    }, [encryption, storage]);
+
+    const handleSkipVault = useCallback(() => {
+        setEncryptionSkipped(true);
+        setShowVaultSetup(false);
+    }, []);
+
     // --- Vault Unlock Gate ---
     // Show vault unlock screen if encryption is enabled but vault is locked
     if (needsVaultUnlock) {
         return (
             <VaultUnlockScreen
+                key="vault-unlock-screen"
                 isVaultSetup={encryption.isVaultSetup}
                 isLoading={encryption.isLoading}
                 error={encryption.error}
                 onSetup={encryption.setupVault}
                 onUnlock={encryption.unlock}
-                onReset={() => {
-                    encryption.resetVault();
-                    storage.clearEncryptedData();
-                    setShowVaultSetup(false);
-                }}
-                onSkip={() => {
-                    setEncryptionSkipped(true);
-                    setShowVaultSetup(false);
-                }}
+                onReset={handleResetVault}
+                onSkip={handleSkipVault}
             />
         );
     }
@@ -1063,8 +1160,43 @@ const App = () => {
             return <LoadingScreen message={dataError} />;
         }
 
-        if (isDataLoading) {
-            return <LoadingScreen message="Loading your workspace from Supabase..." />;
+        // Allow user to proceed if loading has timed out (prevents indefinite hang)
+        if ((isDataLoading || (useSupabaseSync && encryption.isSyncing)) && !loadingTimedOut) {
+            console.log('App: Stuck in loading state:', {
+                isAuthReady,
+                isDataLoading,
+                encryptionSyncing: encryption.isSyncing,
+                hasUser: !!user,
+                loadingTimedOut
+            });
+            return <LoadingScreen message={encryption.isSyncing ? "Checking vault status..." : "Loading your workspace from Supabase..."} />;
+        }
+
+        // Vault unlock check AFTER login and sync (for cross-device sync)
+        // This ensures that when a user logs in on a new device, they unlock their vault before seeing the app
+        console.log('App: Vault unlock check after login:', {
+            isVaultSetup: encryption.isVaultSetup,
+            isUnlocked: encryption.isUnlocked,
+            encryptionSkipped,
+            shouldShow: encryption.isVaultSetup && !encryption.isUnlocked && !encryptionSkipped
+        });
+        if (encryption.isVaultSetup && !encryption.isUnlocked && !encryptionSkipped) {
+            // Clear any residual loading state when showing vault unlock screen
+            if (isDataLoading) {
+                setIsDataLoading(false);
+            }
+            return (
+                <VaultUnlockScreen
+                    key="vault-unlock-after-login"
+                    isVaultSetup={encryption.isVaultSetup}
+                    isLoading={encryption.isLoading}
+                    error={encryption.error}
+                    onSetup={encryption.setupVault}
+                    onUnlock={encryption.unlock}
+                    onReset={handleResetVault}
+                    onSkip={handleSkipVault}
+                />
+            );
         }
 
         // Security: If encryption is enabled but the vault is locked/skipped, disable Supabase sync
@@ -1074,7 +1206,7 @@ const App = () => {
         const safeSupabaseEnabled = isVaultLocked ? false : true;
 
         return (
-            <TaskProvider initialTasks={initialTasksState} userId={user.id} supabaseEnabled={safeSupabaseEnabled}>
+            <TaskProvider key="sync-provider" initialTasks={initialTasksState} userId={user.id} supabaseEnabled={safeSupabaseEnabled}>
                 <AppContent
                     userId={user.id}
                     initialHabitsState={initialHabitsState}
@@ -1088,6 +1220,7 @@ const App = () => {
                     onOnboardingComplete={handleOnboardingComplete}
                     onLogout={handleLogout}
                     onEnableEncryption={handleEnableEncryption}
+                    skipSplash={false}
                 />
             </TaskProvider>
         );
@@ -1095,7 +1228,7 @@ const App = () => {
 
     // Local-only mode (no Supabase auth required)
     return (
-        <TaskProvider initialTasks={initialTasksState} supabaseEnabled={false}>
+        <TaskProvider key="local-provider" initialTasks={initialTasksState} supabaseEnabled={false}>
             <AppContent
                 initialHabitsState={initialHabitsState}
                 initialBrainDump={initialBrainDumpState}
@@ -1105,6 +1238,7 @@ const App = () => {
                 supabaseEnabled={false}
                 onToggleSupabaseSync={handleToggleSupabaseSync}
                 onEnableEncryption={handleEnableEncryption}
+                skipSplash={true}
             />
         </TaskProvider>
     );

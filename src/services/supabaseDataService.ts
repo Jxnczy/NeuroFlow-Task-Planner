@@ -425,5 +425,53 @@ export const SupabaseDataService = {
         if (error) {
             logger.error('Failed to update stats reset preference', error);
         }
+    },
+
+    // Vault Metadata Sync
+    async fetchVaultMetadata(userId: string): Promise<{ salt: string | null; isSetup: boolean }> {
+        if (!supabase) throw new Error('Supabase unavailable');
+        const { data, error } = await supabase
+            .from('user_preferences')
+            .select('vault_salt, vault_initialized')
+            .eq('user_id', userId)
+            .single();
+
+        console.log('SupabaseDataService: fetchVaultMetadata result:', { userId, data, error });
+
+        if (error) {
+            if (error.code === 'PGRST116') return { salt: null, isSetup: false };
+            logger.error('Failed to fetch vault metadata', error);
+            return { salt: null, isSetup: false };
+        }
+        return {
+            salt: data?.vault_salt ?? null,
+            isSetup: data?.vault_initialized ?? false
+        };
+    },
+
+    async upsertVaultMetadata(userId: string, salt: string): Promise<void> {
+        if (!supabase) throw new Error('Supabase unavailable');
+        const { error } = await supabase
+            .from('user_preferences')
+            .upsert({
+                user_id: userId,
+                vault_salt: salt,
+                vault_initialized: true,
+                encryption_enabled: true,
+                updated_at: new Date().toISOString()
+            });
+
+        if (error) {
+            // Enhanced error logging to help diagnose RLS permission issues
+            logger.error('Failed to sync vault metadata - RLS may be misconfigured:', {
+                code: error.code,
+                message: error.message,
+                hint: error.hint,
+                details: error.details,
+                userId: userId.substring(0, 8) + '...' // Log partial userId for debugging
+            });
+            // Re-throw so caller can handle the error appropriately
+            throw new Error(`Vault metadata sync failed: ${error.message} (code: ${error.code})`);
+        }
     }
 };

@@ -67,8 +67,8 @@ export const themes: Theme[] = [
       error: '#f85149',
     },
     fonts: {
-      sans: "'Lexend', 'Manrope', sans-serif",
-      display: "'Lexend', 'Manrope', sans-serif",
+      sans: "'Inter', 'Manrope', sans-serif",
+      display: "'Inter', 'Manrope', sans-serif",
       mono: "'Manrope', monospace",
     },
   },
@@ -98,8 +98,8 @@ export const themes: Theme[] = [
       error: '#ef4444',
     },
     fonts: {
-      sans: "'Lexend', 'Manrope', sans-serif",
-      display: "'Lexend', 'Manrope', sans-serif",
+      sans: "'Inter', 'Manrope', sans-serif",
+      display: "'Inter', 'Manrope', sans-serif",
       mono: "'Manrope', monospace",
     },
   },
@@ -129,8 +129,8 @@ export const themes: Theme[] = [
       error: '#ef4444',
     },
     fonts: {
-      sans: "'Lexend', 'Manrope', sans-serif",
-      display: "'Lexend', 'Manrope', sans-serif",
+      sans: "'Inter', 'Manrope', sans-serif",
+      display: "'Inter', 'Manrope', sans-serif",
       mono: "'Manrope', monospace",
     },
   },
@@ -166,8 +166,8 @@ export const themes: Theme[] = [
       error: '#dc2626',
     },
     fonts: {
-      sans: "'-apple-system', 'SF Pro Text', 'Inter', system-ui, sans-serif",
-      display: "'-apple-system', 'SF Pro Display', 'Inter', system-ui, sans-serif",
+      sans: "'Inter', '-apple-system', 'SF Pro Text', system-ui, sans-serif",
+      display: "'Inter', '-apple-system', 'SF Pro Display', system-ui, sans-serif",
       mono: "'SF Mono', 'Menlo', monospace",
     },
   },

@@ -48,7 +48,7 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({ habits, toggleHabit,
                             const isGoalMet = streak >= goal;
 
                             return (
-                                <tr key={habit.id} className="border-t border-white/[0.04] hover:bg-slate-800/40 transition-colors group">
+                                <tr key={habit.id} className="border-t border-white/[0.04] hover:bg-slate-500/10 transition-colors group">
                                     <td className="py-4 px-4 font-bold text-slate-200 flex items-center gap-2">
                                         {habit.name}
                                         {onDeleteHabit && (
