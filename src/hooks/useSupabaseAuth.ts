@@ -9,6 +9,8 @@ interface UseSupabaseAuthResult {
     authError: string | null;
     magicLinkSent: boolean;
     signInWithEmail: (email: string) => Promise<void>;
+    signInWithPassword: (email: string, password: string) => Promise<void>;
+    signUpWithPassword: (email: string, password: string) => Promise<void>;
     signInWithOAuth: (provider: 'google' | 'github') => Promise<void>;
     signOut: () => Promise<void>;
 }
@@ -71,6 +73,31 @@ export const useSupabaseAuth = (): UseSupabaseAuthResult => {
         }
     }, []);
 
+    const signInWithPassword = useCallback(async (email: string, password: string) => {
+        if (!supabaseAvailable || !supabase) return;
+        setAuthError(null);
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) {
+            setAuthError(error.message);
+            console.error('Password sign-in failed', error);
+            throw error;
+        }
+    }, []);
+
+    const signUpWithPassword = useCallback(async (email: string, password: string) => {
+        if (!supabaseAvailable || !supabase) return;
+        setAuthError(null);
+        const { error } = await supabase.auth.signUp({
+            email,
+            password,
+        });
+        if (error) {
+            setAuthError(error.message);
+            console.error('Sign-up failed', error);
+            throw error;
+        }
+    }, []);
+
     const signInWithOAuth = useCallback(async (provider: 'google' | 'github') => {
         if (!supabaseAvailable || !supabase) return;
         setAuthError(null);
@@ -100,6 +127,8 @@ export const useSupabaseAuth = (): UseSupabaseAuthResult => {
         authError,
         magicLinkSent,
         signInWithEmail,
+        signInWithPassword,
+        signUpWithPassword,
         signInWithOAuth,
         signOut
     };

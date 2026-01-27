@@ -88,6 +88,19 @@ export class StorageService {
     }
 
     /**
+     * Get raw encrypted payload for verification
+     */
+    getRawEncryptedData(): EncryptedPayload | null {
+        try {
+            const encryptedJson = localStorage.getItem(this.ENCRYPTED_DATA_KEY);
+            if (!encryptedJson) return null;
+            return JSON.parse(encryptedJson);
+        } catch {
+            return null;
+        }
+    }
+
+    /**
      * Load and decrypt data
      */
     async loadEncrypted(): Promise<AppData | null> {

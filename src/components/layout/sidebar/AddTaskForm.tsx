@@ -65,7 +65,8 @@ export const AddTaskForm: React.FC<AddTaskFormProps> = ({
 
     return (
         <div className="px-3 pb-4" data-tour="add-task">
-            <div className="rounded-xl p-4 bg-transparent border" style={{ borderColor: 'var(--border-light)' }}>
+
+            <div className="rounded-xl p-4 bg-transparent border-t" style={{ borderColor: 'var(--border)' }}>
                 {/* 1. Title Input */}
                 <div className="mb-3">
                     <input
@@ -77,8 +78,8 @@ export const AddTaskForm: React.FC<AddTaskFormProps> = ({
                         placeholder="Add new task..."
                         className="w-full bg-transparent text-sm px-3 py-2.5 rounded-lg placeholder-zinc-500 focus:outline-none border focus:border-cyan-400/50 transition-colors"
                         style={{
-                            color: 'var(--text-primary)',
-                            borderColor: 'var(--border-light)'
+                            color: 'var(--text)',
+                            borderColor: 'var(--border)'
                         }}
                     />
                 </div>
@@ -95,7 +96,7 @@ export const AddTaskForm: React.FC<AddTaskFormProps> = ({
                                 onClick={() => setType(cat.id as TaskType)}
                                 className="py-2 px-1 rounded-lg text-[10px] font-bold uppercase tracking-wide transition-all border"
                                 style={{
-                                    backgroundColor: type === cat.id ? `${cat.color}20` : 'var(--bg-surface-subtle)',
+                                    backgroundColor: type === cat.id ? `${cat.color}20` : 'var(--surface2)',
                                     color: type === cat.id ? cat.color : 'var(--text-muted)',
                                     border: type === cat.id ? `1px solid ${cat.color}40` : '1px solid transparent'
                                 }}
@@ -119,7 +120,7 @@ export const AddTaskForm: React.FC<AddTaskFormProps> = ({
                                 className="py-1.5 rounded-md text-[10px] font-semibold transition-all border"
                                 style={{
                                     backgroundColor: duration === d ? 'var(--accent)' : 'transparent',
-                                    borderColor: duration === d ? 'var(--accent)' : 'var(--border-light)',
+                                    borderColor: duration === d ? 'var(--accent)' : 'var(--border)',
                                     color: duration === d ? 'white' : 'var(--text-muted)'
                                 }}
                             >
@@ -164,9 +165,9 @@ export const AddTaskForm: React.FC<AddTaskFormProps> = ({
                                         onChange={(e) => setDate(e.target.value)}
                                         className="w-full text-xs px-2 py-1.5 rounded-lg focus:outline-none border"
                                         style={{
-                                            color: 'var(--text-primary)',
-                                            backgroundColor: 'var(--bg-surface-strong)',
-                                            borderColor: 'var(--border-light)'
+                                            color: 'var(--text)',
+                                            backgroundColor: 'var(--surface2)',
+                                            borderColor: 'var(--border)'
                                         }}
                                     />
                                 </div>
@@ -180,9 +181,9 @@ export const AddTaskForm: React.FC<AddTaskFormProps> = ({
                                         onChange={(e) => setScheduledTime(e.target.value)}
                                         className="w-full text-xs px-2 py-1.5 rounded-lg focus:outline-none border"
                                         style={{
-                                            color: 'var(--text-primary)',
-                                            backgroundColor: 'var(--bg-surface-strong)',
-                                            borderColor: 'var(--border-light)'
+                                            color: 'var(--text)',
+                                            backgroundColor: 'var(--surface2)',
+                                            borderColor: 'var(--border)'
                                         }}
                                     />
                                     {/* Quick Times */}
@@ -194,7 +195,7 @@ export const AddTaskForm: React.FC<AddTaskFormProps> = ({
                                                 className="flex-1 py-1 rounded text-[9px] font-mono border transition-colors"
                                                 style={{
                                                     borderColor: scheduledTime === time ? 'var(--accent)' : 'transparent',
-                                                    backgroundColor: scheduledTime === time ? 'rgba(34,211,238,0.1)' : 'var(--bg-surface-subtle)',
+                                                    backgroundColor: scheduledTime === time ? 'rgba(34,211,238,0.1)' : 'var(--surface2)',
                                                     color: scheduledTime === time ? 'var(--accent)' : 'var(--text-muted)'
                                                 }}
                                             >
@@ -216,7 +217,7 @@ export const AddTaskForm: React.FC<AddTaskFormProps> = ({
                     style={{
                         backgroundColor: title.trim()
                             ? (scheduledTime ? 'var(--accent)' : selectedCategory?.color)
-                            : 'var(--bg-surface-subtle)',
+                            : 'var(--surface2)',
                         color: title.trim() ? 'white' : 'var(--text-muted)',
                         opacity: title.trim() ? 1 : 0.5
                     }}

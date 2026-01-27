@@ -73,7 +73,7 @@ export interface DbTaskRow {
     is_completed: boolean | null;
     is_frozen: boolean | null;
     scheduled_date: string | null;
-    scheduled_time?: string | null;
+    scheduled_time: string | null;
     deadline: string | null;
     completed_at: string | null;
     status?: string | null;

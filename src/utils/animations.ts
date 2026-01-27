@@ -2,20 +2,23 @@ import { Variants } from 'framer-motion';
 
 /**
  * Shared spring configuration for subtle, professional animations
+ * Apple-like: Responsive but highly damped (no bounce)
  */
 export const springConfig = {
-    stiffness: 180,
-    damping: 22,
+    type: "spring",
+    stiffness: 300,
+    damping: 30,
     mass: 1,
 };
 
 /**
  * Shared easing tokens for consistent animations
+ * The "Apple curve" (default easeOut)
  */
 export const easingTokens = {
-    easeOut: [0.0, 0.0, 0.2, 1.0] as const,
-    easeInOut: [0.4, 0.0, 0.2, 1.0] as const,
-    easeIn: [0.4, 0.0, 1.0, 1.0] as const,
+    easeOut: [0.25, 0.1, 0.25, 1.0] as const, // Calm, precise
+    easeInOut: [0.42, 0, 0.58, 1] as const,
+    easeIn: [0.42, 0, 1, 1] as const,
 };
 
 /**
@@ -23,20 +26,20 @@ export const easingTokens = {
  * Use: Task cards, list items, general mounting elements
  */
 export const fadeLift: Variants = {
-    initial: { opacity: 0, y: 6 },
+    initial: { opacity: 0, y: 4 }, // Reduced movement
     animate: {
         opacity: 1,
         y: 0,
         transition: {
-            duration: 0.22,
+            duration: 0.2, // 200ms
             ease: easingTokens.easeOut
         }
     },
     exit: {
         opacity: 0,
-        y: 4,
+        y: 2,
         transition: {
-            duration: 0.18,
+            duration: 0.16, // 160ms
             ease: easingTokens.easeIn
         }
     },
@@ -49,21 +52,21 @@ export const fadeLift: Variants = {
 export const weekSwitch = (direction: 'next' | 'prev'): Variants => ({
     initial: {
         opacity: 0,
-        x: direction === 'next' ? 12 : -12
+        x: direction === 'next' ? 10 : -10 // Reduced distance
     },
     animate: {
         opacity: 1,
         x: 0,
         transition: {
-            duration: 0.22,
+            duration: 0.24, // 240ms (screen transition)
             ease: easingTokens.easeOut
         }
     },
     exit: {
         opacity: 0,
-        x: direction === 'next' ? -12 : 12,
+        x: direction === 'next' ? -10 : 10,
         transition: {
-            duration: 0.18,
+            duration: 0.2, // 200ms
             ease: easingTokens.easeIn
         }
     },
@@ -74,18 +77,18 @@ export const weekSwitch = (direction: 'next' | 'prev'): Variants => ({
  * Use: Main screen changes when switching between Planner, Deep Work, etc.
  */
 export const screenTransition: Variants = {
-    initial: { opacity: 0, y: 8 },
+    initial: { opacity: 0, y: 5 },
     animate: {
         opacity: 1,
         y: 0,
         transition: {
-            duration: 0.24,
+            duration: 0.24, // 240ms
             ease: easingTokens.easeOut
         }
     },
     exit: {
         opacity: 0,
-        y: 6,
+        y: 5,
         transition: {
             duration: 0.2,
             ease: easingTokens.easeIn
@@ -100,21 +103,21 @@ export const screenTransition: Variants = {
 export const dropdown: Variants = {
     initial: {
         opacity: 0,
-        scale: 0.97,
-        y: 4
+        scale: 0.98,
+        y: 2
     },
     animate: {
         opacity: 1,
         scale: 1,
         y: 0,
         transition: {
-            duration: 0.18,
+            duration: 0.16, // 160ms (fast UI)
             ease: easingTokens.easeOut
         }
     },
     exit: {
         opacity: 0,
-        scale: 0.97,
+        scale: 0.98,
         y: 2,
         transition: {
             duration: 0.16,
@@ -138,7 +141,7 @@ export const modal: Variants = {
         scale: 1.0,
         y: 0,
         transition: {
-            duration: 0.22,
+            duration: 0.24, // 240ms (larger element)
             ease: easingTokens.easeOut
         }
     },

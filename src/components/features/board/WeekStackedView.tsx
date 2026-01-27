@@ -83,7 +83,7 @@ export const WeekStackedView: React.FC<WeekStackedViewProps> = ({
                         className="flex-1 w-0 flex flex-col p-2 rounded-2xl gap-2 transition-all duration-300"
                         style={{
                             backgroundColor: 'transparent',
-                            border: isToday ? '1px solid' : (isPastDay ? '1px solid color-mix(in srgb, var(--border-light), transparent 35%)' : '1px solid transparent'),
+                            border: isToday ? '1px solid' : (isPastDay ? '1px solid color-mix(in srgb, var(--border), transparent 35%)' : '1px solid transparent'),
                             borderColor: isToday ? 'color-mix(in srgb, var(--accent) 10%, transparent)' : 'transparent'
                         }}
                     >

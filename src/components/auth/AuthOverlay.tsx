@@ -4,6 +4,8 @@ import { Mail, LogIn, ShieldCheck, ArrowRight, CheckCircle } from 'lucide-react'
 
 interface AuthOverlayProps {
     onMagicLink: (email: string) => Promise<void>;
+    onSignInWithPassword?: (email: string, password: string) => Promise<void>;
+    onSignUpWithPassword?: (email: string, password: string) => Promise<void>;
     onOAuth: (provider: 'google' | 'github') => Promise<void>;
     magicLinkSent: boolean;
     authError?: string | null;
@@ -15,6 +17,8 @@ interface AuthOverlayProps {
 
 export const AuthOverlay: React.FC<AuthOverlayProps> = ({
     onMagicLink,
+    onSignInWithPassword,
+    onSignUpWithPassword,
     onOAuth,
     magicLinkSent,
     authError,
@@ -24,6 +28,10 @@ export const AuthOverlay: React.FC<AuthOverlayProps> = ({
     showFeatureOverview = true
 }) => {
     const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [authMode, setAuthMode] = useState<'magic' | 'password'>('magic');
+    const [isSignUp, setIsSignUp] = useState(false);
+
     const [submitting, setSubmitting] = useState(false);
     // Start directly with Welcome screen (no long splash)
     const [showSplash, setShowSplash] = useState(false);
@@ -53,9 +61,24 @@ export const AuthOverlay: React.FC<AuthOverlayProps> = ({
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!email) return;
+
         setSubmitting(true);
         try {
-            await onMagicLink(email);
+            if (authMode === 'magic') {
+                await onMagicLink(email);
+            } else {
+                if (!password) {
+                    throw new Error('Password is required');
+                }
+                if (isSignUp) {
+                    await onSignUpWithPassword?.(email, password);
+                } else {
+                    await onSignInWithPassword?.(email, password);
+                }
+            }
+        } catch (err: any) {
+            // Error is handled by parent usually, but if local error:
+            console.error(err);
         } finally {
             setSubmitting(false);
         }
@@ -68,23 +91,6 @@ export const AuthOverlay: React.FC<AuthOverlayProps> = ({
             animate={{ opacity: isExiting ? 0 : 1, scale: isExiting ? 1.05 : 1 }}
             transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
         >
-            {/* Animated background gradients */}
-            {/* Animated background gradients - REMOVED for flat dark theme */}
-            {/* 
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 0.4 }}
-                transition={{ duration: 1.5 }}
-                className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,#0ea5e9,transparent_40%)]"
-            />
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 0.3 }}
-                transition={{ duration: 1.5, delay: 0.3 }}
-                className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,#22d3ee,transparent_35%)]"
-            />
-            */}
-
             <AnimatePresence mode="wait">
                 {showSplash ? (
                     /* SPLASH SCREEN - NeuroFlow Branding */
@@ -206,7 +212,7 @@ export const AuthOverlay: React.FC<AuthOverlayProps> = ({
                             <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10">
                                 <div className="w-10 h-10 rounded-lg bg-cyan-500/20 flex items-center justify-center text-cyan-400">🧠</div>
                                 <div className="text-left">
-                                    <div className="text-white font-medium">Brain Dump</div>
+                                    <div className="text-white font-medium">Notes</div>
                                     <div className="text-white/50 text-sm">Capture thoughts, organize later</div>
                                 </div>
                             </div>
@@ -258,7 +264,7 @@ export const AuthOverlay: React.FC<AuthOverlayProps> = ({
                         transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
                     >
                         <motion.div
-                            className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl p-10 space-y-8"
+                            className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl p-10 space-y-6"
                             initial={{ boxShadow: "0 0 0 rgba(6, 182, 212, 0)" }}
                             animate={{ boxShadow: "0 0 60px rgba(6, 182, 212, 0.1)" }}
                             transition={{ duration: 1, delay: 0.3 }}
@@ -279,13 +285,29 @@ export const AuthOverlay: React.FC<AuthOverlayProps> = ({
                             </motion.div>
 
                             <motion.p
-                                className="text-white/70 leading-relaxed"
+                                className="text-white/70 leading-relaxed text-sm"
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 transition={{ delay: 0.2 }}
                             >
-                                We use Supabase Auth so every device stays in sync. Send yourself a magic link or continue with a provider to start planning.
+                                Sync your tasks across devices. Choose how you want to sign in.
                             </motion.p>
+
+                            {/* Auth Mode Toggle */}
+                            <div className="flex p-1 bg-white/5 rounded-xl border border-white/10">
+                                <button
+                                    onClick={() => setAuthMode('magic')}
+                                    className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${authMode === 'magic' ? 'bg-white/10 text-white shadow-sm' : 'text-white/50 hover:text-white/80'}`}
+                                >
+                                    Magic Link
+                                </button>
+                                <button
+                                    onClick={() => setAuthMode('password')}
+                                    className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${authMode === 'password' ? 'bg-white/10 text-white shadow-sm' : 'text-white/50 hover:text-white/80'}`}
+                                >
+                                    Password
+                                </button>
+                            </div>
 
                             <motion.form
                                 onSubmit={handleSubmit}
@@ -294,28 +316,65 @@ export const AuthOverlay: React.FC<AuthOverlayProps> = ({
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.3 }}
                             >
-                                <label className="block text-sm font-semibold text-white/70">Email for magic link</label>
-                                <div className="flex flex-col sm:flex-row gap-3">
-                                    <div className="flex-1 flex items-center gap-2 px-4 py-3 rounded-2xl border border-white/10 bg-white/5 focus-within:border-cyan-400/60 focus-within:bg-white/10 transition-colors">
-                                        <Mail size={18} className="text-white/60" />
+                                {isSignUp && authMode === 'password' && (
+                                    <div className="text-xs text-cyan-300 font-medium text-center pb-1">
+                                        Creating a new account
+                                    </div>
+                                )}
+
+                                <div className="space-y-3">
+                                    <div className="relative">
+                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                            <Mail size={18} className="text-white/40" />
+                                        </div>
                                         <input
                                             type="email"
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
                                             placeholder="you@example.com"
-                                            className="bg-transparent flex-1 outline-none text-white placeholder:text-white/40"
+                                            className="w-full pl-11 pr-4 py-3 rounded-2xl border border-white/10 bg-white/5 focus:border-cyan-400/60 focus:bg-white/10 transition-colors outline-none text-white placeholder:text-white/30"
                                             required
                                         />
                                     </div>
-                                    <button
-                                        type="submit"
-                                        disabled={submitting}
-                                        className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl font-semibold bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/40 hover:bg-cyan-400 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-                                    >
-                                        <LogIn size={18} />
-                                        {submitting ? 'Sending…' : 'Send link'}
-                                    </button>
+
+                                    {authMode === 'password' && (
+                                        <div className="relative">
+                                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                                <ShieldCheck size={18} className="text-white/40" />
+                                            </div>
+                                            <input
+                                                type="password"
+                                                value={password}
+                                                onChange={(e) => setPassword(e.target.value)}
+                                                placeholder={isSignUp ? "Choose a strong password" : "Your password"}
+                                                className="w-full pl-11 pr-4 py-3 rounded-2xl border border-white/10 bg-white/5 focus:border-cyan-400/60 focus:bg-white/10 transition-colors outline-none text-white placeholder:text-white/30"
+                                                required
+                                                minLength={6}
+                                            />
+                                        </div>
+                                    )}
                                 </div>
+
+                                <button
+                                    type="submit"
+                                    disabled={submitting}
+                                    className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl font-semibold bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/40 hover:bg-cyan-400 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                                >
+                                    <LogIn size={18} />
+                                    {submitting ? 'Processing…' : (authMode === 'magic' ? 'Send Magic Link' : (isSignUp ? 'Create Account' : 'Sign In'))}
+                                </button>
+
+                                {authMode === 'password' && (
+                                    <div className="text-center">
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsSignUp(!isSignUp)}
+                                            className="text-xs text-white/50 hover:text-cyan-300 transition-colors underline decoration-dotted underline-offset-4"
+                                        >
+                                            {isSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up"}
+                                        </button>
+                                    </div>
+                                )}
                             </motion.form>
 
                             <motion.div

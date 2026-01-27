@@ -130,7 +130,7 @@ export const BoardTaskCard = React.memo<BoardTaskCardProps>(({
             <div
                 className="relative flex flex-col gap-2 p-3 rounded-xl border backdrop-blur-md animate-in zoom-in-95 duration-200"
                 style={{
-                    backgroundColor: 'color-mix(in srgb, var(--bg-tertiary) 90%, transparent)',
+                    backgroundColor: 'var(--surface2)',
                     borderColor: 'var(--accent)'
                 }}
             >
@@ -143,7 +143,7 @@ export const BoardTaskCard = React.memo<BoardTaskCardProps>(({
                             onKeyDown={handleKeyDown}
                             className="bg-black/20 text-sm font-medium rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-1 transition-all"
                             style={{
-                                color: 'var(--text-primary)',
+                                color: 'var(--text)',
                                 '--tw-ring-color': 'var(--accent)'
                             } as React.CSSProperties}
                             autoFocus
@@ -222,8 +222,8 @@ export const BoardTaskCard = React.memo<BoardTaskCardProps>(({
                 ${isOverdue && !isCompleted
                     ? 'border-red-500/50 shadow-[0_0_10px_rgba(239,68,68,0.15)]'
                     : isCompleted
-                        ? 'bg-emerald-900/5 border-emerald-500/20'
-                        : `bg-[var(--bg-secondary)] border-[var(--border-light)] ${TASK_CARD_BORDER_COLORS[task.type]} border-l-[3px] shadow-sm`
+                        ? 'bg-emerald-500/5 border-emerald-500/20'
+                        : `card-apple ${TASK_CARD_BORDER_COLORS[task.type]} border-l-[3px]`
                 }
             `}
         >
@@ -236,7 +236,7 @@ export const BoardTaskCard = React.memo<BoardTaskCardProps>(({
             <div className="flex-1 flex flex-col justify-center min-w-0">
                 <h3
                     className={`font-medium text-sm leading-tight whitespace-normal break-words pr-1 line-clamp-2`}
-                    style={{ color: isCompleted ? '#f1f5f9' : 'var(--text-primary)' }}
+                    style={{ color: isCompleted ? 'var(--text-muted)' : 'var(--text)' }}
                 >
                     {task.title}
                 </h3>

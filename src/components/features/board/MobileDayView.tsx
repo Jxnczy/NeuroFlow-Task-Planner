@@ -98,7 +98,8 @@ const MobileTaskCard: React.FC<MobileTaskCardProps> = React.memo(({
   isPastDay,
   viewMode,
   onToggleComplete,
-  onLongPress
+  onLongPress,
+  onSelectTask
 }) => {
   const [flash, setFlash] = useState(false);
   const [swipeX, setSwipeX] = useState(0);
@@ -151,26 +152,65 @@ const MobileTaskCard: React.FC<MobileTaskCardProps> = React.memo(({
     setSwipeX(0);
   }, [isCompleted, play, onToggleComplete, task.id]);
 
-  // Handle tap (only if not swiping and not on a button)
-  const handleTap = useCallback((event: any, info: any) => {
-    // Don't open action sheet if tapped on checkbox button
-    const target = event.target as HTMLElement;
-    if (target.closest('button')) {
-      return;
-    }
-    if (!didSwipe.current) {
-      if (onSelectTask) {
-        onSelectTask(task.id);
-      } else {
-        onLongPress(task);
+  // Long press & Tap logic
+  const longPressTimer = useRef<any>(null);
+  const isLongPress = useRef(false);
+  const startPos = useRef({ x: 0, y: 0 });
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    // Ignore if tapping a button (like the checkbox)
+    if ((e.target as HTMLElement).closest('button')) return;
+
+    isLongPress.current = false;
+    // didSwipe.current is reset in handleDragStart, but we reset here too just in case
+    // didSwipe.current = false; // Actually better to rely on drag start/move for swipe detection
+
+    startPos.current = { x: e.clientX, y: e.clientY };
+
+    longPressTimer.current = setTimeout(() => {
+      isLongPress.current = true;
+      if (navigator.vibrate) navigator.vibrate(50);
+      onLongPress(task);
+    }, 500);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (longPressTimer.current) {
+      const dx = Math.abs(e.clientX - startPos.current.x);
+      const dy = Math.abs(e.clientY - startPos.current.y);
+      // If moved > 10px, cancel long press (it's likely a scroll or swipe)
+      if (dx > 10 || dy > 10) {
+        clearTimeout(longPressTimer.current);
+        longPressTimer.current = null;
       }
     }
-    didSwipe.current = false;
-  }, [task, onLongPress]);
+  };
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+
+    // If it wasn't a long press and we didn't swipe/drag, treat as Tap
+    if (!isLongPress.current && !didSwipe.current) {
+      if (!(e.target as HTMLElement).closest('button')) {
+        if (onSelectTask) onSelectTask(task.id);
+      }
+    }
+
+    // Reset flags
+    isLongPress.current = false;
+  };
 
   // Reset swipe tracking on drag start
   const handleDragStart = useCallback(() => {
     didSwipe.current = false;
+    // Cancel long press if drag starts
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
   }, []);
 
   // Calculate swipe progress for visual feedback
@@ -218,7 +258,11 @@ const MobileTaskCard: React.FC<MobileTaskCardProps> = React.memo(({
         onDragStart={handleDragStart}
         onDrag={handleDrag}
         onDragEnd={handleDragEnd}
-        onTap={handleTap}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
+        onPointerLeave={handlePointerUp}
         whileTap={{ scale: 0.98 }}
       >
         <div className="flex items-center p-4 gap-3 relative">

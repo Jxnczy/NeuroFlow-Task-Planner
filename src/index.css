@@ -362,6 +362,130 @@ textarea,
 }
 
 /* ═══════════════════════════════════════════════════════════════════
+   STEP 4: COMPONENT STANDARDIZATION (Apple 2026)
+   Unified primitives for consistency
+═══════════════════════════════════════════════════════════════════ */
+
+@layer components {
+
+  /* ─── BUTTONS ─── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+    cursor: pointer;
+    border: 1px solid transparent;
+  }
+
+  .btn:active {
+    transform: scale(0.98);
+  }
+
+  .btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--ring), 0 0 0 4px var(--bg);
+  }
+
+  .btn-primary {
+    background-color: var(--accent);
+    color: white;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+
+  .btn-primary:hover {
+    filter: brightness(1.05);
+    /* Safe hover for any accent color */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  }
+
+  .btn-secondary {
+    background-color: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  .btn-secondary:hover {
+    background-color: var(--border);
+    /* Slightly darker */
+  }
+
+  .btn-ghost {
+    background-color: transparent;
+    color: var(--text-muted);
+  }
+
+  .btn-ghost:hover {
+    background-color: var(--surface2);
+    color: var(--text);
+  }
+
+  .btn-icon {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border-radius: var(--radius-md);
+    color: var(--text-muted);
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-icon:hover {
+    background-color: var(--surface2);
+    color: var(--text);
+  }
+
+  .btn-icon:focus-visible {
+    outline: none;
+    background-color: var(--surface2);
+    color: var(--text);
+    box-shadow: 0 0 0 2px var(--ring);
+  }
+
+  /* ─── INPUTS ─── */
+  .input-base {
+    background-color: var(--surface2);
+    border: 1px solid transparent;
+    /* No border by default for cleaner look, or hairline */
+    border-radius: var(--radius-md);
+    color: var(--text);
+    padding: 8px 12px;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.2s ease;
+  }
+
+  .input-base::placeholder {
+    color: var(--text-muted);
+    opacity: 0.7;
+  }
+
+  .input-base:focus {
+    background-color: var(--surface);
+    box-shadow: 0 0 0 2px var(--ring);
+  }
+
+  /* ─── CARDS ─── */
+  .card-apple {
+    background-color: var(--surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .card-apple:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--border-strong);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
    LIGHT THEME V2 - Semantic Design Tokens
    NO blur/glass effects. Solid surfaces. High contrast text.
 ═══════════════════════════════════════════════════════════════════ */
@@ -369,49 +493,186 @@ textarea,
 [data-theme="light"] {
   color-scheme: light;
 
-  /* ─── SURFACES ─── */
-  --bg: #F6F7F9;
-  /* App canvas */
-  --panel: #FFFFFF;
-  /* Sidebar/header surface */
+  /* ─── SURFACES (2-3 Layer Stack) ─── */
+  --bg: #F5F5F7;
+  /* Apple's signature light gray background */
   --surface: #FFFFFF;
-  /* Planner surface */
-  --surface-alt: #F2F4F7;
-  /* Hover/alt column */
+  /* Cards, Sidebar, Primary containers */
+  --surface2: #F5F5F7;
+  /* Hover states, Secondary inputs */
+  --surface3: #FFFFFF;
+  /* Popovers, Modals (Elevated) */
 
-  /* ─── BORDERS ─── */
-  --border: #E4E7EC;
-  /* Normal borders */
-  --border-strong: #D0D5DD;
-  /* Major separators */
+  /* Header Token */
+  --header-bg: rgba(255, 255, 255, 0.85);
 
-  /* ─── TEXT (High Contrast >= 4.5:1) ─── */
-  --text: #111111;
-  /* Primary text - Premium Dark */
-  --text-muted: #6B7280;
-  /* Labels/descriptions - Cool Gray */
-  --text-subtle: #9CA3AF;
-  /* Meta only */
+  /* ─── TEXT (SF Pro / Inter optimized) ─── */
+  --text: #1D1D1F;
+  /* Nearly black, softer than #000 */
+  --text-muted: #86868B;
+  /* Neutral secondary */
+  --text-subtle: #86868B;
+  /* Meta / Captions */
 
-  /* ─── SHADOWS (Clean, no blur) ─── */
-  --shadow-sm: 0 1px 2px rgba(16, 24, 40, .06);
-  --shadow-md: 0 6px 18px rgba(16, 24, 40, .12);
+  /* ─── BORDERS (Hairline, Low Contrast) ─── */
+  --border: rgba(0, 0, 0, 0.06);
+  /* Subtle dividers */
+  --border-strong: rgba(0, 0, 0, 0.12);
+  /* Structural borders */
+  --border-focus: rgba(0, 122, 255, 0.5);
+  /* Focus states */
 
-  /* ─── BRAND / FOCUS ─── */
-  --primary: #2563EB;
-  --focus-ring: 0 0 0 3px rgba(37, 99, 235, .25);
+  /* ─── ACCENT (Premium Blue) ─── */
+  --accent: #007AFF;
+  /* Apple System Blue */
+  --ring: rgba(0, 122, 255, 0.2);
 
-  /* ─── CATEGORY ACCENTS ─── */
-  --cat-goal: #EF4444;
-  --cat-focus: #F97316;
-  --cat-work: #EAB308;
-  --cat-leisure: #06B6D4;
-  --cat-chores: #94A3B8;
-  --cat-backlog: #A855F7;
+  /* ─── SHADOWS (Layered, Tiny) ─── */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  /* Soft elevation */
+  --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.12);
+  /* Modals */
 
-  /* SOLID background - NO gradients/fog */
+  /* ─── RADII (Machined) ─── */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  /* Standard component radius */
+  --radius-lg: 14px;
+  /* Card/Panel radius */
+
+  /* ─── CATEGORY ACCENTS (Refined) ─── */
+  --cat-goal: #FF3B30;
+  /* System Red */
+  --cat-focus: #FF9500;
+  /* System Orange */
+  --cat-work: #FFCC00;
+  /* System Yellow */
+  --cat-leisure: #5AC8FA;
+  /* System Cyan */
+  --cat-chores: #8E8E93;
+  /* System Gray */
+  --cat-backlog: #5856D6;
+  /* System Purple */
+
+  /* Overrides */
   background-image: none !important;
   background-color: var(--bg) !important;
+  color: var(--text) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   DARK THEME V2 - Semantic Design Tokens
+   Deep, OLED black, subtle borders, high contrast text
+═══════════════════════════════════════════════════════════════════ */
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* ─── SURFACES (2-3 Layer Stack) ─── */
+  --bg: #000000;
+  /* Pure Black */
+  --surface: #1C1C1E;
+  /* Dark Gray (Cards/Sidebar) */
+  --surface2: #2C2C2E;
+  /* Slightly Lighter (Hover/Inputs) */
+  --surface3: #3A3A3C;
+  /* Modals/Popovers */
+
+  /* ─── TEXT ─── */
+  --text: #FFFFFF;
+  /* Pure White */
+  --text-muted: #98989D;
+  /* Cool Gray */
+  --text-subtle: #48484A;
+  /* Dark Gray */
+
+  /* ─── BORDERS (Ultra Subtle) ─── */
+  --border: rgba(255, 255, 255, 0.08);
+  /* Very faint divider */
+  --border-strong: rgba(255, 255, 255, 0.12);
+  /* Structural border */
+  --border-focus: rgba(10, 132, 255, 0.5);
+  /* Focus state */
+
+  /* ─── ACCENT ─── */
+  --accent: #0A84FF;
+  /* iOS Dark Mode Blue */
+  --ring: rgba(10, 132, 255, 0.3);
+
+  /* ─── SHADOWS ─── */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.5);
+
+  /* ─── RADII ─── */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+
+  /* ─── CATEGORY ACCENTS (Dark Mode Adjusted) ─── */
+  --cat-goal: #FF453A;
+  /* Red */
+  --cat-focus: #FF9F0A;
+  /* Orange */
+  --cat-work: #FFD60A;
+  /* Yellow */
+  --cat-leisure: #64D2FF;
+  /* Cyan */
+  --cat-chores: #8E8E93;
+  /* Gray */
+  --cat-backlog: #5E5CE6;
+  /* Indigo */
+
+  /* Header Token */
+  --header-bg: rgba(28, 28, 30, 0.85);
+
+  /* Overrides */
+  background-image: none !important;
+  background-color: var(--bg) !important;
+  color: var(--text) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   DARK MODE OVERRIDES - Explicit targeting for cleanliness
+═══════════════════════════════════════════════════════════════════ */
+
+/* Header - Dark Glass */
+[data-theme="dark"] header {
+  background-color: var(--header-bg) !important;
+  /* Matches --surface but transparent */
+  backdrop-filter: blur(20px) !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+
+/* Sidebar */
+[data-theme="dark"] aside,
+[data-theme="dark"] [data-sidebar] {
+  background-color: var(--surface) !important;
+  border-right: 1px solid var(--border) !important;
+}
+
+/* Borders */
+[data-theme="dark"] .border-t,
+[data-theme="dark"] .border-b,
+[data-theme="dark"] .border-r,
+[data-theme="dark"] .border-l {
+  border-color: var(--border) !important;
+}
+
+/* Inputs */
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+  background-color: var(--surface2);
+  border-color: transparent;
+  color: var(--text);
+}
+
+[data-theme="dark"] input:focus,
+[data-theme="dark"] select:focus,
+[data-theme="dark"] textarea:focus {
+  background-color: var(--surface3);
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -679,67 +940,102 @@ textarea,
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   PREMIUM TYPOGRAPHY UTILITIES
+   PREMIUM TYPOGRAPHY UTILITIES (2026 Apple)
    Strict implementation of the "Expensive" formula
 ═══════════════════════════════════════════════════════════════════ */
 
 /* 1. Page Title: Crisp, Tight, Authoritative */
 .type-title {
-  font-family: var(--font-sans);
-  font-size: 2.25rem;
-  /* 36px */
+  font-family: var(--font-display);
+  font-size: 32px;
+  /* 2rem -> 32px for precision */
   font-weight: 600;
-  /* Semi-bold, not Black */
+  /* Semibold */
   line-height: 1.1;
-  /* Very tight */
-  letter-spacing: -0.025em;
-  /* Negative tracking is key for "premium" */
+  /* Tight leading */
+  letter-spacing: -0.02em;
+  /* Tight tracking */
+  color: var(--text);
 }
 
 /* 2. Section Header: Structured */
 .type-subtitle {
-  font-family: var(--font-sans);
-  font-size: 1.25rem;
-  /* 20px */
+  font-family: var(--font-display);
+  font-size: 20px;
+  /* 1.25rem -> 20px */
   font-weight: 500;
   /* Medium */
-  line-height: 1.25;
-  letter-spacing: -0.015em;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: var(--text);
 }
 
 /* 3. Body Text: Breathable, readable */
 .type-body {
   font-family: var(--font-sans);
-  font-size: 1rem;
-  /* 16px */
+  font-size: 16px;
+  /* 1rem -> 16px (or 17px for true iOS feel) */
   font-weight: 400;
-  line-height: 1.6;
-  /* Generous leading for readability */
-  letter-spacing: 0;
-  /* Neutral */
+  /* Regular */
+  line-height: 1.5;
+  /* Relaxed reading */
+  letter-spacing: -0.01em;
+  /* Slight optical correction */
+  color: var(--text);
 }
 
 /* 4. Secondary/Muted: The "Metadata" look */
 .type-secondary {
   font-family: var(--font-sans);
-  font-size: 0.875rem;
-  /* 14px */
+  font-size: 13px;
+  /* Smaller, precise */
   font-weight: 400;
-  line-height: 1.5;
-  color: var(--text-secondary);
-  /* Will resolve to theme var or fall back */
-  letter-spacing: 0.01em;
-  /* Slight expansion for small text */
+  line-height: 1.4;
+  color: var(--text-muted);
+  letter-spacing: 0;
 }
 
 /* 5. UI Labels/Overlines: The "Tech Spec" look */
 .type-label {
   font-family: var(--font-sans);
-  font-size: 0.75rem;
-  /* 12px */
+  font-size: 11px;
   font-weight: 600;
+  /* Semibold */
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  /* Wide tracking for uppercase is mandatory */
-  color: var(--text-secondary);
+  letter-spacing: 0.06em;
+  /* Wide tracking */
+  color: var(--text-muted);
+}
+
+/* Base resets for headings to use tokens */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--text);
+  font-family: var(--font-display);
+  letter-spacing: -0.015em;
+}
+
+p,
+span,
+div,
+li {
+  color: var(--text);
+  /* Default to primary, override with muted */
+}
+
+/* Override utility classes to enforce tokens */
+.text-zinc-500,
+.text-slate-500,
+.text-gray-500 {
+  color: var(--text-muted) !important;
+}
+
+.text-zinc-400,
+.text-slate-400,
+.text-gray-400 {
+  color: var(--text-subtle) !important;
 }

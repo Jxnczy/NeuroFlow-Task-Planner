@@ -60,14 +60,14 @@ export const WeekMatrixView: React.FC<WeekMatrixViewProps> = ({
                         key={row}
                         className={`${style.flexClass} shrink-0 flex border-b last:border-b-0 group/row transition-all duration-200`}
                         style={{
-                            borderColor: 'var(--border-light)',
+                            borderColor: 'var(--border)',
                             backgroundColor: 'transparent'
                         }}
                     >
                         {/* Row Label - Tooltip only on icon hover */}
                         <div
                             className="shrink-0 flex flex-col items-center justify-center relative py-3 border-r cursor-default"
-                            style={{ borderColor: 'var(--border-light)', width: 'var(--row-label-width, 80px)' }}
+                            style={{ borderColor: 'var(--border)', width: 'var(--row-label-width, 80px)' }}
                         >
                             <div
                                 className={`absolute left-0 top-3 bottom-3 w-1 rounded-r-full ${style.barColor} transition-all duration-300`}
@@ -91,12 +91,12 @@ export const WeekMatrixView: React.FC<WeekMatrixViewProps> = ({
                                     <div
                                         className="absolute left-full ml-3 top-1/2 -translate-y-1/2 z-50 px-3 py-2 rounded-xl text-[10px] whitespace-nowrap shadow-2xl border animate-in fade-in slide-in-from-left-2 duration-150"
                                         style={{
-                                            backgroundColor: 'var(--bg-secondary)',
-                                            borderColor: 'var(--border-medium)',
-                                            color: 'var(--text-secondary)'
+                                            backgroundColor: 'var(--surface2)',
+                                            borderColor: 'var(--border)',
+                                            color: 'var(--text-muted)'
                                         }}
                                     >
-                                        <div className="font-bold mb-0.5" style={{ color: 'var(--text-primary)' }}>{rowConfig.label}</div>
+                                        <div className="font-bold mb-0.5" style={{ color: 'var(--text)' }}>{rowConfig.label}</div>
                                         {rowConfig.description}
                                     </div>
                                 )}
@@ -109,7 +109,7 @@ export const WeekMatrixView: React.FC<WeekMatrixViewProps> = ({
                             <div
                                 className="text-[10px] font-bold mt-0.5"
                                 style={{
-                                    color: 'var(--text-secondary)',
+                                    color: 'var(--text-muted)',
                                     opacity: 0.9
                                 }}
                             >

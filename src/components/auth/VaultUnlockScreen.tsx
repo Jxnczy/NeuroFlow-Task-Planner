@@ -49,7 +49,11 @@ export const VaultUnlockScreen: React.FC<VaultUnlockScreenProps> = React.memo(({
             await onSetup(passphrase);
         } else {
             // Unlock mode
-            await onUnlock(passphrase);
+            const success = await onUnlock(passphrase);
+            if (!success) {
+                setPassphrase('');
+                // Error prop handles the message, but clearing input helps user retry
+            }
         }
     };
 

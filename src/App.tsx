@@ -39,6 +39,7 @@ import { LoadingScreen } from './components/ui/LoadingScreen';
 
 import { useEntryRouting } from './hooks/useEntryRouting';
 import { TaskDetailView } from './components/tasks/TaskDetailView';
+import { GlobalFocusBar } from './components/features/dashboard/GlobalFocusBar';
 
 // Lazy load components
 const AnalyticsDashboard = React.lazy(() => import('./components/features/dashboard/AnalyticsDashboard').then(module => ({ default: module.AnalyticsDashboard })));
@@ -511,6 +512,8 @@ const AppContent = ({
                         onJumpToCurrentWeek={handleJumpToCurrentWeek}
                         isStacked={isStacked}
                         setIsStacked={setIsStacked}
+                        dayViewMode={dayViewMode}
+                        setDayViewMode={setDayViewMode}
                         isSidebarOpen={isSidebarOpen}
                         onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
                     />
@@ -623,6 +626,7 @@ const AppContent = ({
                         )}
                     </AnimatePresence>
                 </ErrorBoundary>
+                <GlobalFocusBar />
             </MainLayout>
 
             {showSettings && (
@@ -709,7 +713,18 @@ const App = () => {
     const storage = StorageService.getInstance();
 
     // --- Auth & Routing ---
-    const { user, isAuthReady, authError, magicLinkSent, signInWithEmail, signInWithOAuth, signOut } = useSupabaseAuth();
+    const {
+        user,
+        session,
+        isAuthReady,
+        authError,
+        magicLinkSent,
+        signInWithEmail,
+        signInWithPassword,
+        signUpWithPassword,
+        signInWithOAuth,
+        signOut
+    } = useSupabaseAuth();
 
     // --- Encryption State ---
     const encryption = useEncryption();
@@ -1264,6 +1279,8 @@ const App = () => {
                     isLoading={isDataLoading || !isAuthReady}
                     authError={authError || dataError}
                     onMagicLink={(email) => signInWithEmail(email)}
+                    onSignInWithPassword={(email, password) => signInWithPassword(email, password)}
+                    onSignUpWithPassword={(email, password) => signUpWithPassword(email, password)}
                     onOAuth={(provider) => signInWithOAuth(provider)}
                     onCancel={() => {
                         setUseSupabaseSync(false);

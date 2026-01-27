@@ -57,13 +57,13 @@ const DayHeader: React.FC<DayHeaderProps> = React.memo(({
       <div
         className="flex flex-col items-center py-3 rounded-t-2xl transition-all duration-300 relative"
         style={{
-          background: isToday ? 'var(--bg-surface-subtle)' : 'transparent',
-          borderLeft: isToday ? '1px solid var(--border-subtle)' : 'none',
-          borderRight: isToday ? '1px solid var(--border-subtle)' : 'none',
-          borderTop: isToday ? '1px solid var(--border-subtle)' : 'none',
-          boxShadow: isToday ? '0 0 20px var(--bg-glow)' : 'none',
-          zIndex: isToday ? 10 : 'auto',
-          opacity: isPastDay ? 0.85 : 1
+          background: isToday ? 'var(--surface)' : 'transparent',
+          borderLeft: isToday ? '1px solid var(--border)' : '1px solid transparent',
+          borderRight: isToday ? '1px solid var(--border)' : '1px solid transparent',
+          borderTop: isToday ? '1px solid var(--border)' : '1px solid transparent',
+          borderBottom: isToday ? '1px solid var(--border)' : '1px solid transparent',
+          zIndex: isToday ? 10 : 5,
+          opacity: isPastDay ? 0.7 : 1
         }}
       >
         {/* Day Name */}
@@ -81,8 +81,7 @@ const DayHeader: React.FC<DayHeaderProps> = React.memo(({
         <span
           className="text-4xl font-display font-black leading-none transition-all duration-300"
           style={{
-            color: isToday ? 'var(--text-primary)' : 'var(--text-muted)',
-            textShadow: isToday ? '0 0 20px var(--bg-glow)' : 'none',
+            color: isToday ? 'var(--accent)' : 'var(--text-muted)',
             opacity: isToday ? 1 : 0.5
           }}
         >
@@ -112,8 +111,8 @@ const DayHeader: React.FC<DayHeaderProps> = React.memo(({
             <div className="w-full flex flex-col items-center gap-1">
               {/* Progress Bar */}
               <div
-                className="w-full h-2 rounded-full overflow-hidden relative"
-                style={{ backgroundColor: 'var(--bg-surface-strong)' }}
+                className="w-full h-1.5 rounded-full overflow-hidden relative"
+                style={{ backgroundColor: 'var(--surface2)' }}
               >
                 <motion.div
                   className="absolute left-0 top-0 bottom-0 rounded-full"
@@ -211,7 +210,7 @@ export const WeekView: React.FC<WeekViewProps> = React.memo(({
   return (
     <div
       className="flex flex-col h-full font-sans overflow-hidden"
-      style={{ color: 'var(--text-secondary)' }}
+      style={{ color: 'var(--text-muted)' }}
       data-tour="week-view"
     >
       <div className="flex-grow flex flex-col px-4 pb-4 overflow-hidden relative">
@@ -219,7 +218,7 @@ export const WeekView: React.FC<WeekViewProps> = React.memo(({
         {/* Days Header Row - clickable in timeline mode */}
         <div
           className={`flex pb-0 shrink-0 transition-all duration-300 pt-1 gap-2`}
-          style={{ paddingLeft: isStacked ? 0 : 'var(--row-label-width, 80px)' }}
+          style={{ paddingLeft: (isStacked && dayViewMode === 'list') ? 0 : 'var(--row-label-width, 80px)' }}
         >
           {currentWeekDays.map((day, i) => {
             const stats = dailyStats[i];

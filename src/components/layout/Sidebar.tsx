@@ -157,8 +157,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
     };
 
     // Defensive check for tasks
+    const safeTasks = tasks || [];
     // Filter out subtasks (tasks with parent_id)
-    const mainTasks = tasks.filter(t => !t.parent_id);
+    const mainTasks = safeTasks.filter(t => !t.parent_id);
+    const visibleTasks = mainTasks;
 
     const highPriorityTasks = mainTasks.filter(t => t.type === 'high');
     const mediumPriorityTasks = mainTasks.filter(t => t.type === 'medium');
@@ -342,10 +344,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className="h-full flex flex-col border-r relative z-20 overflow-hidden"
             style={{
-                backgroundColor: 'var(--bg-glass)',
-                borderColor: 'var(--border-light)',
-                backdropFilter: 'blur(25px)',
-                WebkitBackdropFilter: 'blur(25px)'
+                backgroundColor: 'var(--surface)',
+                borderColor: 'var(--border)',
             }}
             onDragOver={(e) => e.preventDefault()}
             onDrop={handleSidebarDrop}

@@ -18,8 +18,8 @@ export const BrainDump: React.FC<BrainDumpProps> = ({ lists, onUpdateList, onAdd
     return (
         <div className="h-full flex flex-col overflow-hidden relative pt-5 max-w-7xl mx-auto w-full">
             <div className="mb-6 flex-shrink-0 px-4 sm:px-6 text-center">
-                <h2 className="text-3xl font-display font-bold mb-1" style={{ color: 'var(--text-primary)' }}>Brain Dump</h2>
-                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Unload your thoughts. Multiple lists supported.</p>
+                <h2 className="text-3xl font-display font-bold mb-1" style={{ color: 'var(--text-primary)' }}>Notes</h2>
+                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Capture your thoughts. Multiple lists supported.</p>
             </div>
 
             <div className="flex-1 overflow-y-auto pb-4 px-4 sm:px-6">

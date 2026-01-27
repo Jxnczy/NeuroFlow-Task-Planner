@@ -71,7 +71,7 @@ export const TimelineBlock = React.memo<TimelineBlockProps>(({
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: isFaded ? 0.4 : 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            className={`absolute left-1 right-1 rounded-xl overflow-hidden cursor-pointer border-l-[4px] ${borderColorClass} bg-white/[0.04] border-y border-r border-white/[0.08]`}
+            className={`absolute left-1 right-1 rounded-xl overflow-hidden cursor-pointer border-l-[4px] ${borderColorClass} bg-[var(--surface)] border-y border-r border-[var(--border)]`}
             style={{
                 top: topOffset,
                 height: Math.max(height, MIN_BLOCK_HEIGHT),
@@ -92,8 +92,8 @@ export const TimelineBlock = React.memo<TimelineBlockProps>(({
                     onClick={handleComplete}
                     className="w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all"
                     style={{
-                        borderColor: isCompleted ? 'var(--success)' : 'var(--text-muted)',
-                        backgroundColor: isCompleted ? 'var(--success)' : 'transparent'
+                        borderColor: isCompleted ? '#10b981' : 'var(--text-muted)',
+                        backgroundColor: isCompleted ? '#10b981' : 'transparent'
                     }}
                 >
                     {isCompleted && <CheckCircle2 size={12} className="text-white" />}
@@ -104,7 +104,7 @@ export const TimelineBlock = React.memo<TimelineBlockProps>(({
                     <div className="flex items-center gap-2">
                         <span
                             className={`text-sm font-semibold truncate ${isCompleted ? 'line-through' : ''}`}
-                            style={{ color: isCompleted ? 'var(--text-muted)' : 'var(--text-primary)' }}
+                            style={{ color: isCompleted ? 'var(--text-muted)' : 'var(--text)' }}
                         >
                             {task.title}
                         </span>

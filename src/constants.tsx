@@ -33,12 +33,12 @@ export const TASK_CARD_BORDER_COLORS: Record<TaskType, string> = {
 };
 
 export const CATEGORIES = [
-  { id: 'high', label: 'High', color: '#f43f5e', emoji: '🔥' },
-  { id: 'medium', label: 'Medium', color: '#f97316', emoji: '⚡' },
-  { id: 'low', label: 'Low', color: '#facc15', emoji: '📋' },
-  { id: 'leisure', label: 'Leisure', color: '#22d3ee', emoji: '🎮' },
-  { id: 'chores', label: 'Chores', color: '#a8b3c1', emoji: '🧹' },
-  { id: 'backlog', label: 'Backlog', color: '#5a6472', emoji: '📥' },
+  { id: 'high', label: 'High', color: 'var(--cat-goal)', emoji: '🔥' },
+  { id: 'medium', label: 'Medium', color: 'var(--cat-focus)', emoji: '⚡' },
+  { id: 'low', label: 'Low', color: 'var(--cat-work)', emoji: '📋' },
+  { id: 'leisure', label: 'Leisure', color: 'var(--cat-leisure)', emoji: '🎮' },
+  { id: 'chores', label: 'Chores', color: 'var(--cat-chores)', emoji: '🧹' },
+  { id: 'backlog', label: 'Backlog', color: 'var(--cat-backlog)', emoji: '📥' },
 ];
 
 export const getWeekDays = (startDate: Date = new Date()) => {

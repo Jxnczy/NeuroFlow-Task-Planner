@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { X, Check, Clock, CalendarDays, Flag, Plus, Trash2, GripVertical, CornerDownRight } from 'lucide-react';
 import { useTaskContext } from '../../context/TaskContext';
 import { Task, TaskType, GridRow } from '../../types';
 import { formatDate } from '../../constants';
-import { clsx } from 'clsx'; // Assuming clsx or similar utility, or just check if it exists. Reverting to template literals to be safe.
 
 interface TaskDetailViewProps {
     taskId: string;
@@ -27,7 +26,7 @@ export const TaskDetailView: React.FC<TaskDetailViewProps> = ({ taskId, onClose 
     const [isSavingNotes, setIsSavingNotes] = useState(false);
     const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
 
-    const notesDebounceRef = useRef<NodeJS.Timeout | null>(null);
+    const notesDebounceRef = useRef<any>(null);
 
     // Sync notes if task changes externally (careful not to overwrite user typing)
     useEffect(() => {
@@ -150,7 +149,7 @@ export const TaskDetailView: React.FC<TaskDetailViewProps> = ({ taskId, onClose 
                             value={notes}
                             onChange={(e) => setNotes(e.target.value)}
                             placeholder="Add details, notes, or links..."
-                            className="w-full min-h-[120px] bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 text-sm text-zinc-300 focus:outline-none focus:ring-1 focus:ring-zinc-600 resize-y placeholder:text-zinc-700"
+                            className="w-full min-h-[120px] bg-white/5 border border-zinc-800/50 rounded-2xl p-4 text-sm text-zinc-300 focus:outline-none focus:ring-1 focus:ring-zinc-600 resize-y placeholder:text-zinc-500"
                         />
                     </div>
 
@@ -185,14 +184,14 @@ export const TaskDetailView: React.FC<TaskDetailViewProps> = ({ taskId, onClose 
                         </div>
 
                         {/* Add Subtask Input */}
-                        <form onSubmit={handleAddSubtask} className="flex items-center gap-2 pl-2">
+                        <form onSubmit={handleAddSubtask} className="flex items-center gap-3 p-3 bg-white/5 border border-zinc-800/50 rounded-2xl focus-within:border-zinc-700/50 focus-within:ring-1 focus-within:ring-zinc-700 transition-all">
                             <Plus size={16} className="text-zinc-500" />
                             <input
                                 type="text"
                                 value={newSubtaskTitle}
                                 onChange={(e) => setNewSubtaskTitle(e.target.value)}
                                 placeholder="Add a subtask..."
-                                className="flex-1 bg-transparent border-none py-2 text-sm text-white focus:outline-none placeholder:text-zinc-600"
+                                className="flex-1 bg-transparent border-none p-0 text-sm text-white focus:outline-none placeholder:text-zinc-500"
                             />
                         </form>
                     </div>

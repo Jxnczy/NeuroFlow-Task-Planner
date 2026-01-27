@@ -233,22 +233,22 @@ const DayTimelineView: React.FC<DayTimelineViewProps> = ({
         <div
             className="flex flex-row h-full overflow-hidden rounded-2xl border transition-colors duration-200"
             style={{
-                borderColor: 'var(--border-light)'
+                borderColor: 'var(--border)'
             }}
         >
             {/* Scrollable Timeline */}
             <div
                 className="flex-1 overflow-y-auto relative scrollbar-hide border-l transition-colors duration-200"
                 ref={scrollRef}
-                style={{ borderColor: 'var(--border-light)' }}
+                style={{ borderColor: 'var(--border)' }}
             >
                 <div className="flex w-full h-full">
                     {/* Time Labels Column */}
                     <div
                         className="w-20 flex-shrink-0 sticky left-0 z-20 backdrop-blur-sm border-r pt-0 transition-colors duration-200"
                         style={{
-                            backgroundColor: 'var(--bg-secondary)',
-                            borderColor: 'var(--border-light)'
+                            // backgroundColor: 'var(--surface2)', // Removed to blend with background
+                            borderColor: 'var(--border)'
                         }}
                     >
                         {TIME_SLOTS.map(slot => (
@@ -290,7 +290,7 @@ const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                                 className="flex-1 w-0 min-w-0 border-r relative last:border-r-0 group transition-colors duration-200"
                                 style={{
                                     height: timelineHeight,
-                                    borderColor: 'var(--border-light)'
+                                    borderColor: 'var(--border)'
                                 }}
                                 onDragOver={(e) => handleDragOver(e, dateStr)}
                                 onDragLeave={() => setPreview(null)}
@@ -304,7 +304,7 @@ const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                                         style={{
                                             top: (slot.hour - START_HOUR) * HOUR_HEIGHT,
                                             height: HOUR_HEIGHT,
-                                            borderColor: 'var(--border-light)',
+                                            borderColor: 'var(--border)',
                                             opacity: 0.6
                                         }}
                                     />

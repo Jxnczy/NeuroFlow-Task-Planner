@@ -32,7 +32,7 @@ export function useTaskManager(initialTasks: Task[], userId?: string, supabaseEn
         try {
             const remoteTasks = await SupabaseDataService.fetchTasks(userId);
             if (remoteTasks.length) {
-                manager.setTasks(remoteTasks);
+                manager.mergeTasks(remoteTasks);
             }
         } catch (error) {
             console.error('Failed to refresh tasks from Supabase', error);
@@ -51,7 +51,7 @@ export function useTaskManager(initialTasks: Task[], userId?: string, supabaseEn
                 const remoteTasks = await SupabaseDataService.fetchTasks(userId);
                 if (!mounted) return;
                 if (remoteTasks.length) {
-                    manager.setTasks(remoteTasks);
+                    manager.mergeTasks(remoteTasks);
                 }
             } catch (error) {
                 console.error('Failed to load tasks from Supabase', error);

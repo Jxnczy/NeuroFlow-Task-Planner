@@ -72,14 +72,22 @@ export function useEncryption(userId?: string): UseEncryptionResult {
                 const expiry = parseInt(expiryStr, 10);
                 if (Date.now() < expiry) {
                     console.log('Restoring vault session...');
-                    crypto.unlock(storedPass, salt).then(() => {
+                    crypto.unlock(storedPass, salt).then(async () => {
+                        // Verify key integrity
+                        const testPayload = storage.getRawEncryptedData();
+                        if (testPayload) {
+                            await crypto.decryptData(testPayload);
+                        }
+
                         setIsUnlocked(true);
                         // Refresh expiry
                         sessionStorage.setItem(SESSION_EXPIRY_KEY, (Date.now() + SESSION_DURATION_MS).toString());
                     }).catch(() => {
+                        console.warn('Auto-unlock failed: Invalid passphrase or corrupted session');
                         // Failed to unlock with stored pass - clear session
                         sessionStorage.removeItem(SESSION_PASSPHRASE_KEY);
                         sessionStorage.removeItem(SESSION_EXPIRY_KEY);
+                        crypto.lock();
                     }).finally(() => {
                         setIsLoading(false);
                     });
@@ -160,6 +168,14 @@ export function useEncryption(userId?: string): UseEncryptionResult {
 
         try {
             await crypto.unlock(passphrase, salt);
+
+            // Verify key by attempting to decrypt data if it exists
+            const testPayload = storage.getRawEncryptedData();
+            if (testPayload) {
+                // This will throw if key is wrong
+                await crypto.decryptData(testPayload);
+            }
+
             setIsUnlocked(true);
 
             // Set session
@@ -168,6 +184,9 @@ export function useEncryption(userId?: string): UseEncryptionResult {
 
             return true;
         } catch (err) {
+            // Ensure we don't leave a half-unlocked state
+            crypto.lock();
+            setIsUnlocked(false);
             setError('Invalid passphrase. Please try again.');
             return false;
         } finally {

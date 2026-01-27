@@ -35,10 +35,7 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
                 {isMobile ? (
                     <button
                         onClick={onClose}
-                        className="p-2.5 rounded-xl transition-colors"
-                        style={{ color: 'var(--text-muted)' }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-surface-strong)'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                        className="btn-icon"
                         title="Close Sidebar"
                     >
                         <X size={18} />
@@ -46,10 +43,7 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
                 ) : (
                     <button
                         onClick={onToggle}
-                        className="p-2.5 rounded-xl transition-colors"
-                        style={{ color: 'var(--text-muted)' }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-surface-strong)'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                        className="btn-icon"
                         title="Collapse Sidebar"
                     >
                         <PanelLeftClose size={18} />
@@ -58,10 +52,7 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
                 {onDayViewModeChange && (
                     <button
                         onClick={() => onDayViewModeChange(dayViewMode === 'list' ? 'timeline' : 'list')}
-                        className="p-2.5 rounded-xl transition-colors"
-                        style={{ color: 'var(--text-muted)' }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-surface-strong)'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                        className="btn-icon"
                         title={dayViewMode === 'list' ? "Switch to Timeline View" : "Switch to List View"}
                     >
                         {dayViewMode === 'list' ? <Clock size={18} /> : <List size={18} />}
@@ -69,10 +60,7 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
                 )}
                 <button
                     onClick={onOpenSettings}
-                    className="p-2.5 rounded-xl transition-colors"
-                    style={{ color: 'var(--text-muted)' }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                    className="btn-icon"
                 >
                     <Settings size={18} />
                 </button>
