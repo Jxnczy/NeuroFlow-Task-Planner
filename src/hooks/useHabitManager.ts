@@ -3,14 +3,17 @@ import { HabitManager } from '../services/HabitManager';
 import { Habit } from '../types';
 import { SupabaseDataService } from '../services/supabaseDataService';
 
+import { useSpace } from './useSpace';
+
 export function useHabitManager(initialHabits: Habit[], userId?: string, supabaseEnabled: boolean = true) {
-    const [habits, setHabits] = useState<Habit[]>(initialHabits);
+    const [allHabits, setAllHabits] = useState<Habit[]>(initialHabits);
+    const { space: currentSpace, spacesEnabled } = useSpace();
 
     // Initialize manager once
     const manager = useMemo(() => new HabitManager(initialHabits), []);
 
     useEffect(() => {
-        return manager.subscribe(setHabits);
+        return manager.subscribe(setAllHabits);
     }, [manager]);
 
     // Sync incoming remote or imported habits
@@ -60,9 +63,11 @@ export function useHabitManager(initialHabits: Habit[], userId?: string, supabas
     }, [userId, supabaseEnabled]);
 
     const addHabit = useCallback((name: string, goal: number) => {
-        const newHabit = manager.addHabit(name, goal);
+        const space = spacesEnabled ? currentSpace : 'private';
+
+        const newHabit = manager.addHabit(name, goal, space);
         persistHabit(newHabit);
-    }, [manager, persistHabit]);
+    }, [manager, persistHabit, spacesEnabled, currentSpace]);
 
     const deleteHabit = useCallback((habitId: string) => {
         manager.deleteHabit(habitId);
@@ -85,8 +90,17 @@ export function useHabitManager(initialHabits: Habit[], userId?: string, supabas
         }
     }, [manager, persistHabit]);
 
+    // Derived state
+    const habits = useMemo(() => {
+        if (!spacesEnabled) {
+            return allHabits.filter(h => !h.space || h.space === 'private');
+        }
+        return allHabits.filter(h => (h.space || 'private') === currentSpace);
+    }, [allHabits, spacesEnabled, currentSpace]);
+
     return {
         habits,
+        allHabits,
         addHabit,
         deleteHabit,
         toggleHabit,

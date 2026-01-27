@@ -175,7 +175,7 @@ const AppContent = ({
         localStorage.setItem('encryption_onboarding_skipped', 'true');
         setShowEncryptionOnboarding(false);
     };
-    const persistence = usePersistence(taskManager.tasks, habitManager.habits, brainDumpManager.lists, statsResetAt, encryptionEnabled);
+    const persistence = usePersistence(taskManager.allTasks, habitManager.allHabits, brainDumpManager.allLists, statsResetAt, encryptionEnabled);
 
     // --- Responsive ---
     const isMobile = useIsMobile();

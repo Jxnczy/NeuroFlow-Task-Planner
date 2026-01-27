@@ -5,9 +5,15 @@ import { playSuccessSound } from '../constants';
 import { SupabaseDataService } from '../services/supabaseDataService';
 import { generateId } from '../utils/id';
 import { getTaskIdFromDragEvent, setTaskDragData } from '../utils/drag';
+import { getSpace, getSpacesEnabled } from '../state/space';
+import { getSpacesEnabled as checkSpacesEnabled } from '../state/features';
 
+import { useSpace } from './useSpace';
+
+// Note: We expose `allTasks` for persistence and `tasks` for the UI (filtered)
 export function useTaskManager(initialTasks: Task[], userId?: string, supabaseEnabled: boolean = true) {
-    const [tasks, setTasks] = useState<Task[]>(initialTasks);
+    const [allTasks, setAllTasks] = useState<Task[]>(initialTasks);
+    const { space: currentSpace, spacesEnabled } = useSpace(); // Reactive state
     const [isLoading, setIsLoading] = useState<boolean>(() => {
         if (!userId || !supabaseEnabled) return false;
         return true;
@@ -16,9 +22,9 @@ export function useTaskManager(initialTasks: Task[], userId?: string, supabaseEn
     // Initialize manager once
     const manager = useMemo(() => new TaskManager(initialTasks), []);
 
-    // Subscribe to changes
+    // Subscribe to changes (manager holds ALL tasks)
     useEffect(() => {
-        return manager.subscribe(setTasks);
+        return manager.subscribe(setAllTasks);
     }, [manager]);
 
     // Sync initial tasks if they change (e.g. after remote fetch/import)
@@ -111,13 +117,23 @@ export function useTaskManager(initialTasks: Task[], userId?: string, supabaseEn
         });
     }, []);
 
+    // Derived state for UI
+    const tasks = useMemo(() => {
+        if (!spacesEnabled) {
+            return allTasks.filter(t => !t.space || t.space === 'private');
+        }
+        return allTasks.filter(t => (t.space || 'private') === currentSpace);
+    }, [allTasks, isLoading, spacesEnabled, currentSpace]); // Reactive dependencies!
+
 
     // Expose stable API
     const addTask = useCallback((title: string, duration: number, type: TaskType, notes?: string) => {
-        const newTask = manager.addTask(title, duration, type, generateId(), notes);
+        const space = spacesEnabled ? currentSpace : 'private';
+
+        const newTask = manager.addTask(title, duration, type, generateId(), notes, undefined, space);
         persistTasks([newTask]);
         return newTask;
-    }, [manager, persistTasks]);
+    }, [manager, persistTasks, spacesEnabled, currentSpace]);
 
     const updateTask = useCallback((taskId: string, updates: Partial<Task>) => {
         const before = manager.getTasks();
@@ -210,7 +226,8 @@ export function useTaskManager(initialTasks: Task[], userId?: string, supabaseEn
         const taskId = getTaskIdFromDragEvent(e);
         if (!taskId) return;
 
-        const task = tasks.find(t => t.id === taskId);
+        // Find in allTasks to be safe
+        const task = allTasks.find(t => t.id === taskId);
         if (!task) return;
 
         let targetRow = row;
@@ -242,7 +259,7 @@ export function useTaskManager(initialTasks: Task[], userId?: string, supabaseEn
         }
 
         scheduleTask(taskId, day, targetRow as GridRow, targetType);
-    }, [tasks, scheduleTask]);
+    }, [allTasks, scheduleTask]);
 
     const handleDropOnSidebar = useCallback((e: React.DragEvent<HTMLElement>) => {
         e.preventDefault();
@@ -250,11 +267,11 @@ export function useTaskManager(initialTasks: Task[], userId?: string, supabaseEn
         const taskId = getTaskIdFromDragEvent(e);
         if (!taskId) return;
         manager.unscheduleTask(taskId);
-        const changed = diffTasks(tasks, manager.getTasks());
+        const changed = diffTasks(allTasks, manager.getTasks());
         if (changed.length) {
             persistTasks(changed);
         }
-    }, [tasks, manager, diffTasks, persistTasks]);
+    }, [allTasks, manager, diffTasks, persistTasks]);
 
     const handleDropOnEisenhower = useCallback((e: React.DragEvent<HTMLElement>, quad: 'do' | 'decide' | 'delegate' | 'delete') => {
         e.preventDefault();
@@ -262,17 +279,18 @@ export function useTaskManager(initialTasks: Task[], userId?: string, supabaseEn
         const taskId = getTaskIdFromDragEvent(e);
         if (!taskId) return;
         manager.setEisenhowerQuad(taskId, quad);
-        const changed = diffTasks(tasks, manager.getTasks());
+        const changed = diffTasks(allTasks, manager.getTasks());
         if (changed.length) {
             persistTasks(changed);
         }
-    }, [tasks, manager, diffTasks, persistTasks]);
+    }, [allTasks, manager, diffTasks, persistTasks]);
 
     const syncRemoteTask = useCallback((task: Task) => manager.upsertTask(task), [manager]);
     const removeRemoteTask = useCallback((taskId: string) => manager.removeTask(taskId), [manager]);
 
     return {
         tasks,
+        allTasks, // EXPOSED for persistence
         addTask,
         updateTask,
         scheduleTask,

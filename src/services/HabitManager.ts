@@ -26,12 +26,13 @@ export class HabitManager {
         return [...this.habits];
     }
 
-    addHabit(name: string, goal: number): Habit {
+    addHabit(name: string, goal: number, space?: 'work' | 'private'): Habit {
         const newHabit: Habit = {
             id: generateId(),
             name,
             goal,
-            checks: Array(7).fill(false)
+            checks: Array(7).fill(false),
+            space: space || 'private'
         };
         this.habits = [...this.habits, newHabit];
         this.notify();

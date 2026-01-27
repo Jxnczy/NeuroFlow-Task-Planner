@@ -6,6 +6,7 @@ import { mapTaskFromDb, DbTaskRow } from '../services/supabaseDataService';
 
 interface TaskContextType {
     tasks: Task[];
+    allTasks: Task[];
     addTask: (title: string, duration: number, type: TaskType, id?: string, notes?: string, parent_id?: string) => Task;
     updateTask: (taskId: string, updates: Partial<Task>) => void;
     scheduleTask: (taskId: string, date: Date, row?: GridRow | null, type?: TaskType) => void;
@@ -39,6 +40,7 @@ interface TaskProviderProps {
 export const TaskProvider: React.FC<TaskProviderProps> = ({ children, initialTasks, userId, supabaseEnabled = true }) => {
     const {
         tasks,
+        allTasks,
         addTask,
         updateTask,
         scheduleTask,
@@ -111,6 +113,7 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children, initialTas
     return (
         <TaskContext.Provider value={{
             tasks,
+            allTasks,
             addTask,
             updateTask,
             scheduleTask,

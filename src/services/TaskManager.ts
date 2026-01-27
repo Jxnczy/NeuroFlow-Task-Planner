@@ -36,13 +36,14 @@ export class TaskManager {
         return [...this.tasks];
     }
 
-    addTask(title: string, duration: number, type: TaskType, id?: string, notes?: string, parent_id?: string): Task {
+    addTask(title: string, duration: number, type: TaskType, id?: string, notes?: string, parent_id?: string, space?: 'work' | 'private'): Task {
         const newTask: Task = {
             id: id || generateId(),
             title,
             duration,
             type,
             notes,
+            space: space || 'private',
             status: 'unscheduled',
             dueDate: null,
             deadline: null,

@@ -19,6 +19,12 @@ export function usePersistence(
         // Debounce and prevent concurrent saves
         if (saveInProgress.current) return;
 
+        // Safety check: Prevent saving if critical data is undefined (e.g. during render crashes or context failures)
+        if (!Array.isArray(tasks) || !Array.isArray(habits) || !Array.isArray(brainDumpLists)) {
+            console.warn('usePersistence: Skipping save due to missing/invalid data structures', { tasks, habits, brainDumpLists });
+            return;
+        }
+
         const data: AppData = { tasks, habits, brainDumpLists, statsResetAt };
 
         const saveData = async () => {

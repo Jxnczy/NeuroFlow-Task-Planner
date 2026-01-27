@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { CalendarDays, Target, ListChecks, Notebook, BarChart3, ChevronLeft, ChevronRight, Moon, PanelLeft } from 'lucide-react';
 import { formatDate, getWeekDays, isLateNight } from '../../constants';
 import { pulseScale } from '../../utils/animations';
+import { getSpacesEnabled } from '../../state/features';
+import { getSpace, setSpace } from '../../state/space';
 interface HeaderProps {
     activeTab: string;
     setActiveTab: (tab: string) => void;
@@ -33,6 +35,24 @@ export const Header: React.FC<HeaderProps> = ({
     const currentWeekDays = getWeekDays(currentDate);
     const isLateNightSession = isLateNight();
 
+    // Spaces Hooks
+    const spacesEnabled = getSpacesEnabled();
+    const currentSpace = getSpace();
+    // Force re-render on storage events (handled slightly differently in React usually, 
+    // but we can use a simple listener or just rely on parent re-renders if state was lifted. 
+    // For now, let's use a local effect to listen to the custom event we dispatch)
+    const [spaceState, setSpaceState] = useState(currentSpace);
+    const [spacesEnabledState, setSpacesEnabledState] = useState(spacesEnabled);
+
+    useEffect(() => {
+        const handleStorage = () => {
+            setSpaceState(getSpace());
+            setSpacesEnabledState(getSpacesEnabled());
+        };
+        window.addEventListener('storage', handleStorage);
+        return () => window.removeEventListener('storage', handleStorage);
+    }, []);
+
     const tabs = [
         { id: 'planner', label: 'Planner', icon: CalendarDays },
         { id: 'focus', label: 'Deep Focus', icon: Target },
@@ -60,6 +80,30 @@ export const Header: React.FC<HeaderProps> = ({
                         >
                             <PanelLeft size={20} />
                         </button>
+                    )}
+
+                    {/* Spaces Switcher */}
+                    {spacesEnabledState && (
+                        <div className="flex items-center p-1 rounded-lg border border-white/10 bg-white/5 backdrop-blur-md">
+                            <button
+                                onClick={() => setSpace('private')}
+                                className={`px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-md transition-all ${spaceState === 'private'
+                                        ? 'bg-indigo-500 text-white shadow-sm'
+                                        : 'text-white/40 hover:text-white/60'
+                                    }`}
+                            >
+                                Private
+                            </button>
+                            <button
+                                onClick={() => setSpace('work')}
+                                className={`px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-md transition-all ${spaceState === 'work'
+                                        ? 'bg-rose-500 text-white shadow-sm'
+                                        : 'text-white/40 hover:text-white/60'
+                                    }`}
+                            >
+                                Work
+                            </button>
+                        </div>
                     )}
 
                     {/* Week Switcher */}

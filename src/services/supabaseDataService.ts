@@ -81,6 +81,7 @@ export interface DbTaskRow {
     sort_order?: number | null;
     notes?: string | null;
     parent_id?: string | null;
+    space?: string | null;
 }
 
 export interface DbHabitRow {
@@ -89,6 +90,7 @@ export interface DbHabitRow {
     name: string;
     goal: number | null;
     daily_history: boolean[] | null;
+    space?: string | null;
 }
 
 export interface DbNoteRow {
@@ -97,37 +99,10 @@ export interface DbNoteRow {
     title: string | null;
     content: string | null;
     updated_at: string | null;
+    space?: string | null;
 }
 
-// UUID validation regex
-const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
-
-
-// Track legacy ID -> UUID mappings for consistency within a session
-const idMigrationMap = new Map<string, string>();
-
-const migrateId = (legacyId: string): string => {
-    if (UUID_REGEX.test(legacyId)) {
-        return legacyId;
-    }
-    // Check if we've already migrated this ID
-    if (idMigrationMap.has(legacyId)) {
-        return idMigrationMap.get(legacyId)!;
-    }
-    // Generate new UUID and cache it
-    const newId = generateId();
-    idMigrationMap.set(legacyId, newId);
-    return newId;
-};
-
-const getCompletionStatus = (row: DbTaskRow): TaskStatus => {
-    if (row.status) return row.status as TaskStatus;
-    if (row.is_completed) return 'completed';
-    if (row.scheduled_date) return 'scheduled';
-    return 'unscheduled';
-};
-
+// ... (existing code)
 
 export const mapTaskFromDb = async (row: DbTaskRow): Promise<Task> => {
     const title = await decryptField(row.title, row.id);
@@ -147,7 +122,8 @@ export const mapTaskFromDb = async (row: DbTaskRow): Promise<Task> => {
         sortOrder: row.sort_order ?? 0,
         completedAt: row.completed_at ? new Date(row.completed_at).getTime() : undefined,
         notes: await decryptField(row.notes || null, row.id),
-        parent_id: row.parent_id ?? null
+        parent_id: row.parent_id ?? null,
+        space: (row.space as 'work' | 'private') || 'private'
     };
 };
 
@@ -173,7 +149,8 @@ const mapTaskToDb = async (task: Task, userId: string): Promise<Omit<DbTaskRow, 
         notes: await encryptField(task.notes || '', id),
         parent_id: task.parent_id ?? null,
         created_at: new Date(task.createdAt || Date.now()).toISOString(),
-        completed_at: task.completedAt ? new Date(task.completedAt).toISOString() : (task.status === 'completed' ? new Date().toISOString() : null)
+        completed_at: task.completedAt ? new Date(task.completedAt).toISOString() : (task.status === 'completed' ? new Date().toISOString() : null),
+        space: task.space || 'private'
     };
 };
 
@@ -183,7 +160,8 @@ const mapHabitFromDb = async (row: DbHabitRow): Promise<Habit> => {
         id: row.id,
         name,
         goal: row.goal ?? 7,
-        checks: Array.isArray(row.daily_history) ? row.daily_history : Array(7).fill(false)
+        checks: Array.isArray(row.daily_history) ? row.daily_history : Array(7).fill(false),
+        space: (row.space as 'work' | 'private') || 'private'
     };
 };
 
@@ -195,7 +173,8 @@ const mapHabitToDb = async (habit: Habit, userId: string): Promise<Omit<DbHabitR
         user_id: userId,
         name: encryptedName,
         goal: habit.goal,
-        daily_history: habit.checks
+        daily_history: habit.checks,
+        space: habit.space || 'private'
     };
 };
 
@@ -206,7 +185,8 @@ const mapNoteFromDb = async (row: DbNoteRow): Promise<BrainDumpList> => {
         id: row.id,
         title: title || 'Untitled',
         content: content || '',
-        lastEdited: row.updated_at ? new Date(row.updated_at).getTime() : undefined
+        lastEdited: row.updated_at ? new Date(row.updated_at).getTime() : undefined,
+        space: (row.space as 'work' | 'private') || 'private'
     };
 };
 
@@ -219,9 +199,11 @@ const mapNoteToDb = async (list: BrainDumpList, userId: string): Promise<Omit<Db
         user_id: userId,
         title: encryptedTitle,
         content: encryptedContent,
-        updated_at: list.lastEdited ? new Date(list.lastEdited).toISOString() : new Date().toISOString()
+        updated_at: list.lastEdited ? new Date(list.lastEdited).toISOString() : new Date().toISOString(),
+        space: list.space || 'private'
     };
 };
+
 
 export const SupabaseDataService = {
     async fetchTasks(userId: string): Promise<Task[]> {

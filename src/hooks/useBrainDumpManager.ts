@@ -2,12 +2,14 @@ import { useState, useEffect, useCallback } from 'react';
 import { BrainDumpList } from '../types';
 import { SupabaseDataService } from '../services/supabaseDataService';
 import { generateId } from '../utils/id';
+import { useSpace } from './useSpace';
 
 export function useBrainDumpManager(initialLists: BrainDumpList[], userId?: string, supabaseEnabled: boolean = true) {
-    const [lists, setLists] = useState<BrainDumpList[]>(initialLists);
+    const [allLists, setAllLists] = useState<BrainDumpList[]>(initialLists);
+    const { space: currentSpace, spacesEnabled } = useSpace();
 
     useEffect(() => {
-        setLists(initialLists);
+        setAllLists(initialLists);
     }, [initialLists]);
 
     // Visibility-based refresh for multi-device sync
@@ -16,7 +18,7 @@ export function useBrainDumpManager(initialLists: BrainDumpList[], userId?: stri
         try {
             const remote = await SupabaseDataService.fetchNotes(userId);
             if (remote.length) {
-                setLists(remote);
+                setAllLists(remote);
             }
         } catch (error) {
             console.error('Failed to refresh notes from Supabase', error);
@@ -52,18 +54,21 @@ export function useBrainDumpManager(initialLists: BrainDumpList[], userId?: stri
     }, [userId, supabaseEnabled]);
 
     const addList = () => {
+        const space = spacesEnabled ? currentSpace : 'private';
+
         const newList: BrainDumpList = {
             id: generateId(),
-            title: `List ${lists.length + 1}`,
+            title: `List ${allLists.length + 1}`,
             content: '',
-            lastEdited: Date.now()
+            lastEdited: Date.now(),
+            space
         };
-        setLists(prev => [...prev, newList]);
+        setAllLists(prev => [...prev, newList]);
         persistNote(newList);
     };
 
     const updateList = (id: string, content: string) => {
-        setLists(prev => {
+        setAllLists(prev => {
             const updated = prev.map(l => l.id === id ? { ...l, content, lastEdited: Date.now() } : l);
             const current = updated.find(l => l.id === id);
             if (current) persistNote(current);
@@ -72,7 +77,7 @@ export function useBrainDumpManager(initialLists: BrainDumpList[], userId?: stri
     };
 
     const updateTitle = (id: string, title: string) => {
-        setLists(prev => {
+        setAllLists(prev => {
             const updated = prev.map(l => l.id === id ? { ...l, title, lastEdited: Date.now() } : l);
             const current = updated.find(l => l.id === id);
             if (current) persistNote(current);
@@ -81,19 +86,25 @@ export function useBrainDumpManager(initialLists: BrainDumpList[], userId?: stri
     };
 
     const deleteList = (id: string) => {
-        setLists(prev => prev.filter(l => l.id !== id));
+        setAllLists(prev => prev.filter(l => l.id !== id));
         if (userId && supabaseEnabled) {
             void SupabaseDataService.deleteNote(userId, id);
         }
     };
 
     const clearLists = () => {
-        setLists([]);
+        setAllLists([]);
         if (userId && supabaseEnabled) {
             void SupabaseDataService.replaceNotes(userId, []);
         }
     };
 
-    return { lists, setLists, addList, updateList, updateTitle, deleteList, clearLists };
+    // Derived state
+    const lists = allLists.filter(l => {
+        if (!spacesEnabled) return !l.space || l.space === 'private';
+        return (l.space || 'private') === currentSpace;
+    });
+
+    return { lists, allLists, setLists: setAllLists, addList, updateList, updateTitle, deleteList, clearLists };
 }
 

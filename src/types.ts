@@ -21,6 +21,7 @@ export interface Task {
   sortOrder?: number;
   parent_id?: string | null; // For subtasks
   completedAt?: number; // millisecond timestamp
+  space?: 'work' | 'private';
 }
 
 export interface Habit {
@@ -28,11 +29,13 @@ export interface Habit {
   name: string;
   goal: number; // Days per week (1-7)
   checks: boolean[]; // Index 0 = Mon, 6 = Sun
+  space?: 'work' | 'private';
 }
 
 export interface Note {
   id: string;
   content: string;
+  space?: 'work' | 'private';
 }
 
 export interface BrainDumpList {
@@ -41,6 +44,7 @@ export interface BrainDumpList {
   content: string;
   lastEdited?: number; // Timestamp of last edit
   notes?: Note[]; // Deprecated, kept for migration
+  space?: 'work' | 'private';
 }
 
 export interface AppData {

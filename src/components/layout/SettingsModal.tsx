@@ -10,6 +10,7 @@ import { SettingsData } from './settings/SettingsData';
 import { SettingsSecurity } from './settings/SettingsSecurity';
 import { SettingsHelp } from './settings/SettingsHelp';
 import { SettingsAdvanced } from './settings/SettingsAdvanced';
+import { SettingsSpaces } from './settings/SettingsSpaces';
 
 interface SettingsModalProps {
     onClose: () => void;
@@ -120,6 +121,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                             onLogout={onLogout}
                             onClose={onClose}
                         />
+
+                        <SettingsSpaces supabaseEnabled={supabaseEnabled} />
 
                         <SettingsSecurity
                             encryptionEnabled={encryptionEnabled}
