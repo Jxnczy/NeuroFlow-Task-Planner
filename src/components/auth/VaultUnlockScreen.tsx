@@ -51,8 +51,7 @@ export const VaultUnlockScreen: React.FC<VaultUnlockScreenProps> = React.memo(({
             // Unlock mode
             const success = await onUnlock(passphrase);
             if (!success) {
-                setPassphrase('');
-                // Error prop handles the message, but clearing input helps user retry
+                // setPassphrase(''); // Removed to prevent jarring "shake"/reset effect. User can correct the typo.
             }
         }
     };
@@ -164,12 +163,7 @@ export const VaultUnlockScreen: React.FC<VaultUnlockScreenProps> = React.memo(({
                                 transition={{ duration: 1, delay: 0.3 }}
                             >
                                 {/* Header */}
-                                <motion.div
-                                    className="flex items-center gap-3"
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.1 }}
-                                >
+                                <div className="flex items-center gap-3">
                                     <div className="p-3 rounded-2xl bg-cyan-500/15 border border-cyan-400/30">
                                         {isVaultSetup ? (
                                             <Lock className="text-cyan-300" size={26} />
@@ -185,14 +179,9 @@ export const VaultUnlockScreen: React.FC<VaultUnlockScreenProps> = React.memo(({
                                             {isRestoreMode ? 'Restore Access' : (isVaultSetup ? 'Unlock Your Data' : 'Secure Your Data')}
                                         </h2>
                                     </div>
-                                </motion.div>
+                                </div>
 
-                                <motion.p
-                                    className="text-white/70 leading-relaxed"
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    transition={{ delay: 0.2 }}
-                                >
+                                <p className="text-white/70 leading-relaxed">
                                     {isRestoreMode ? (
                                         <>
                                             This device is missing its encryption keys. Enter your passphrase to restore them from your encrypted data.
@@ -205,7 +194,7 @@ export const VaultUnlockScreen: React.FC<VaultUnlockScreenProps> = React.memo(({
                                             <span className="text-amber-300"> This passphrase cannot be recovered if forgotten.</span>
                                         </>
                                     )}
-                                </motion.p>
+                                </p>
 
                                 {/* Form */}
                                 <motion.form

@@ -82,7 +82,8 @@ export const AddTaskForm: React.FC<AddTaskFormProps> = ({
                         className="w-full bg-transparent text-sm px-3 py-2.5 rounded-lg placeholder-zinc-500 focus:outline-none border focus:border-cyan-400/50 transition-colors"
                         style={{
                             color: 'var(--text)',
-                            borderColor: 'var(--border)'
+                            borderColor: 'var(--border)',
+                            backgroundColor: 'var(--bg)'
                         }}
                     />
                 </div>
@@ -99,7 +100,7 @@ export const AddTaskForm: React.FC<AddTaskFormProps> = ({
                                 onClick={() => setType(cat.id as TaskType)}
                                 className="py-2 px-1 rounded-lg text-[10px] font-bold uppercase tracking-wide transition-all border"
                                 style={{
-                                    backgroundColor: type === cat.id ? `${cat.color}20` : 'var(--surface2)',
+                                    backgroundColor: type === cat.id ? `${cat.color}20` : 'var(--bg)',
                                     color: type === cat.id ? cat.color : 'var(--text-muted)',
                                     border: type === cat.id ? `1px solid ${cat.color}` : '1px solid transparent'
                                 }}

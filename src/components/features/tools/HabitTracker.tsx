@@ -224,15 +224,15 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({ habits, toggleHabit,
                 <h2 className="text-3xl font-display font-bold text-white mb-1">Habit Tracker</h2>
                 <p className="text-sm text-slate-500 font-medium">Track and reinforce your routines</p>
             </div>
-            <div className="bg-white/[0.02] border border-white/[0.05] rounded-3xl p-8 overflow-x-auto hidden md:block">
+            <div className="border rounded-3xl p-8 overflow-x-auto hidden md:block" style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)' }}>
                 <table className="w-full">
                     <thead>
                         <tr>
-                            <th className="text-left py-4 px-4 text-slate-500 uppercase text-xs tracking-wider">Habit</th>
+                            <th className="text-left py-4 px-4 uppercase text-xs tracking-wider" style={{ color: 'var(--text-muted)' }}>Habit</th>
                             {DAYS.map(d => (
-                                <th key={d} className="text-center py-4 px-2 text-slate-500 uppercase text-xs tracking-wider">{d}</th>
+                                <th key={d} className="text-center py-4 px-2 uppercase text-xs tracking-wider" style={{ color: 'var(--text-muted)' }}>{d}</th>
                             ))}
-                            <th className="text-center py-4 px-4 text-slate-500 uppercase text-xs tracking-wider">Progress</th>
+                            <th className="text-center py-4 px-4 uppercase text-xs tracking-wider" style={{ color: 'var(--text-muted)' }}>Progress</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -243,12 +243,13 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({ habits, toggleHabit,
                             const isGoalMet = streak >= goal;
 
                             return (
-                                <tr key={habit.id} className="border-t border-white/[0.04] hover:bg-slate-500/10 transition-colors group">
-                                    <td className="py-4 px-4 font-bold text-slate-200 flex items-center gap-2">
-                                        {/* Schedule Button */}
+                                <tr key={habit.id} className="border-t transition-colors group" style={{ borderColor: 'var(--border)', backgroundColor: 'transparent' }}>
+                                    <td className="py-4 px-4 font-bold flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
+                                        {/* Schedule Button - Always Visible */}
                                         <button
                                             onClick={() => setSchedulingHabit(habit)}
-                                            className="opacity-0 group-hover:opacity-100 p-1.5 text-slate-400 hover:text-[var(--accent)] hover:bg-white/5 rounded-lg transition-all"
+                                            className="p-1.5 rounded-lg transition-all hover:bg-white/5"
+                                            style={{ color: 'var(--text-muted)' }}
                                             title="Schedule this habit"
                                         >
                                             <CalendarClock size={16} />
@@ -258,13 +259,16 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({ habits, toggleHabit,
                                         {onDeleteHabit && (
                                             <button
                                                 onClick={() => onDeleteHabit(habit.id)}
-                                                className="opacity-0 group-hover:opacity-100 p-1 text-rose-400 hover:bg-rose-500/10 rounded transition-all ml-1"
+                                                className="opacity-0 group-hover:opacity-100 p-1 hover:bg-rose-500/10 rounded transition-all ml-1"
+                                                style={{ color: 'var(--text-muted)' }}
                                                 title="Delete Habit"
+                                                onMouseEnter={(e) => e.currentTarget.style.color = '#fb7185'}
+                                                onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
                                             >
                                                 <X size={12} />
                                             </button>
                                         )}
-                                        <span className="text-[10px] text-slate-500 font-normal ml-2">{streak} / {goal} this week</span>
+                                        <span className="text-[10px] font-normal ml-2" style={{ color: 'var(--text-muted)' }}>{streak} / {goal} this week</span>
                                     </td>
                                     {habit.checks.map((checked, i) => (
                                         <td key={i} className="py-4 px-2 text-center">

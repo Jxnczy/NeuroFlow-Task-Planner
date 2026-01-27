@@ -24,6 +24,7 @@ interface SidebarProps {
     dayViewMode?: 'list' | 'timeline'; // Current view mode
     onDayViewModeChange?: (mode: 'list' | 'timeline') => void; // Toggle view mode
     selectedDate?: Date; // Currently selected date in timeline view
+    onLogoClick?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -35,7 +36,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
     skipAutoFocus = false,
     dayViewMode = 'list',
     onDayViewModeChange,
-    selectedDate
+    selectedDate,
+    onLogoClick
 }) => {
     const {
         tasks,
@@ -255,6 +257,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 isMobile={isMobile}
                 dayViewMode={dayViewMode}
                 onDayViewModeChange={onDayViewModeChange}
+                onLogoClick={onLogoClick}
             />
 
             {/* Add Task Form */}

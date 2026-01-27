@@ -276,7 +276,7 @@ export const SidebarTaskCard = React.memo<SidebarTaskCardProps>(({
                 ${isDragging ? 'opacity-50 scale-[0.98]' : ''}
                 ${isCompleted
                     ? 'bg-emerald-500/10 border-emerald-500/20'
-                    : `bg-[var(--bg-secondary)] border-[var(--border-light)] ${TASK_CARD_BORDER_COLORS[task.type]} border-l-[3px]`
+                    : `bg-[var(--surface2)] border-[var(--border)] shadow-sm ${TASK_CARD_BORDER_COLORS[task.type]} border-l-[3px]`
                 }
             `}
             onClick={handleClick}
@@ -292,13 +292,14 @@ export const SidebarTaskCard = React.memo<SidebarTaskCardProps>(({
 
             <div className="flex items-center justify-between gap-2">
                 <span
-                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium ${isCompleted ? 'bg-emerald-500/20 text-emerald-400' : ''}`}
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border ${isCompleted ? 'bg-emerald-500/20 text-emerald-400 border-transparent' : ''}`}
                     style={{
-                        backgroundColor: isCompleted ? undefined : 'rgba(255,255,255,0.05)',
-                        color: isCompleted ? undefined : 'var(--text-secondary)'
+                        backgroundColor: isCompleted ? undefined : 'var(--bg)',
+                        color: isCompleted ? undefined : 'var(--text-secondary)',
+                        borderColor: isCompleted ? undefined : 'var(--border)'
                     }}
                 >
-                    <Clock size={11} />
+                    <Clock size={10} />
                     {formatDuration(task.duration)}
                 </span>
             </div>
@@ -314,7 +315,11 @@ export const SidebarTaskCard = React.memo<SidebarTaskCardProps>(({
                                 onClick={() => setShowScheduleSheet(false)}
                             />
                             <motion.div
-                                className="fixed inset-x-0 bottom-0 z-50 bg-[#0f1117] border-t border-zinc-800 rounded-t-2xl p-4 space-y-3 shadow-2xl"
+                                className="fixed inset-x-0 bottom-0 z-50 border-t rounded-t-2xl p-4 space-y-3 shadow-2xl"
+                                style={{
+                                    backgroundColor: 'var(--surface3)',
+                                    borderColor: 'var(--border)'
+                                }}
                                 initial={{ y: '100%' }}
                                 animate={{ y: 0 }}
                                 exit={{ y: '100%' }}
@@ -323,7 +328,8 @@ export const SidebarTaskCard = React.memo<SidebarTaskCardProps>(({
                                 <div className="flex items-center justify-between">
                                     <div className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Schedule task</div>
                                     <button
-                                        className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-white/[0.06] transition-colors"
+                                        className="p-2 rounded-lg transition-colors"
+                                        style={{ color: 'var(--text-muted)' }}
                                         onClick={() => setShowScheduleSheet(false)}
                                         aria-label="Close scheduler"
                                     >
@@ -332,13 +338,21 @@ export const SidebarTaskCard = React.memo<SidebarTaskCardProps>(({
                                 </div>
                                 <div className="grid grid-cols-2 gap-2">
                                     <button
-                                        className="w-full py-2.5 rounded-lg bg-white/[0.04] text-sm font-semibold text-white hover:bg-white/[0.08] transition-colors"
+                                        className="w-full py-2.5 rounded-lg text-sm font-semibold transition-colors"
+                                        style={{
+                                            backgroundColor: 'var(--bg)',
+                                            color: 'var(--text)'
+                                        }}
                                         onClick={() => handleQuickSchedule(0)}
                                     >
                                         Today
                                     </button>
                                     <button
-                                        className="w-full py-2.5 rounded-lg bg-white/[0.04] text-sm font-semibold text-white hover:bg-white/[0.08] transition-colors"
+                                        className="w-full py-2.5 rounded-lg text-sm font-semibold transition-colors"
+                                        style={{
+                                            backgroundColor: 'var(--bg)',
+                                            color: 'var(--text)'
+                                        }}
                                         onClick={() => handleQuickSchedule(1)}
                                     >
                                         Tomorrow
@@ -349,10 +363,15 @@ export const SidebarTaskCard = React.memo<SidebarTaskCardProps>(({
                                         type="date"
                                         value={customDate}
                                         onChange={(e) => setCustomDate(e.target.value)}
-                                        className="flex-1 bg-black/30 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
+                                        className="flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
+                                        style={{
+                                            backgroundColor: 'var(--bg)',
+                                            borderColor: 'var(--border)',
+                                            color: 'var(--text)'
+                                        }}
                                     />
                                     <button
-                                        className="px-4 py-2 rounded-lg bg-[var(--accent)] text-black font-semibold hover:brightness-110 transition-colors disabled:opacity-50"
+                                        className="px-4 py-2 rounded-lg bg-[var(--accent)] text-white font-semibold hover:brightness-110 transition-colors disabled:opacity-50"
                                         onClick={handleCustomSchedule}
                                         disabled={!customDate}
                                     >

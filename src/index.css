@@ -37,7 +37,21 @@
   --color-theme-accent: var(--accent, #22d3ee);
   --color-theme-border: var(--border-medium, rgba(255, 255, 255, 0.1));
 
-  /* New Semantic Surfaces */
+  /* New Semantic Surfaces (Light Theme Overhaul) */
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface2: var(--surface2);
+  --color-surface3: var(--surface3);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-gridline: var(--gridline);
+  --color-ring: var(--ring);
+
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+
+  /* Legacy Semantic Surfaces */
   --color-surface-subtle: var(--bg-surface-subtle, rgba(255, 255, 255, 0.03));
   --color-surface-strong: var(--bg-surface-strong, rgba(255, 255, 255, 0.08));
   --color-glass: var(--bg-glass, rgba(22, 27, 46, 0.6));
@@ -438,7 +452,7 @@ textarea,
   }
 
   .btn-icon:hover {
-    background-color: var(--surface2);
+    background-color: var(--bg-surface-subtle);
     color: var(--text);
   }
 
@@ -474,7 +488,7 @@ textarea,
 
   /* ─── CARDS ─── */
   .card-apple {
-    background-color: var(--surface);
+    background-color: var(--surface2);
     border-radius: var(--radius-lg);
     border: 1px solid var(--border);
     box-shadow: var(--shadow-sm);

@@ -9,6 +9,7 @@ interface SidebarHeaderProps {
     isMobile: boolean;
     dayViewMode?: 'list' | 'timeline';
     onDayViewModeChange?: (mode: 'list' | 'timeline') => void;
+    onLogoClick?: () => void;
 }
 
 export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
@@ -17,11 +18,18 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
     onClose,
     isMobile,
     dayViewMode,
-    onDayViewModeChange
+    onDayViewModeChange,
+    onLogoClick
 }) => {
     return (
         <div className="p-4 pb-3 flex items-center justify-between">
-            <WeekFluxLogo size="lg" showIcon={true} />
+            <button
+                onClick={onLogoClick}
+                className="hover:opacity-80 transition-opacity cursor-pointer"
+                title="Go to Planner"
+            >
+                <WeekFluxLogo size="lg" showIcon={true} />
+            </button>
             <div className="flex items-center gap-1">
                 {isMobile ? (
                     <button

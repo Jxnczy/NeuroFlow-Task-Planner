@@ -526,6 +526,7 @@ const AppContent = ({
                         dayViewMode={dayViewMode}
                         onDayViewModeChange={handleDayViewModeChange}
                         selectedDate={currentDate}
+                        onLogoClick={() => setActiveTab('planner')}
                     />
                 }
                 header={

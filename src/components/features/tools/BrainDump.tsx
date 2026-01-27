@@ -35,12 +35,15 @@ export const BrainDump: React.FC<BrainDumpProps> = ({ lists, onUpdateList, onAdd
                                 layout
                                 className="min-h-[400px] flex flex-col group relative"
                             >
-                                <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] to-transparent rounded-3xl pointer-events-none border border-white/[0.05]"></div>
+                                <div className="absolute inset-0 rounded-3xl pointer-events-none border" style={{ borderColor: 'var(--border)' }}></div>
 
                                 {/* List Header */}
                                 <div
-                                    className="relative z-10 flex items-center justify-between p-4 border-b border-white/[0.05] rounded-t-3xl backdrop-blur-md transition-colors"
-                                    style={{ backgroundColor: 'color-mix(in srgb, var(--bg-tertiary) 60%, transparent)' }}
+                                    className="relative z-10 flex items-center justify-between p-4 border-b rounded-t-3xl backdrop-blur-md transition-colors"
+                                    style={{
+                                        backgroundColor: 'var(--surface)',
+                                        borderColor: 'var(--border)'
+                                    }}
                                 >
                                     {editingTitleId === list.id ? (
                                         <input
@@ -84,10 +87,8 @@ export const BrainDump: React.FC<BrainDumpProps> = ({ lists, onUpdateList, onAdd
                                     placeholder="Type anything..."
                                     className="flex-1 w-full backdrop-blur-md rounded-b-3xl p-6 text-base leading-relaxed resize-none focus:outline-none transition-colors font-sans border-0 text-theme-primary placeholder:text-zinc-600"
                                     style={{
-                                        backgroundColor: 'color-mix(in srgb, var(--bg-tertiary) 40%, transparent)'
+                                        backgroundColor: 'var(--surface)'
                                     }}
-                                    onFocus={(e) => e.currentTarget.style.backgroundColor = 'color-mix(in srgb, var(--bg-tertiary) 60%, transparent)'}
-                                    onBlur={(e) => e.currentTarget.style.backgroundColor = 'color-mix(in srgb, var(--bg-tertiary) 40%, transparent)'}
                                     spellCheck={false}
                                 />
                             </motion.div>
@@ -97,9 +98,14 @@ export const BrainDump: React.FC<BrainDumpProps> = ({ lists, onUpdateList, onAdd
                     {/* Add List Placeholder */}
                     <button
                         onClick={onAddList}
-                        className="min-h-[400px] rounded-3xl border-2 border-dashed border-white/[0.05] hover:border-white/[0.1] hover:bg-white/[0.02] flex flex-col items-center justify-center gap-2 text-zinc-500 hover:text-zinc-300 transition-all group"
+                        className="min-h-[400px] rounded-3xl border-2 border-dashed flex flex-col items-center justify-center gap-2 transition-all group"
+                        style={{
+                            borderColor: 'var(--border)',
+                            backgroundColor: 'var(--bg-surface-subtle)',
+                            color: 'var(--text-muted)'
+                        }}
                     >
-                        <div className="p-3 rounded-full bg-white/[0.05] group-hover:bg-white/[0.1] transition-colors">
+                        <div className="p-3 rounded-full transition-colors" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
                             <Plus size={24} />
                         </div>
                         <span className="text-xs font-bold uppercase tracking-wider">New List</span>

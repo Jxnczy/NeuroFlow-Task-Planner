@@ -82,29 +82,12 @@ export const Header: React.FC<HeaderProps> = ({
                         </button>
                     )}
 
-                    {/* Spaces Switcher */}
-                    {spacesEnabledState && (
-                        <div className="flex items-center p-1 rounded-lg border border-white/10 bg-white/5 backdrop-blur-md">
-                            <button
-                                onClick={() => setSpace('private')}
-                                className={`px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-md transition-all ${spaceState === 'private'
-                                        ? 'bg-indigo-500 text-white shadow-sm'
-                                        : 'text-white/40 hover:text-white/60'
-                                    }`}
-                            >
-                                Private
-                            </button>
-                            <button
-                                onClick={() => setSpace('work')}
-                                className={`px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-md transition-all ${spaceState === 'work'
-                                        ? 'bg-rose-500 text-white shadow-sm'
-                                        : 'text-white/40 hover:text-white/60'
-                                    }`}
-                            >
-                                Work
-                            </button>
-                        </div>
-                    )}
+                    {/* Date Range */}
+                    <div className="flex items-center gap-3">
+                        <p className="text-xl font-display font-bold" style={{ color: 'var(--text-primary)' }}>
+                            {currentWeekDays[0].toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} — {currentWeekDays[6].toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}, {currentWeekDays[0].getFullYear()}
+                        </p>
+                    </div>
 
                     {/* Week Switcher */}
                     <div
@@ -136,17 +119,46 @@ export const Header: React.FC<HeaderProps> = ({
                         </button>
                     </div>
 
-                    {/* Date Range */}
-                    <div className="flex items-center gap-3">
-                        <p className="text-xl font-display font-bold" style={{ color: 'var(--text-primary)' }}>
-                            {currentWeekDays[0].toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} — {currentWeekDays[6].toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}, {currentWeekDays[0].getFullYear()}
-                        </p>
-                    </div>
+                    {/* Spaces Switcher */}
+                    {spacesEnabledState && (
+                        <div
+                            className="flex items-center p-1 rounded-xl border shadow-sm backdrop-blur-md"
+                            style={{
+                                backgroundColor: 'color-mix(in srgb, var(--bg-tertiary) 70%, transparent)',
+                                borderColor: 'var(--border-medium)'
+                            }}
+                        >
+                            <button
+                                onClick={() => setSpace('private')}
+                                className={`px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-lg transition-all duration-200 ${spaceState === 'private'
+                                    ? 'bg-white/[0.08] text-[var(--text-primary)] shadow-sm'
+                                    : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
+                                    }`}
+                            >
+                                Private
+                            </button>
+                            <button
+                                onClick={() => setSpace('work')}
+                                className={`px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-lg transition-all duration-200 ${spaceState === 'work'
+                                    ? 'bg-white/[0.08] text-[var(--text-primary)] shadow-sm'
+                                    : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
+                                    }`}
+                            >
+                                Work
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 {/* CENTER: Navigation Tabs (Premium Dock) */}
                 <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-auto z-10">
-                    <nav className="flex items-center gap-1 p-1 bg-[#0A0C10] border border-white/10 rounded-full shadow-2xl backdrop-blur-xl">
+                    <nav
+                        className="flex items-center gap-1 p-1 rounded-full shadow-lg backdrop-blur-xl border transition-colors"
+                        style={{
+                            backgroundColor: 'var(--bg-surface-strong)',
+                            borderColor: 'var(--border)'
+                        }}
+                    >
                         {tabs.map(tab => {
                             const isActive = activeTab === tab.id;
                             const Icon = tab.icon;
@@ -157,14 +169,18 @@ export const Header: React.FC<HeaderProps> = ({
                                     onClick={() => setActiveTab(tab.id)}
                                     className="relative flex items-center gap-2 px-4 py-1.5 rounded-full transition-all duration-300 outline-none"
                                     style={{
-                                        color: isActive ? '#fff' : 'rgba(255,255,255,0.4)',
+                                        color: isActive ? 'var(--text)' : 'var(--text-muted)',
                                     }}
                                 >
                                     {/* Active Indicator (Pill) */}
                                     {isActive && (
                                         <motion.div
                                             layoutId="activeTabPill"
-                                            className="absolute inset-0 bg-[#1F232D] rounded-full border border-white/10 shadow-inner"
+                                            className="absolute inset-0 rounded-full border shadow-sm"
+                                            style={{
+                                                backgroundColor: 'var(--surface)',
+                                                borderColor: 'var(--border)'
+                                            }}
                                             transition={{ duration: 0.25, ease: "easeOut" }}
                                         />
                                     )}

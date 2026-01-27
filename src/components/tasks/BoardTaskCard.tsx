@@ -217,7 +217,7 @@ export const BoardTaskCard = React.memo<BoardTaskCardProps>(({
             className={`
                 hover:scale-[1.01] active:scale-[0.98] transition-all duration-150
                 relative flex flex-row items-center justify-between gap-2 py-2 px-2 rounded-lg border h-full
-                cursor-grab active:cursor-grabbing
+                cursor-grab active:cursor-grabbing group
                 ${isDragging ? 'opacity-50 scale-[0.98]' : ''}
                 ${isOverdue && !isCompleted
                     ? 'border-red-500/50 shadow-[0_0_10px_rgba(239,68,68,0.15)]'

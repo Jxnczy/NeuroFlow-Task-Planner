@@ -277,12 +277,22 @@ export const FocusMode: React.FC<FocusModeProps> = ({ tasks, onDragStart, onTogg
                                 </div>
                             </div>
                         ) : (
-                            <div className="w-full border-dashed border-2 border-slate-800/50 bg-slate-900/20 rounded-2xl p-8 text-center min-h-[200px] flex flex-col items-center justify-center">
-                                <div className="w-16 h-16 rounded-full bg-slate-800/30 flex items-center justify-center mb-4 text-slate-600">
+                            <div className="w-full border-dashed border-2 rounded-2xl p-8 text-center min-h-[200px] flex flex-col items-center justify-center transition-colors"
+                                style={{
+                                    borderColor: 'var(--border)',
+                                    backgroundColor: 'var(--bg-secondary)'
+                                }}
+                            >
+                                <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4 transition-colors"
+                                    style={{
+                                        backgroundColor: 'var(--bg-tertiary)',
+                                        color: 'var(--text-muted)'
+                                    }}
+                                >
                                     <Play size={32} fill="currentColor" />
                                 </div>
-                                <h3 className="text-xl font-bold text-slate-500 mb-2">Ready to focus?</h3>
-                                <p className="text-slate-600">Pick a task below to start a deep work session</p>
+                                <h3 className="text-xl font-bold mb-2" style={{ color: 'var(--text-secondary)' }}>Ready to focus?</h3>
+                                <p style={{ color: 'var(--text-muted)' }}>Pick a task below to start a deep work session</p>
                             </div>
                         )}
 
@@ -290,7 +300,7 @@ export const FocusMode: React.FC<FocusModeProps> = ({ tasks, onDragStart, onTogg
                         <div className="w-full flex flex-col gap-3 px-1">
                             <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 mb-2 px-2">Up Next</h3>
                             {focusTasks.filter(t => t.id !== activeTaskId).map((task) => (
-                                <div key={task.id} className="flex items-center gap-3 w-full group">
+                                <div key={task.id} className="flex items-center gap-3 w-full">
                                     <div className="flex-1 min-w-0">
                                         <BoardTaskCard
                                             task={task}
@@ -302,7 +312,7 @@ export const FocusMode: React.FC<FocusModeProps> = ({ tasks, onDragStart, onTogg
                                     </div>
                                     <button
                                         onClick={() => startTask(task)}
-                                        className="h-10 w-10 opacity-0 group-hover:opacity-100 rounded-full bg-[#1d293d] text-emerald-500/80 hover:bg-emerald-500 hover:text-white transition-all shrink-0 flex items-center justify-center shadow-sm"
+                                        className="h-10 w-10 opacity-50 hover:opacity-100 rounded-full bg-[#1d293d] text-emerald-500/80 hover:bg-emerald-500 hover:text-white transition-all shrink-0 flex items-center justify-center shadow-sm"
                                     >
                                         <Play size={18} fill="currentColor" />
                                     </button>
