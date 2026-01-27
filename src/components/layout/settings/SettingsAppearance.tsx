@@ -1,5 +1,5 @@
 import React from 'react';
-import { Palette, Eye, EyeOff, List, Clock } from 'lucide-react';
+import { Palette, Eye, EyeOff } from 'lucide-react';
 import { themes } from '../../../themes';
 import { SettingsSection } from './SettingsSection';
 
@@ -8,40 +8,36 @@ interface SettingsAppearanceProps {
     onThemeChange: (themeId: string) => void;
     viewMode?: 'show' | 'fade' | 'hide';
     onViewModeChange?: (mode: 'show' | 'fade' | 'hide') => void;
-    dayViewMode?: 'list' | 'timeline';
-    onDayViewModeChange?: (mode: 'list' | 'timeline') => void;
 }
 
 export const SettingsAppearance: React.FC<SettingsAppearanceProps> = ({
     currentThemeId,
     onThemeChange,
     viewMode = 'fade',
-    onViewModeChange,
-    dayViewMode = 'list',
-    onDayViewModeChange
+    onViewModeChange
 }) => {
     return (
-        <SettingsSection title="Appearance" icon={Palette}>
-            <div className="grid grid-cols-3 gap-2">
+        <SettingsSection title="Appearance" icon={Palette} defaultOpen={false}>
+            <div className="grid grid-cols-2 gap-3">
                 {themes.map((theme) => {
                     const isSelected = theme.id === currentThemeId;
                     return (
                         <button
                             key={theme.id}
                             onClick={() => onThemeChange(theme.id)}
-                            className="relative p-2.5 rounded-xl border transition-all hover:scale-[1.02]"
+                            className="relative p-3 rounded-xl border transition-all hover:scale-[1.02] flex items-center justify-between group"
                             style={{
                                 backgroundColor: isSelected ? 'var(--accent-muted)' : 'transparent',
                                 borderColor: isSelected ? 'var(--accent)' : 'var(--border-light)'
                             }}
                         >
-                            <div className="flex gap-0.5 mb-1.5 justify-center">
-                                <div className="w-3 h-3 rounded" style={{ backgroundColor: theme.colors.bgPrimary, border: '1px solid rgba(255,255,255,0.1)' }} />
-                                <div className="w-3 h-3 rounded" style={{ backgroundColor: theme.colors.accent }} />
-                            </div>
-                            <span className="text-[10px] font-medium block text-center" style={{ color: isSelected ? 'var(--accent)' : 'var(--text-secondary)' }}>
-                                {theme.name.split(' ')[0]}
+                            <span className="text-xs font-medium" style={{ color: isSelected ? 'var(--accent)' : 'var(--text-secondary)' }}>
+                                {theme.name}
                             </span>
+                            <div className="flex gap-1">
+                                <div className="w-3 h-3 rounded-full shadow-sm" style={{ backgroundColor: theme.colors.bgPrimary, border: '1px solid rgba(0,0,0,0.1)' }} />
+                                <div className="w-3 h-3 rounded-full shadow-sm" style={{ backgroundColor: theme.colors.accent }} />
+                            </div>
                         </button>
                     );
                 })}
@@ -49,7 +45,7 @@ export const SettingsAppearance: React.FC<SettingsAppearanceProps> = ({
 
             {/* Completed Tasks Toggle */}
             {onViewModeChange && (
-                <div className="flex items-center justify-between pt-2 mt-2" style={{ borderTop: '1px solid var(--border-light)' }}>
+                <div className="flex items-center justify-between pt-3 mt-3" style={{ borderTop: '1px solid var(--border-light)' }}>
                     <div className="flex items-center gap-2">
                         {viewMode === 'hide' ? <EyeOff size={14} style={{ color: 'var(--text-muted)' }} /> : <Eye size={14} style={{ color: 'var(--text-muted)' }} />}
                         <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>Completed tasks</span>
@@ -71,40 +67,7 @@ export const SettingsAppearance: React.FC<SettingsAppearanceProps> = ({
                     </div>
                 </div>
             )}
-
-            {/* Day View Mode Toggle */}
-            {onDayViewModeChange && (
-                <div className="flex items-center justify-between pt-2 mt-2" style={{ borderTop: '1px solid var(--border-light)' }}>
-                    <div className="flex items-center gap-2">
-                        {dayViewMode === 'timeline' ? <Clock size={14} style={{ color: 'var(--text-muted)' }} /> : <List size={14} style={{ color: 'var(--text-muted)' }} />}
-                        <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>Day view style</span>
-                    </div>
-                    <div className="flex gap-1">
-                        <button
-                            onClick={() => onDayViewModeChange('list')}
-                            className="px-2.5 py-1 rounded-md text-[10px] font-semibold transition-all flex items-center gap-1"
-                            style={{
-                                backgroundColor: dayViewMode === 'list' ? 'var(--accent)' : 'rgba(255,255,255,0.05)',
-                                color: dayViewMode === 'list' ? 'white' : 'var(--text-muted)'
-                            }}
-                        >
-                            <List size={10} />
-                            List
-                        </button>
-                        <button
-                            onClick={() => onDayViewModeChange('timeline')}
-                            className="px-2.5 py-1 rounded-md text-[10px] font-semibold transition-all flex items-center gap-1"
-                            style={{
-                                backgroundColor: dayViewMode === 'timeline' ? 'var(--accent)' : 'rgba(255,255,255,0.05)',
-                                color: dayViewMode === 'timeline' ? 'white' : 'var(--text-muted)'
-                            }}
-                        >
-                            <Clock size={10} />
-                            Timeline
-                        </button>
-                    </div>
-                </div>
-            )}
+            {/* Day View Mode removed as requested */}
         </SettingsSection>
     );
 };

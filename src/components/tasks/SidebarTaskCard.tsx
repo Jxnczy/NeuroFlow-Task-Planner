@@ -276,7 +276,7 @@ export const SidebarTaskCard = React.memo<SidebarTaskCardProps>(({
                 ${isDragging ? 'opacity-50 scale-[0.98]' : ''}
                 ${isCompleted
                     ? 'bg-emerald-500/10 border-emerald-500/20'
-                    : `bg-[var(--surface2)] border-[var(--border)] shadow-sm ${TASK_CARD_BORDER_COLORS[task.type]} border-l-[3px]`
+                    : `bg-[var(--surface2)] border-[var(--border)] shadow-sm ${TASK_CARD_BORDER_COLORS[task.type]} !border-l-4 border-solid`
                 }
             `}
             onClick={handleClick}

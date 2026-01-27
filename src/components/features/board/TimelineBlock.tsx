@@ -71,12 +71,13 @@ export const TimelineBlock = React.memo<TimelineBlockProps>(({
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: isFaded ? 0.4 : 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            className={`absolute left-1 right-1 rounded-xl overflow-hidden cursor-pointer border-l-[4px] ${borderColorClass} bg-[var(--surface)] border-y border-r border-[var(--border)]`}
+            className={`absolute left-1 right-1 rounded-xl overflow-hidden cursor-pointer border-l-4 border-solid ${borderColorClass} bg-[var(--surface)] border-y border-r border-[var(--border)]`}
             style={{
                 top: topOffset,
                 height: Math.max(height, MIN_BLOCK_HEIGHT),
                 boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-                zIndex: 10
+                zIndex: 10,
+                borderLeftColor: `var(--color-${task.type === 'backlog' ? 'zinc-600' : task.type === 'high' ? 'rose-500' : task.type === 'medium' ? 'orange-500' : task.type === 'low' ? 'yellow-400' : task.type === 'leisure' ? 'cyan-400' : 'slate-500'}) !important`
             }}
             onDragStart={(e: any) => onDragStart(e, task.id)}
             draggable

@@ -5,11 +5,13 @@ import { SettingsSection } from './SettingsSection';
 interface SettingsSecurityProps {
     encryptionEnabled?: boolean;
     onEnableEncryption?: () => void;
+    onDisableEncryption?: () => void;
 }
 
 export const SettingsSecurity: React.FC<SettingsSecurityProps> = ({
     encryptionEnabled = false,
-    onEnableEncryption
+    onEnableEncryption,
+    onDisableEncryption
 }) => {
     return (
         <SettingsSection title="Security" icon={Shield} defaultOpen={false}>
@@ -58,13 +60,27 @@ export const SettingsSecurity: React.FC<SettingsSecurityProps> = ({
                 </div>
 
                 {encryptionEnabled && (
-                    <p className="text-[10px] p-2 rounded-lg" style={{
-                        color: 'var(--warning)',
-                        backgroundColor: 'rgba(251,191,36,0.1)',
-                        border: '1px solid rgba(251,191,36,0.2)'
-                    }}>
-                        ⚠️ If you forget your passphrase, your data cannot be recovered.
-                    </p>
+                    <div className="flex gap-2">
+                        {onDisableEncryption && (
+                            <button
+                                onClick={onDisableEncryption}
+                                className="flex-1 p-2 rounded-lg text-xs font-semibold border transition-all hover:bg-red-500/10"
+                                style={{
+                                    borderColor: 'var(--border-light)',
+                                    color: 'var(--error)'
+                                }}
+                            >
+                                Disable Encryption
+                            </button>
+                        )}
+                        <div className="flex-1 text-[10px] p-2 rounded-lg" style={{
+                            color: 'var(--warning)',
+                            backgroundColor: 'rgba(251,191,36,0.1)',
+                            border: '1px solid rgba(251,191,36,0.2)'
+                        }}>
+                            ⚠️ If you forget your passphrase, your data cannot be recovered.
+                        </div>
+                    </div>
                 )}
             </div>
         </SettingsSection>

@@ -71,6 +71,14 @@
   --sidebar-width: clamp(260px, 22vw, 320px);
   --row-label-width: clamp(48px, 5vw, 80px);
 
+  /* Task Border Colors */
+  --color-rose-500: #f43f5e;
+  --color-orange-500: #f97316;
+  --color-yellow-400: #facc15;
+  --color-cyan-400: #22d3ee;
+  --color-zinc-600: #52525b;
+  --color-slate-500: #64748b;
+
   background-color: var(--bg-primary);
   color: var(--text-primary);
   font-family: var(--font-sans);
@@ -1056,4 +1064,29 @@ li {
 .text-slate-400,
 .text-gray-400 {
   color: var(--text-subtle) !important;
+}
+
+/* Custom Border Colors for Board Task Cards - Explicitly handling both themes */
+.border-l-rose-500 {
+  border-left-color: var(--color-rose-500) !important;
+}
+
+.border-l-orange-500 {
+  border-left-color: var(--color-orange-500) !important;
+}
+
+.border-l-yellow-400 {
+  border-left-color: var(--color-yellow-400) !important;
+}
+
+.border-l-cyan-400 {
+  border-left-color: var(--color-cyan-400) !important;
+}
+
+.border-l-zinc-600 {
+  border-left-color: var(--color-zinc-600) !important;
+}
+
+.border-l-slate-500 {
+  border-left-color: var(--color-slate-500) !important;
 }

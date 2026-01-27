@@ -102,6 +102,20 @@ export interface DbNoteRow {
     space?: string | null;
 }
 
+// Helper to determine task status from DB row
+const getCompletionStatus = (row: DbTaskRow): TaskStatus => {
+    if (row.status) {
+        return row.status as TaskStatus;
+    }
+    if (row.is_completed) {
+        return 'completed';
+    }
+    if (row.scheduled_date) {
+        return 'scheduled';
+    }
+    return 'unscheduled';
+};
+
 // ... (existing code)
 
 export const mapTaskFromDb = async (row: DbTaskRow): Promise<Task> => {

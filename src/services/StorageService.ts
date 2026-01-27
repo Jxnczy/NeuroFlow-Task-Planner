@@ -59,6 +59,13 @@ export class StorageService {
     }
 
     /**
+     * Disable encryption mode
+     */
+    disableEncryption(): void {
+        localStorage.setItem(this.ENCRYPTION_ENABLED_KEY, 'false');
+    }
+
+    /**
      * Check if there's existing unencrypted data that needs migration
      */
     hasUnencryptedData(): boolean {

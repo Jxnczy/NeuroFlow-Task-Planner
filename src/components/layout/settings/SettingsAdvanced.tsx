@@ -9,7 +9,6 @@ interface SettingsAdvancedProps {
 }
 
 export const SettingsAdvanced: React.FC<SettingsAdvancedProps> = ({
-    onClearRescheduled,
     onResetStats,
     onDeleteAllTasks
 }) => {
@@ -25,20 +24,7 @@ export const SettingsAdvanced: React.FC<SettingsAdvancedProps> = ({
     return (
         <SettingsSection title="Advanced" icon={AlertTriangle} defaultOpen={false} variant="danger">
             <div className="space-y-2">
-                {onClearRescheduled && (
-                    <button
-                        onClick={() => {
-                            if (window.confirm('Clear all rescheduled task trails?')) {
-                                onClearRescheduled();
-                            }
-                        }}
-                        className="w-full flex items-center gap-3 p-3 rounded-xl transition-all hover:bg-rose-500/10"
-                        style={{ border: '1px solid rgba(239,68,68,0.2)' }}
-                    >
-                        <RotateCcw size={16} className="text-rose-400" />
-                        <span className="text-sm" style={{ color: 'var(--text-primary)' }}>Reset Schedule Trails</span>
-                    </button>
-                )}
+                {/* Reset Schedule Trails removed as requested */}
 
                 {onResetStats && (
                     <button

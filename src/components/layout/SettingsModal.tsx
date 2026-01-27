@@ -18,14 +18,13 @@ interface SettingsModalProps {
     onImport: (event: React.ChangeEvent<HTMLInputElement>) => void;
     onDeleteAllTasks?: () => void;
 
-    onClearRescheduled?: () => void;
+    onClearRescheduled?: () => void; // Deprecated but passing prop for now to avoid break if parent passes it
     onResetStats?: () => void;
     currentThemeId: string;
     onThemeChange: (themeId: string) => void;
     viewMode?: 'show' | 'fade' | 'hide';
     onViewModeChange?: (mode: 'show' | 'fade' | 'hide') => void;
-    dayViewMode?: 'list' | 'timeline';
-    onDayViewModeChange?: (mode: 'list' | 'timeline') => void;
+    // dayViewMode helpers removed
     supabaseEnabled: boolean;
     onToggleSupabase: (enabled: boolean) => void;
     onAddSampleTasks?: () => void;
@@ -35,6 +34,7 @@ interface SettingsModalProps {
     onLogout?: () => void;
     encryptionEnabled?: boolean;
     onEnableEncryption?: () => void;
+    onDisableEncryption?: () => void;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -48,15 +48,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     onThemeChange,
     viewMode = 'fade',
     onViewModeChange,
-    dayViewMode = 'list',
-    onDayViewModeChange,
     supabaseEnabled,
     onToggleSupabase,
     onResetTour,
     onLogout,
     onResetStats,
     encryptionEnabled = false,
-    onEnableEncryption
+    onEnableEncryption,
+    onDisableEncryption
 }) => {
     const [dayBoundary, setDayBoundaryState] = useState(getDayBoundaryHour);
 
@@ -101,8 +100,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                             onThemeChange={onThemeChange}
                             viewMode={viewMode}
                             onViewModeChange={onViewModeChange}
-                            dayViewMode={dayViewMode}
-                            onDayViewModeChange={onDayViewModeChange}
                         />
 
                         <SettingsDisplay
@@ -127,6 +124,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         <SettingsSecurity
                             encryptionEnabled={encryptionEnabled}
                             onEnableEncryption={onEnableEncryption}
+                            onDisableEncryption={onDisableEncryption}
                         />
 
                         <SettingsHelp
@@ -135,7 +133,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         />
 
                         <SettingsAdvanced
-                            onClearRescheduled={onClearRescheduled}
                             onResetStats={onResetStats}
                             onDeleteAllTasks={onDeleteAllTasks}
                         />

@@ -27,7 +27,7 @@ import { FirstTaskGuide } from './components/onboarding/FirstTaskGuide';
 import { WelcomePrompt, getOnboardingChoice } from './components/onboarding/WelcomePrompt';
 import { generateId } from './utils/id';
 import { StorageService } from './services/StorageService';
-import { supabaseAvailable, supabaseUrl } from './lib/supabase';
+import { supabaseAvailable, supabaseUrl, checkSupabaseConnectivity as checkSupabaseHealth } from './lib/supabase';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { QuickAddModal } from './components/ui/QuickAddModal';
 import { KeyboardShortcutsHelp } from './components/ui/KeyboardShortcutsHelp';
@@ -123,6 +123,7 @@ const AppContent = ({
     onOnboardingComplete,
     onLogout,
     onEnableEncryption,
+    onDisableEncryption,
     skipSplash = false
 }: {
     userId?: string,
@@ -137,6 +138,7 @@ const AppContent = ({
     onOnboardingComplete?: () => void,
     onLogout?: () => void,
     onEnableEncryption?: () => void,
+    onDisableEncryption?: () => void,
     skipSplash?: boolean
 }) => {
     // --- Context & Hooks ---
@@ -670,8 +672,7 @@ const AppContent = ({
                     onThemeChange={setCurrentThemeId}
                     viewMode={viewMode}
                     onViewModeChange={setViewMode}
-                    dayViewMode={dayViewMode}
-                    onDayViewModeChange={handleDayViewModeChange}
+
                     supabaseEnabled={supabaseEnabled}
                     onToggleSupabase={onToggleSupabaseSync}
                     onAddSampleTasks={handleAddSampleTasks}
@@ -681,6 +682,26 @@ const AppContent = ({
                     onLogout={onLogout}
                     encryptionEnabled={encryptionEnabled}
                     onEnableEncryption={onEnableEncryption}
+                    onDisableEncryption={async () => {
+                        if (window.confirm('Disable encryption? Your data will be decrypted and stored on this device. Additional protection will be removed.')) {
+                            // 1. Disable flag
+                            StorageService.getInstance().disableEncryption();
+
+                            // 2. Save plaintext manually
+                            const data: AppData = {
+                                tasks: taskManager.allTasks,
+                                habits: habitManager.allHabits,
+                                brainDumpLists: brainDumpManager.lists,
+                                statsResetAt: statsResetAt
+                            };
+                            StorageService.getInstance().save(data);
+
+                            // 3. Reset vault in App
+                            onDisableEncryption?.();
+                            setShowSettings(false);
+                            alert('Encryption disabled. Your data is now stored in plain text.');
+                        }
+                    }}
                 />
             )}
 
@@ -1272,6 +1293,11 @@ const App = () => {
         setShowVaultSetup(false);
     }, []);
 
+    const handleDisableEncryption = useCallback(() => {
+        encryption.resetVault();
+        window.location.reload();
+    }, [encryption]);
+
     // --- RENDER BASED ON ROUTE ---
     // First, prioritize sync/loading states if we are in a state that requires blocking
     if (useSupabaseSync && encryption.isSyncing && !loadingTimedOut) {
@@ -1376,6 +1402,7 @@ const App = () => {
                         onOnboardingComplete={handleOnboardingComplete}
                         onLogout={handleLogout}
                         onEnableEncryption={handleEnableEncryption}
+                        onDisableEncryption={handleDisableEncryption}
                     />
                 </TaskProvider>
             );
