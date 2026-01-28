@@ -62,6 +62,7 @@ export const AuthOverlay: React.FC<AuthOverlayProps> = ({
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        console.log('AuthOverlay handleSubmit triggered', { isSignUp, email, hasPassword: !!password });
         if (!email) return;
 
         setSubmitting(true);
@@ -70,18 +71,22 @@ export const AuthOverlay: React.FC<AuthOverlayProps> = ({
                 throw new Error('Password is required');
             }
             if (isSignUp) {
+                console.log('Calling onSignUpWithPassword');
                 const result = await onSignUpWithPassword?.(email, password);
+                console.log('onSignUp result:', result);
                 if (result) {
                     const { user, session } = result;
                     if (user && !session) {
+                        console.log('User created, verification needed');
                         setVerificationSent(true);
                     }
                 }
             } else {
+                console.log('Calling onSignInWithPassword');
                 await onSignInWithPassword?.(email, password);
             }
         } catch (err: any) {
-            console.error(err);
+            console.error('Auth handler error:', err);
         } finally {
             setSubmitting(false);
         }

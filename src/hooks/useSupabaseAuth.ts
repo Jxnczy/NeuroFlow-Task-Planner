@@ -74,6 +74,7 @@ export const useSupabaseAuth = (): UseSupabaseAuthResult => {
     }, []);
 
     const signInWithPassword = useCallback(async (email: string, password: string) => {
+        console.log('Attempting sign in with password...', { email, supabaseAvailable: !!supabase });
         if (!supabaseAvailable || !supabase) {
             console.error('Supabase not available for sign in');
             return;
@@ -85,9 +86,11 @@ export const useSupabaseAuth = (): UseSupabaseAuthResult => {
             console.error('Password sign-in failed', error);
             throw error;
         }
+        console.log('Sign in successful');
     }, []);
 
     const signUpWithPassword = useCallback(async (email: string, password: string) => {
+        console.log('Attempting sign up...', { email, supabaseAvailable: !!supabase });
         if (!supabaseAvailable || !supabase) {
             console.error('Supabase not available for sign up');
             return { user: null, session: null };
@@ -102,6 +105,7 @@ export const useSupabaseAuth = (): UseSupabaseAuthResult => {
             console.error('Sign-up failed', error);
             throw error;
         }
+        console.log('Sign up result:', data);
         return data;
     }, []);
 

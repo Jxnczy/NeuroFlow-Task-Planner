@@ -1342,7 +1342,12 @@ const App = () => {
                     authError={null}
                     onMagicLink={(email) => signInWithEmail(email)}
                     onSignInWithPassword={(email, password) => signInWithPassword(email, password)}
-                    onSignUpWithPassword={(email, password) => signUpWithPassword(email, password)}
+                    onSignUpWithPassword={async (email, password) => {
+                        console.log('App proxy (intro): calling signUpWithPassword');
+                        const res = await signUpWithPassword(email, password);
+                        console.log('App proxy (intro): result', res);
+                        return res;
+                    }}
                     onOAuth={(provider) => signInWithOAuth(provider)}
                     onCancel={() => {
                         markFeatureOverviewSeen();
@@ -1362,7 +1367,12 @@ const App = () => {
                     authError={authError || dataError}
                     onMagicLink={(email) => signInWithEmail(email)}
                     onSignInWithPassword={(email, password) => signInWithPassword(email, password)}
-                    onSignUpWithPassword={(email, password) => signUpWithPassword(email, password)}
+                    onSignUpWithPassword={async (email, password) => {
+                        console.log('App proxy: calling signUpWithPassword');
+                        const res = await signUpWithPassword(email, password);
+                        console.log('App proxy: result', res);
+                        return res;
+                    }}
                     onOAuth={(provider) => signInWithOAuth(provider)}
                     onCancel={() => {
                         setUseSupabaseSync(false);
