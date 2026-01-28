@@ -6,6 +6,7 @@ import { pulseScale } from '../../utils/animations';
 import { getSpacesEnabled } from '../../state/features';
 import { getSpace, setSpace } from '../../state/space';
 
+import { WeekFluxLogo } from '../../brand/WeekFluxLogo';
 import { useLanguage } from '../../context/LanguageContext';
 import { useCalendarEnabled } from '../../hooks/useCalendarEnabled';
 
@@ -79,13 +80,18 @@ export const Header: React.FC<HeaderProps> = ({
                 {/* LEFT: Week Navigation & Date */}
                 <div className="flex items-center gap-3 pointer-events-auto min-w-0 shrink z-10 w-fit">
                     {!isSidebarOpen && (
-                        <button
-                            onClick={onToggleSidebar}
-                            className="btn-icon"
-                            title={t.header.openSidebar}
-                        >
-                            <PanelLeft size={20} />
-                        </button>
+                        <>
+                            <div className="mr-2">
+                                <WeekFluxLogo size="md" showText={false} layoutId="brandmark" />
+                            </div>
+                            <button
+                                onClick={onToggleSidebar}
+                                className="btn-icon"
+                                title={t.header.openSidebar}
+                            >
+                                <PanelLeft size={20} />
+                            </button>
+                        </>
                     )}
 
                     {/* Date Range */}

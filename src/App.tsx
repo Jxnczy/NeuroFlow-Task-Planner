@@ -43,6 +43,7 @@ import { useEntryRouting } from './hooks/useEntryRouting';
 import { TaskDetailView } from './components/tasks/TaskDetailView';
 import { GlobalFocusBar } from './components/features/dashboard/GlobalFocusBar';
 import { EncryptionOnboardingModal } from './components/features/dashboard/EncryptionOnboardingModal';
+import { BootOverlay } from './app/boot/BootOverlay';
 
 // Lazy load components
 const AnalyticsDashboard = React.lazy(() => import('./components/features/dashboard/AnalyticsDashboard').then(module => ({ default: module.AnalyticsDashboard })));
@@ -391,17 +392,7 @@ const AppContent = ({
 
     // --- App Loader Cleanup ---
     // --- App Loader Cleanup ---
-    useEffect(() => {
-        // Skip splash delay for returning logged-in users OR if explicitly skipped (e.g. from AuthOverlay)
-        if (userId || skipSplash) {
-            document.body.classList.add('loaded');
-            return;
-        }
-        const timer = setTimeout(() => {
-            document.body.classList.add('loaded');
-        }, 2500); // Show splash for 2.5s for smooth transition (new users only)
-        return () => clearTimeout(timer);
-    }, [userId, skipSplash]);
+
 
     // --- Handlers ---
     const handleWeekChange = (direction: 'prev' | 'next') => {
@@ -1318,128 +1309,157 @@ const App = () => {
     }, [encryption]);
 
     // --- RENDER BASED ON ROUTE ---
-    // First, prioritize sync/loading states if we are in a state that requires blocking
-    if (useSupabaseSync && encryption.isSyncing && !loadingTimedOut) {
-        return <LoadingScreen message="Checking vault status..." />;
-    }
 
-    if (isDataLoading && !loadingTimedOut) {
-        return <LoadingScreen message="Loading your workspace from Supabase..." />;
-    }
+    // Determine readiness
+    // The app is "ready" when we know where to go (route is not loading) 
+    // AND if we are syncing, we aren't stuck in a blocking sync state (unless timed out)
+    const isBlockingSync = useSupabaseSync && encryption.isSyncing && !loadingTimedOut;
+    const isAppLoading = isDataLoading && !loadingTimedOut;
+
+    const isReady = currentRoute !== 'loading' && !isBlockingSync && !isAppLoading && !dataError;
+
+    // Content Selection
+    let content: React.ReactNode = null;
 
     if (dataError) {
-        return <LoadingScreen message={dataError} />;
-    }
-
-    switch (currentRoute) {
-        case 'loading':
-            return <LoadingScreen message="Checking session..." />;
-
-        case 'feature-overview':
-            return (
-                <AuthOverlay
-                    isLoading={false}
-                    authError={null}
-                    onMagicLink={(email) => signInWithEmail(email)}
-                    onSignInWithPassword={(email, password) => signInWithPassword(email, password)}
-                    onSignUpWithPassword={async (email, password) => {
-                        console.log('App proxy (intro): calling signUpWithPassword');
-                        const res = await signUpWithPassword(email, password);
-                        console.log('App proxy (intro): result', res);
-                        return res;
-                    }}
-                    onOAuth={(provider) => signInWithOAuth(provider)}
-                    onCancel={() => {
-                        markFeatureOverviewSeen();
-                        setUseSupabaseSync(false);
-                        setIsDataLoading(false); // Force stop loading
-                        storage.saveSyncPreference(false);
-                    }}
-                    showFeatureOverview={true}
-                    magicLinkSent={false}
-                />
-            );
-
-        case 'login':
-            return (
-                <AuthOverlay
-                    isLoading={isDataLoading || !isAuthReady}
-                    authError={authError || dataError}
-                    onMagicLink={(email) => signInWithEmail(email)}
-                    onSignInWithPassword={(email, password) => signInWithPassword(email, password)}
-                    onSignUpWithPassword={async (email, password) => {
-                        console.log('App proxy: calling signUpWithPassword');
-                        const res = await signUpWithPassword(email, password);
-                        console.log('App proxy: result', res);
-                        return res;
-                    }}
-                    onOAuth={(provider) => signInWithOAuth(provider)}
-                    onCancel={() => {
-                        setUseSupabaseSync(false);
-                        setIsDataLoading(false); // Force stop loading
-                        storage.saveSyncPreference(false);
-                    }}
-                    magicLinkSent={magicLinkSent}
-                    showFeatureOverview={false}
-                />
-            );
-
-        case 'unlock':
-            return (
-                <VaultUnlockScreen
-                    isVaultSetup={encryption.isVaultSetup && !showRestorePrompt}
-                    isRestoreMode={showRestorePrompt}
-                    isLoading={encryption.isLoading}
-                    error={encryption.error}
-                    onSetup={async (pass) => {
-                        if (showRestorePrompt) {
-                            const success = await handleRestoreVault(pass);
-                            if (success) {
-                                setShowRestorePrompt(false);
-                                window.location.reload();
-                            }
-                            return success;
-                        }
-                        return encryption.setupVault(pass);
-                    }}
-                    onUnlock={encryption.unlock}
-                    onReset={handleResetVault}
-                />
-            );
-
-        case 'app':
-            const safeSupabaseEnabled = (encryption.isVaultSetup && !encryption.isUnlocked) ? false : (useSupabaseSync && !!user);
-
-            return (
-                <TaskProvider initialTasks={initialTasksState} userId={user?.id} supabaseEnabled={safeSupabaseEnabled}>
-                    <AppContent
-                        userId={user?.id}
-                        initialHabitsState={initialHabitsState}
-                        initialBrainDump={initialBrainDumpState}
-                        initialStatsResetAt={statsResetAt}
-                        onDataImported={handleDataImported}
-                        onDeleteAllTasks={async () => {
-                            if (user && useSupabaseSync) {
-                                await SupabaseDataService.replaceTasks(user.id, []);
-                                await SupabaseDataService.replaceHabits(user.id, []);
-                                await SupabaseDataService.replaceNotes(user.id, []);
-                            }
-                            storage.save({ tasks: [], habits: [], brainDumpLists: [] });
+        content = <LoadingScreen message={dataError} />;
+    } else if (isBlockingSync) {
+        // Technically still loading, BootOverlay handles visual
+        content = null;
+    } else if (isAppLoading) {
+        content = null;
+    } else {
+        switch (currentRoute) {
+            case 'loading':
+                content = null;
+                break;
+            case 'feature-overview':
+                content = (
+                    <AuthOverlay
+                        isLoading={false}
+                        authError={null}
+                        onMagicLink={(email) => signInWithEmail(email)}
+                        onSignInWithPassword={(email, password) => signInWithPassword(email, password)}
+                        onSignUpWithPassword={async (email, password) => {
+                            console.log('App proxy (intro): calling signUpWithPassword');
+                            const res = await signUpWithPassword(email, password);
+                            console.log('App proxy (intro): result', res);
+                            return res;
                         }}
-                        supabaseEnabled={safeSupabaseEnabled}
-                        onToggleSupabaseSync={handleToggleSupabaseSync}
-                        isReturningUser={isReturningUser}
-                        onOnboardingComplete={handleOnboardingComplete}
-                        onLogout={handleLogout}
-                        onEnableEncryption={handleEnableEncryption}
-                        onDisableEncryption={handleDisableEncryption}
+                        onOAuth={(provider) => signInWithOAuth(provider)}
+                        onCancel={() => {
+                            markFeatureOverviewSeen();
+                            setUseSupabaseSync(false);
+                            setIsDataLoading(false);
+                            storage.saveSyncPreference(false);
+                        }}
+                        showFeatureOverview={true}
+                        magicLinkSent={false}
                     />
-                </TaskProvider>
-            );
-        default:
-            return <LoadingScreen message="Initializing..." />;
+                );
+                break;
+            case 'login':
+                content = (
+                    <AuthOverlay
+                        isLoading={isDataLoading || !isAuthReady}
+                        authError={authError || dataError}
+                        onMagicLink={(email) => signInWithEmail(email)}
+                        onSignInWithPassword={(email, password) => signInWithPassword(email, password)}
+                        onSignUpWithPassword={async (email, password) => {
+                            console.log('App proxy: calling signUpWithPassword');
+                            const res = await signUpWithPassword(email, password);
+                            console.log('App proxy: result', res);
+                            return res;
+                        }}
+                        onOAuth={(provider) => signInWithOAuth(provider)}
+                        onCancel={() => {
+                            setUseSupabaseSync(false);
+                            setIsDataLoading(false);
+                            storage.saveSyncPreference(false);
+                        }}
+                        magicLinkSent={magicLinkSent}
+                        showFeatureOverview={false}
+                    />
+                );
+                break;
+            case 'unlock':
+                content = (
+                    <VaultUnlockScreen
+                        isVaultSetup={encryption.isVaultSetup && !showRestorePrompt}
+                        isRestoreMode={showRestorePrompt}
+                        isLoading={encryption.isLoading}
+                        error={encryption.error}
+                        onSetup={async (pass) => {
+                            if (showRestorePrompt) {
+                                const success = await handleRestoreVault(pass);
+                                if (success) {
+                                    setShowRestorePrompt(false);
+                                    window.location.reload();
+                                }
+                                return success;
+                            }
+                            return encryption.setupVault(pass);
+                        }}
+                        onUnlock={encryption.unlock}
+                        onReset={handleResetVault}
+                    />
+                );
+                break;
+            case 'app':
+                const safeSupabaseEnabled = (encryption.isVaultSetup && !encryption.isUnlocked) ? false : (useSupabaseSync && !!user);
+                content = (
+                    <TaskProvider initialTasks={initialTasksState} userId={user?.id} supabaseEnabled={safeSupabaseEnabled}>
+                        <AppContent
+                            userId={user?.id}
+                            initialHabitsState={initialHabitsState}
+                            initialBrainDump={initialBrainDumpState}
+                            initialStatsResetAt={statsResetAt}
+                            onDataImported={handleDataImported}
+                            onDeleteAllTasks={async () => {
+                                if (user && useSupabaseSync) {
+                                    await SupabaseDataService.replaceTasks(user.id, []);
+                                    await SupabaseDataService.replaceHabits(user.id, []);
+                                    await SupabaseDataService.replaceNotes(user.id, []);
+                                }
+                                storage.save({ tasks: [], habits: [], brainDumpLists: [] });
+                            }}
+                            supabaseEnabled={safeSupabaseEnabled}
+                            onToggleSupabaseSync={handleToggleSupabaseSync}
+                            isReturningUser={isReturningUser}
+                            onOnboardingComplete={handleOnboardingComplete}
+                            onLogout={handleLogout}
+                            onEnableEncryption={handleEnableEncryption}
+                            onDisableEncryption={handleDisableEncryption}
+                        />
+                    </TaskProvider>
+                );
+                break;
+            default:
+                content = null;
+        }
     }
 
+    // --- MAIN RENDER ---
+    return (
+        <>
+            <BootOverlay isAppReady={isReady} />
+
+            {/* Main App content - renders behind overlay and fades in */}
+            <motion.div
+                className="h-full w-full"
+                animate={{ opacity: isReady ? 1 : 0 }}
+                transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }} // Primary easing
+                style={{
+                    // Prevent interaction when not ready
+                    pointerEvents: isReady ? 'auto' : 'none',
+                    // Force hardware acceleration
+                    willChange: 'opacity'
+                }}
+            >
+                {content}
+            </motion.div>
+        </>
+    );
 };
 
 export default App;

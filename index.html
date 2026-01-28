@@ -44,7 +44,7 @@
         html,
         body {
             background-color: var(--bg-primary);
-            color: var(--text-primary);
+            /* Default to dark to be safe */
             margin: 0;
             padding: 0;
             height: 100%;
@@ -56,213 +56,39 @@
         #root {
             height: 100%;
             width: 100%;
-            opacity: 0;
-            transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        /* NeuroFlow Loader Styles */
-        #app-loader {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background-color: #12141a;
-            z-index: 9999;
-            transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1), visibility 1.5s;
-        }
-
-        /* 
-        #app-loader::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(circle at top left, rgba(14, 165, 233, 0.4), transparent 40%);
-        }
-
-        #app-loader::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(circle at bottom right, rgba(34, 211, 238, 0.3), transparent 35%);
-        } 
-        */
-
-        .loader-content {
-            position: relative;
-            z-index: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 24px;
-        }
-
-        .logo-icon-wrapper {
-            position: relative;
-        }
-
-        .logo-glow {
-            position: absolute;
-            inset: -20px;
-            background: rgba(6, 182, 212, 0.3);
-            border-radius: 24px;
-            filter: blur(30px);
-            animation: pulse-glow 2s ease-in-out infinite;
-        }
-
-        .logo-icon {
-            position: relative;
-            padding: 20px;
-            border-radius: 24px;
-            background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(59, 130, 246, 0.2));
-            border: 1px solid rgba(34, 211, 238, 0.3);
-            backdrop-filter: blur(20px);
-        }
-
-        .check-icon {
-            color: #22d3ee;
-        }
-
-        .brand-text {
-            text-align: center;
-        }
-
-        .neuro-text {
-            font-size: 3rem;
-            font-weight: 800;
-            letter-spacing: -0.02em;
-            margin: 0;
-            font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
-        }
-
-        .gradient-text {
-            background: linear-gradient(90deg, #22d3ee, #60a5fa, #22d3ee);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .white-text {
-            color: #ffffff;
-        }
-
-        .tagline {
-            margin: 8px 0 0 0;
-            font-size: 0.875rem;
-            color: rgba(255, 255, 255, 0.5);
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-        }
-
-        .loading-dots {
-            display: flex;
-            gap: 6px;
-            margin-top: 16px;
-        }
-
-        .dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: rgba(34, 211, 238, 0.6);
-            animation: dot-pulse 1s ease-in-out infinite;
-        }
-
-        .dot:nth-child(2) {
-            animation-delay: 0.15s;
-        }
-
-        .dot:nth-child(3) {
-            animation-delay: 0.3s;
-        }
-
-        @keyframes pulse-glow {
-
-            0%,
-            100% {
-                opacity: 0.3;
-                transform: scale(1);
-            }
-
-            50% {
-                opacity: 0.6;
-                transform: scale(1.2);
-            }
-        }
-
-        @keyframes dot-pulse {
-
-            0%,
-            100% {
-                opacity: 0.3;
-            }
-
-            50% {
-                opacity: 1;
-            }
-        }
-
-        .loaded #app-loader {
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1), visibility 1.5s;
-        }
-
-        .loaded #root {
-            opacity: 1;
-            transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1) 0.2s;
-        }
-
-        /* Entrance animation for loader content */
-        .loader-content {
-            animation: loader-entrance 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        }
-
-        @keyframes loader-entrance {
-            0% {
-                opacity: 0;
-                transform: scale(0.95) translateY(10px);
-            }
-
-            100% {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
+            /* App handles its own fade-in via BootOverlay */
         }
     </style>
+    <script>
+        // Immediate theme restoration to prevent flash
+        (function () {
+            try {
+                var saved = localStorage.getItem('neuroflow_theme');
+                // Default to 'northern_lights' (dark) if nothing saved, or respect saved
+                // We assume 'northern_lights' corresponds to the dark background #12141a
+                var themeId = saved || 'northern_lights';
+
+                // Set data-theme immediately if your app uses it, or just set background
+                // Reading specific theme tokens would be ideal if they are simple, 
+                // but for now we ensure the background matches the most common themes.
+
+                // If it's a light theme, we might want to switch background to white immediately
+                // This is a naive check, adjust based on your actual theme IDs
+                var isLight = themeId === 'day_light' || themeId === 'light';
+
+                if (isLight) {
+                    document.documentElement.style.setProperty('--bg-primary', '#ffffff');
+                } else {
+                    document.documentElement.style.setProperty('--bg-primary', '#12141a');
+                }
+            } catch (e) {
+                // Fail safe to dark
+            }
+        })();
+    </script>
 </head>
 
 <body class="no-scrollbar">
-    <div id="app-loader">
-        <div class="loader-content">
-            <!-- Logo Icon with Glow -->
-            <div class="logo-icon-wrapper">
-                <div class="logo-glow"></div>
-                <div class="logo-icon">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
-                        stroke-linecap="round" stroke-linejoin="round" class="check-icon">
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                        <polyline points="22 4 12 14.01 9 11.01" />
-                    </svg>
-                </div>
-            </div>
-            <!-- Brand Name -->
-            <div class="brand-text">
-                <h1 class="neuro-text"><span class="gradient-text">Week</span><span class="white-text">Flux</span></h1>
-
-            </div>
-            <!-- Loading dots -->
-            <div class="loading-dots">
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
-            </div>
-        </div>
-    </div>
     <div id="root" class="no-scrollbar"></div>
     <script>
         // Global error handler for chunk load failures (common after deployments)

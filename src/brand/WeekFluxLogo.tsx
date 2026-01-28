@@ -9,6 +9,7 @@ interface WeekFluxLogoProps {
     size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '4xl' | '5xl';
     iconClassName?: string;
     layout?: 'horizontal' | 'vertical';
+    layoutId?: string;
 }
 
 export const WeekFluxLogo: React.FC<WeekFluxLogoProps> = ({
@@ -18,6 +19,7 @@ export const WeekFluxLogo: React.FC<WeekFluxLogoProps> = ({
     size = '4xl',
     iconClassName = '',
     layout = 'horizontal',
+    layoutId
 }) => {
     const sizeClasses = {
         sm: 'text-lg',
@@ -44,7 +46,10 @@ export const WeekFluxLogo: React.FC<WeekFluxLogoProps> = ({
     return (
         <div className={`flex ${flexDirection} items-center gap-3 ${className}`}>
             {showIcon && (
-                <div className={`relative ${iconClassName}`}>
+                <motion.div
+                    className={`relative ${iconClassName}`}
+                    layoutId={layoutId}
+                >
                     {/* Glow Effect */}
                     <div className="absolute inset-0 rounded-full bg-cyan-500/20 blur-md scale-110" />
                     <CheckCircle
@@ -52,7 +57,7 @@ export const WeekFluxLogo: React.FC<WeekFluxLogoProps> = ({
                         size={iconSizes[size]}
                         strokeWidth={1.5}
                     />
-                </div>
+                </motion.div>
             )}
 
             {showText && (

@@ -30,7 +30,7 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
                 className="hover:opacity-80 transition-opacity cursor-pointer"
                 title={t.header.planner}
             >
-                <WeekFluxLogo size="lg" showIcon={true} />
+                <WeekFluxLogo size="lg" showIcon={true} layoutId="brandmark" />
             </button>
             <div className="flex items-center gap-1">
                 {isMobile ? (
